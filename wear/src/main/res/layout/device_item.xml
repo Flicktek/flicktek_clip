@@ -57,7 +57,7 @@
 		android:layout_toEndOf="@+id/icon"
 		android:layout_below="@+id/name"
 		android:fontFamily="sans-serif-condensed-light"
-		android:textSize="14sp"/>
+		android:textSize="11sp"/>
 
 	<TextView
 		android:id="@+id/rssi"
@@ -66,6 +66,6 @@
 		android:layout_toEndOf="@+id/icon"
 		android:layout_below="@+id/state"
 		android:fontFamily="sans-serif-condensed-light"
-		android:textSize="12sp"/>
+		android:textSize="11sp"/>
 
 </RelativeLayout>

@@ -190,7 +190,7 @@ public class DevicesAdapter extends WearableListView.Adapter {
 			return mBondedText;
 		else if (device.getBondState() == BluetoothDevice.BOND_BONDING)
 			return mBondingText;
-		return mAvailableText;
+		return device.getAddress();
 	}
 
 	private Runnable mStopScanTask = new Runnable() {
