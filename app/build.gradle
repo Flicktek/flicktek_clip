@@ -5,7 +5,7 @@ android {
     buildToolsVersion '25.0.1'
 
     defaultConfig {
-        applicationId "no.nordicsemi.android.nrftoolbox"
+        applicationId "com.flicktek.android.clip"
         minSdkVersion 18
         targetSdkVersion 25
         versionCode 56

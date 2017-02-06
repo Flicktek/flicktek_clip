@@ -21,7 +21,7 @@
   -->
 
 <resources>
-	<string name="app_name">nRF Toolbox</string>
+	<string name="app_name">FlickTek Clip</string>
 	<string name="not_available">n/a</string>
 
 	<string name="devices_list_title">Bluetooth devices</string>

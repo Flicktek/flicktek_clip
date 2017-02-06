@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrftoolbox;
+package com.flicktek.android.clip;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
