@@ -26,13 +26,13 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-
-import com.google.android.gms.wearable.MessageEvent;
-import com.google.android.gms.wearable.Node;
+import android.util.Log;
 
 import com.flicktek.android.clip.R;
-import com.flicktek.android.clip.wearable.common.Constants;
 import com.flicktek.android.clip.uart.UARTConfigurationsActivity;
+import com.flicktek.android.clip.wearable.common.Constants;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Node;
 
 public class MainWearableListenerService extends com.google.android.gms.wearable.WearableListenerService {
 	public static final String TAG = "UARTWLS";
@@ -46,7 +46,7 @@ public class MainWearableListenerService extends com.google.android.gms.wearable
 	@Override
 	public void onMessageReceived(final MessageEvent messageEvent) {
 		final String message = new String(messageEvent.getData());
-
+		Log.v(TAG, "onMessageReceived " +message);
 		switch (messageEvent.getPath()) {
 			case Constants.UART.DEVICE_CONNECTED: {
 				// Disconnect action

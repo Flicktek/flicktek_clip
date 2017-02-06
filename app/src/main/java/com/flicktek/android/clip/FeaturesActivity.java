@@ -72,6 +72,7 @@ public class FeaturesActivity extends AppCompatActivity {
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(toolbar);
+		toolbar.setVisibility(View.GONE);
 
 		// ensure that Bluetooth exists
 		if (!ensureBLEExists())

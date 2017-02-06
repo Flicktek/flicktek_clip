@@ -23,47 +23,50 @@
 package com.flicktek.android.clip.wearable;
 
 import android.content.Intent;
+import android.util.Log;
 
+import com.flicktek.android.clip.uart.UARTService;
+import com.flicktek.android.clip.wearable.common.Constants;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
-
-import com.flicktek.android.clip.wearable.common.Constants;
-import com.flicktek.android.clip.uart.UARTService;
 
 /**
  * The main listener for messages from Wearable devices. There may be only one such service per application so it has to handle messages from all profiles.
  */
 public class MainWearableListenerService extends WearableListenerService {
+    private static final String TAG = "WearableListener";
 
-	@Override
-	public void onMessageReceived(final MessageEvent messageEvent) {
-		switch (messageEvent.getPath()) {
-			case Constants.ACTION_DISCONNECT: {
-				// A disconnect message was sent. The information which profile should be disconnected is in the data.
-				final String profile = new String(messageEvent.getData());
+    @Override
+    public void onMessageReceived(final MessageEvent messageEvent) {
+        final String message = new String(messageEvent.getData());
+        Log.v(TAG, "MainWearableListenerService " + message);
+        switch (messageEvent.getPath()) {
+            case Constants.ACTION_DISCONNECT: {
+                // A disconnect message was sent. The information which profile should be disconnected is in the data.
+                final String profile = new String(messageEvent.getData());
 
-				switch (profile) {
-					// Currently only UART profile has Wear support
-					case Constants.UART.PROFILE: {
-						final Intent disconnectIntent = new Intent(UARTService.ACTION_DISCONNECT);
-						disconnectIntent.putExtra(UARTService.EXTRA_SOURCE, UARTService.SOURCE_WEARABLE);
-						sendBroadcast(disconnectIntent);
-						break;
-					}
-				}
-				break;
-			}
-			case Constants.UART.COMMAND: {
-				final String command = new String(messageEvent.getData());
+                switch (profile) {
+                    // Currently only UART profile has Wear support
+                    case Constants.UART.PROFILE: {
+                        final Intent disconnectIntent = new Intent(UARTService.ACTION_DISCONNECT);
+                        disconnectIntent.putExtra(UARTService.EXTRA_SOURCE, UARTService.SOURCE_WEARABLE);
+                        sendBroadcast(disconnectIntent);
+                        break;
+                    }
+                }
+                break;
+            }
+            case Constants.UART.COMMAND: {
+                final String command = new String(messageEvent.getData());
 
-				final Intent intent = new Intent(UARTService.ACTION_SEND);
-				intent.putExtra(UARTService.EXTRA_SOURCE, UARTService.SOURCE_WEARABLE);
-				intent.putExtra(Intent.EXTRA_TEXT, command);
-				sendBroadcast(intent);
-			}
-			default:
-				super.onMessageReceived(messageEvent);
-				break;
-		}
-	}
+                final Intent intent = new Intent(UARTService.ACTION_SEND);
+                intent.putExtra(UARTService.EXTRA_SOURCE, UARTService.SOURCE_WEARABLE);
+                intent.putExtra(Intent.EXTRA_TEXT, command);
+                sendBroadcast(intent);
+            }
+            default:
+                super.onMessageReceived(messageEvent);
+                break;
+        }
+    }
 }

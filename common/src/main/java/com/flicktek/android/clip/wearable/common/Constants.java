@@ -27,7 +27,7 @@ package com.flicktek.android.clip.wearable.common;
  */
 public final class Constants {
 	/** Base path for all messages between the handheld and wearable. */
-	private static final String BASE_PATH =  "/nrftoolbox";
+	private static final String BASE_PATH =  "/flicktek";
 
 	/** Action sent from a wearable to disconnect from a device. It must have the profile name set as data. */
 	public static final String ACTION_DISCONNECT = BASE_PATH + "/disconnect";
