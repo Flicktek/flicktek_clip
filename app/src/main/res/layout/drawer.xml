@@ -36,7 +36,7 @@
 			android:background="@color/actionBarColorDark"
 			android:paddingBottom="30dp"
 			android:paddingTop="@dimen/navdrawer_padding_top"
-			android:src="@drawable/nordic_logo_horiz_dark"/>
+			android:src="@drawable/flicktek_logo_dark"/>
 
 		<LinearLayout
 			android:id="@+id/plugin_container"
