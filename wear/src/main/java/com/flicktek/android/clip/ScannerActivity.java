@@ -34,11 +34,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.view.WearableListView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.flicktek.android.clip.ble.BleProfileService;
-import com.flicktek.android.clip.uart.UARTConfigurationsActivity;
+import com.flicktek.android.clip.menus.MainActivity;
 
 public class ScannerActivity extends Activity {
 	private static final String TAG = "ScannerActivity";
@@ -48,6 +49,8 @@ public class ScannerActivity extends Activity {
 	private DevicesAdapter mDeviceAdapter;
 	private View mHeader;
 
+	private static boolean isConnected = false;
+
 	private BroadcastReceiver mServiceBroadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
@@ -56,12 +59,15 @@ public class ScannerActivity extends Activity {
 			switch (action) {
 				case BleProfileService.BROADCAST_CONNECTION_STATE: {
 					final int state = intent.getIntExtra(BleProfileService.EXTRA_CONNECTION_STATE, BleProfileService.STATE_DISCONNECTED);
-					if (state == BleProfileService.STATE_DISCONNECTED)
+					if (state == BleProfileService.STATE_DISCONNECTED) {
+						isConnected = false;
 						mDeviceAdapter.setConnectingPosition(-1);
+					}
 					break;
 				}
 				case BleProfileService.BROADCAST_DEVICE_READY: {
-					final Intent activity = new Intent(ScannerActivity.this, UARTConfigurationsActivity.class);
+					isConnected = true;
+					final Intent activity = new Intent(ScannerActivity.this, MainActivity.class); //UARTConfigurationsActivity.class
 					startActivity(activity);
 					finish();
 					break;
@@ -127,6 +133,15 @@ public class ScannerActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		Log.v(TAG, "onResume");
+
+		if (isConnected) {
+			Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+			intent.putExtra(BleProfileService.EXTRA_DEVICE_ADDRESS, "Relaunch");
+			startActivity(intent);
+			return;
+		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

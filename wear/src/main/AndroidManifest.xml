@@ -58,6 +58,9 @@
 		<activity android:name=".uart.UARTCommandsActivity"
 			android:launchMode="singleTop"/>
 
+		<activity android:name=".menus.MainActivity"
+				  android:launchMode="singleTop"/>
+
 		<!-- This receiver needs to be exported as it listens for notification broadcasts. -->
 		<receiver android:name=".wearable.ActionReceiver">
 			<intent-filter>
@@ -73,6 +76,9 @@
 				<data android:scheme="wear" android:host="*" android:pathPrefix="/flicktek" />
 			</intent-filter>
 		</service>
+
+		<uses-library android:name="com.google.android.wearable"
+					  android:required="false" />
 
 	</application>
 

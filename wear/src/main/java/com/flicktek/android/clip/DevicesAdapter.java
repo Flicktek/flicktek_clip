@@ -29,6 +29,8 @@ import android.os.Handler;
 import android.support.wearable.view.CircledImageView;
 import android.support.wearable.view.WearableListView;
 import android.text.TextUtils;
+import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +38,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanCallback;
@@ -44,6 +47,8 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
 public class DevicesAdapter extends WearableListView.Adapter {
 	private static final String TAG = "DevicesAdapter";
+
+	private static final String FlicktekDevicePrefix = "FlickTek";
 
 	private final static long SCAN_DURATION = 5000;
 
@@ -56,6 +61,9 @@ public class DevicesAdapter extends WearableListView.Adapter {
 	private final String mAvailableText;
 	private final String mBondedText;
 	private final String mBondingText;
+
+	ArrayMap<String, Integer> mRSSI = new ArrayMap<String, Integer>();
+
 	/** A position of a device that the activity is currently connecting to. */
 	private int mConnectingPosition = -1;
 	/** Flag set to true when scanner is active. */
@@ -73,7 +81,17 @@ public class DevicesAdapter extends WearableListView.Adapter {
 		mHandler = new Handler();
 
 		final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		mDevices.addAll(bluetoothAdapter.getBondedDevices());
+
+		Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
+		final int size = mDevices.size();
+		for (final BluetoothDevice device : bondedDevices) {
+			if (!mDevices.contains(device)) {
+				String name = device.getName();
+				if (name != null && name.startsWith(FlicktekDevicePrefix)) {
+					mDevices.add(device);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -92,6 +110,18 @@ public class DevicesAdapter extends WearableListView.Adapter {
 			viewHolder.mName.setText(TextUtils.isEmpty(device.getName()) ? mNotAvailable : device.getName());
 			viewHolder.mAddress.setText(getState(device, position));
 			viewHolder.mIcon.showIndeterminateProgress(position == mConnectingPosition);
+
+			if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+
+				if (mRSSI.containsKey(device.getAddress())) {
+					Integer value = mRSSI.get(device.getAddress());
+					viewHolder.mRSSI.setText("RSSI " + value.toString());
+				}
+
+			} else {
+				viewHolder.mRSSI.setVisibility(View.GONE);
+			}
+
 		} else {
 			viewHolder.mDevice = null;
 			viewHolder.mName.setText(mScanning ? R.string.devices_list_scanning : R.string.devices_list_start_scan);
@@ -181,9 +211,17 @@ public class DevicesAdapter extends WearableListView.Adapter {
 			final int size = mDevices.size();
 			for (final ScanResult result : results) {
 				final BluetoothDevice device = result.getDevice();
-				if (!mDevices.contains(device))
-					mDevices.add(device);
+				String name = device.getName();
+				Log.v(TAG, "Found device " + name + " " + device.getAddress() + " RSSI "+ result.getRssi());
+				if (name != null && name.startsWith(FlicktekDevicePrefix)) {
+					if (!mDevices.contains(device)) {
+						Log.v(TAG, "Found FlickTek " + name + " " + result.getRssi());
+						mDevices.add(device);
+					}
+					mRSSI.put(device.getAddress(), result.getRssi());
+				}
 			}
+
 			if (size != mDevices.size()) {
 				notifyItemRangeInserted(size, mDevices.size() - size);
 				if (size == 0)
@@ -201,6 +239,7 @@ public class DevicesAdapter extends WearableListView.Adapter {
 		private CircledImageView mIcon;
 		private TextView mName;
 		private TextView mAddress;
+		private TextView mRSSI;
 		private BluetoothDevice mDevice;
 
 		public ItemViewHolder(final View itemView) {
@@ -209,9 +248,12 @@ public class DevicesAdapter extends WearableListView.Adapter {
 			mIcon = (CircledImageView) itemView.findViewById(R.id.icon);
 			mName = (TextView) itemView.findViewById(R.id.name);
 			mAddress = (TextView) itemView.findViewById(R.id.state);
+			mRSSI = (TextView) itemView.findViewById(R.id.rssi);
 		}
 
-		/** Returns the Bluetooth device for that holder, or null for "Scanning for nearby devices" row. */
+		/**
+		 * Returns the Bluetooth device for that holder, or null for "Scanning for nearby devices" row.
+		 */
 		public BluetoothDevice getDevice() {
 			return mDevice;
 		}

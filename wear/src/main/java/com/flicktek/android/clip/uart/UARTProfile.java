@@ -25,14 +25,17 @@ package com.flicktek.android.clip.uart;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-
-import java.util.Deque;
-import java.util.UUID;
 
 import com.flicktek.android.clip.ble.BleManager;
 import com.flicktek.android.clip.ble.BleProfile;
 import com.flicktek.android.clip.ble.BleProfileApi;
+
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.UUID;
 
 public class UARTProfile extends BleProfile {
 	/** Broadcast sent when a UART message is received. */
@@ -79,10 +82,9 @@ public class UARTProfile extends BleProfile {
 			mRXCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
 
 		// We don't want to enable notifications on TX characteristic as we are not showing them here. A watch may be just used to send data. At least now.
-//		final LinkedList<BleProfileApi.Request> requests = new LinkedList<>();
-//		requests.add(BleProfileApi.Request.newEnableNotificationsRequest(mTXCharacteristic));
-//		return requests;
-		return null;
+		final LinkedList<BleProfileApi.Request> requests = new LinkedList<>();
+		requests.add(BleProfileApi.Request.newEnableNotificationsRequest(mTXCharacteristic));
+		return requests;
 	}
 
 	@Override
@@ -94,9 +96,9 @@ public class UARTProfile extends BleProfile {
 	@Override
 	protected void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
 		// This method will not be called as notifications were not enabled in initGatt(..).
-//		final Intent intent = new Intent(BROADCAST_DATA_RECEIVED);
-//		intent.putExtra(EXTRA_DATA, characteristic.getStringValue(0));
-//		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+		final Intent intent = new Intent(BROADCAST_DATA_RECEIVED);
+		intent.putExtra(EXTRA_DATA, characteristic.getStringValue(0));
+		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
 	}
 
 	@Override

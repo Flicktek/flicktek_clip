@@ -24,5 +24,6 @@ dependencies {
     compile 'com.google.android.support:wearable:1.4.0'
     compile 'com.google.android.gms:play-services-wearable:9.2.0'
     compile 'no.nordicsemi.android.support.v18:scanner:1.0.0'
+    provided 'com.google.android.wearable:wearable:1.0.0'
     compile project(':common')
 }
