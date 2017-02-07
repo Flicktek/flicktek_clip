@@ -87,6 +87,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     private AlarmManager mAmbientStateAlarmManager;
     private PendingIntent mAmbientStatePendingIntent;
 
+    private BleProfileService.LocalBinder mBleProfileServiceBinder;
+
     private void setActivityFlags() {
         final Window windows = getWindow();
         windows.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
@@ -129,13 +131,16 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(final ComponentName name, final IBinder service) {
-            final BleProfileService.LocalBinder binder = (BleProfileService.LocalBinder) service;
-            mProfile = (UARTProfile) binder.getProfile();
+            mBleProfileServiceBinder = (BleProfileService.LocalBinder) service;
+            mProfile = (UARTProfile) mBleProfileServiceBinder.getProfile();
         }
 
         @Override
         public void onServiceDisconnected(final ComponentName name) {
+            mBleProfileServiceBinder = null;
             mProfile = null;
+            FlicktekManager.onDisconnected();
+            finish();
         }
     };
 
@@ -511,5 +516,10 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public void shutdown() {
+        FlicktekManager.onDisconnected();
+        mBleProfileServiceBinder.disconnect();
     }
 }

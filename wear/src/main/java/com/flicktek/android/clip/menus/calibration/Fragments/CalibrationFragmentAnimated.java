@@ -408,9 +408,7 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
                 try {
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
-
                     transaction.setCustomAnimations(R.animator.fade_in_left, R.animator.fade_out_left);
-
                     transaction.replace(R.id.container, _fragment);
                     transaction.commit();
                 } catch (Exception e) {
@@ -453,6 +451,7 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
                 return;
             case FlicktekCommands.GESTURE_STATUS_OKCALIBRATION:
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_OKCALIBRATION");
+                bFinishedCalibration = true;
                 close();
                 return;
         }

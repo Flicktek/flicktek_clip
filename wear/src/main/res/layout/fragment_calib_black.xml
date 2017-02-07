@@ -5,12 +5,19 @@
                 android:background="@drawable/bg_dark"
                 android:orientation="vertical">
 
+    <android.support.wearable.view.BoxInsetLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
     <RelativeLayout
         android:id="@+id/media_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        app:layout_box="bottom"
         >
 
         <ImageView
@@ -63,6 +70,7 @@
             android:backgroundTint="@color/white"/>
 
     </RelativeLayout>
+    </android.support.wearable.view.BoxInsetLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"

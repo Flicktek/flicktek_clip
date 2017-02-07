@@ -160,7 +160,7 @@ public class AppModel {
                 } else if (target.compareTo("fragment_class") == 0) {
                     mainActivity.newFragment(this);
                 } else if (target.compareTo("close") == 0) {
-                    mainActivity.finish();
+                    mainActivity.shutdown();
                 } else {
                     mainActivity.showToastMessage("Don't have a valid target " + target);
                 }
