@@ -375,6 +375,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     /**
      * Creates a fragment by looking at the class on file
+     *
      * @param appModel
      */
     public void newFragment(AppModel appModel) {
@@ -459,4 +460,12 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         battery_image.setImageResource(res);
     }
 
+    public void showToastMessage(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 }

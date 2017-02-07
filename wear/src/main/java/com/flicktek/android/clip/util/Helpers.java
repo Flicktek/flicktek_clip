@@ -25,10 +25,14 @@ public class Helpers {
 
     @Nullable
     public static JSONObject getJsonFromResources(MainActivity main, String json_resource_name) {
-        Resources res= main.getApplicationContext().getResources();
+        Resources res = main.getApplicationContext().getResources();
         int resource = res.getIdentifier(json_resource_name, "raw",
                 main.getPackageName());
 
+        if (resource == 0) {
+            main.showToastMessage("Missing resource " + json_resource_name);
+            return null;
+        }
         InputStream is = res.openRawResource(resource);
 
         Writer writer = new StringWriter();
@@ -65,8 +69,8 @@ public class Helpers {
 
     @Nullable
     public static Drawable getDrawableFromResources(MainActivity main,
-                                                      String drawable_name,
-                                                      JSONObject config) {
+                                                    String drawable_name,
+                                                    JSONObject config) {
 
         // You can specify a package, by default if there is no package we assume it is
         // an internal resource.

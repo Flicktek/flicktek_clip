@@ -84,6 +84,11 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
 
         Typeface mainFont = Typeface.createFromAsset(mainActivity.getAssets(), getString(R.string.main_font));
 
+        if (config == null) {
+            mainActivity.showToastMessage("Missing configuration");
+            return rootView;
+        }
+
         try {
             try {
                 String activity_name = config.getString("activity");
