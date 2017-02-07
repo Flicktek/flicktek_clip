@@ -37,8 +37,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.view.DotsPageIndicator;
 import android.support.wearable.view.GridViewPager;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -56,7 +54,6 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import com.flicktek.android.clip.R;
-import com.flicktek.android.clip.ble.BleProfile;
 import com.flicktek.android.clip.ble.BleProfileService;
 import com.flicktek.android.clip.wearable.common.Constants;
 import com.flicktek.android.clip.uart.domain.Command;

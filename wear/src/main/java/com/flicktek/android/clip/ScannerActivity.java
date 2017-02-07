@@ -49,8 +49,6 @@ public class ScannerActivity extends Activity {
 	private DevicesAdapter mDeviceAdapter;
 	private View mHeader;
 
-	private static boolean isConnected = false;
-
 	private BroadcastReceiver mServiceBroadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
@@ -60,13 +58,11 @@ public class ScannerActivity extends Activity {
 				case BleProfileService.BROADCAST_CONNECTION_STATE: {
 					final int state = intent.getIntExtra(BleProfileService.EXTRA_CONNECTION_STATE, BleProfileService.STATE_DISCONNECTED);
 					if (state == BleProfileService.STATE_DISCONNECTED) {
-						isConnected = false;
 						mDeviceAdapter.setConnectingPosition(-1);
 					}
 					break;
 				}
 				case BleProfileService.BROADCAST_DEVICE_READY: {
-					isConnected = true;
 					final Intent activity = new Intent(ScannerActivity.this, MainActivity.class); //UARTConfigurationsActivity.class
 					startActivity(activity);
 					finish();
@@ -136,7 +132,7 @@ public class ScannerActivity extends Activity {
 
 		Log.v(TAG, "onResume");
 
-		if (isConnected) {
+		if (Aria.isConnected()) {
 			Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 			intent.putExtra(BleProfileService.EXTRA_DEVICE_ADDRESS, "Relaunch");
 			startActivity(intent);

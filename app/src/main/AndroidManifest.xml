@@ -121,7 +121,7 @@
 		<service
 			android:name="com.flicktek.android.clip.uart.UARTService"
 			android:label="@string/uart_feature_title" />
-		<service android:name=".wearable.MainWearableListenerService">
+		<service android:name="com.flicktek.android.clip.wearable.MainWearableListenerService">
 			<intent-filter>
 				<action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
 				<action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />

@@ -35,6 +35,8 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.Aria;
+
 public class BleProfileService extends Service implements BleManagerCallbacks {
 	@SuppressWarnings("unused")
 	private static final String TAG = "BleProfileService";
@@ -270,6 +272,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_CONNECTING);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		Aria.onConnecting();
 	}
 
 	@Override
@@ -281,6 +284,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		Aria.onConnected();
 	}
 
 	@Override
@@ -290,6 +294,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_DISCONNECTING);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		Aria.onDisconnecting();
 	}
 
 	@Override
@@ -301,6 +306,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
 
 		stopSelf();
+		Aria.onDisconnected();
 	}
 
 	@Override
@@ -318,6 +324,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
 		final Intent broadcast = new Intent(BROADCAST_DEVICE_READY);
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		Aria.onDeviceReady();
 	}
 
 	@Override

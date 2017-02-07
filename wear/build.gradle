@@ -26,4 +26,6 @@ dependencies {
     compile 'no.nordicsemi.android.support.v18:scanner:1.0.0'
     provided 'com.google.android.wearable:wearable:1.0.0'
     compile project(':common')
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile project(path: ':eventbus')
 }

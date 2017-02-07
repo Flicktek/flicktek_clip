@@ -45,8 +45,12 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.Aria;
 import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.ble.BleProfileService;
 import com.flicktek.android.clip.uart.UARTCommandsAdapter;
@@ -66,6 +70,9 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class MainActivity extends WearableActivity implements UARTCommandsAdapter.OnCommandSelectedListener, GoogleApiClient.ConnectionCallbacks,
         DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
@@ -354,6 +361,92 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 }
             }
         });
+    }
+
+    /**
+     * Creates a fragment by looking at the class on file
+     * @param appModel
+     */
+    public void newFragment(AppModel appModel) {
+        String packageName = getPackageName();
+        String classFragment = appModel.getFragmentClass();
+        String className = packageName + "." + classFragment;
+
+        Fragment myFragment = null;
+
+        // Build Fragment from class name
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(className);
+            Constructor<?> ctor = null;
+            ctor = clazz.getConstructor();
+            Object object = ctor.newInstance();
+            myFragment = (Fragment) object;
+        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
+                IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        showFragment(myFragment, false);
+    }
+
+    /**
+     * Creates a fragment of Media type and gets the data from the AppModel to generate the
+     * controller
+     *
+     * @param appModel
+     */
+    public void newMediaFragment(AppModel appModel) {
+        MediaFragment mediaFragment = MediaFragment.newInstance(appModel.getConfiguration().toString());
+        showFragment(mediaFragment, false);
+    }
+
+    /**
+     * Battery display and levels
+     * Store the old battery levels so we don't update in case we already did
+     */
+
+    static int old_battery = 0;
+    static LinearLayout old_battery_layout = null;
+
+    public void updateBattery(LinearLayout battery_layout, TextView battery_text, ImageView battery_image) {
+        int battery_level = Aria.getBatteryLevel();
+
+        if (battery_level == 0)
+            return;
+
+        // If we are in a different menu we have to populate the values
+        if (old_battery_layout != battery_layout)
+            old_battery = 0;
+
+        if (battery_level == old_battery)
+            return;
+
+        old_battery = battery_level;
+        old_battery_layout = battery_layout;
+
+        battery_text.setText(battery_level + "%");
+        battery_layout.setVisibility(View.VISIBLE);
+
+        int res;
+
+        if (battery_level < 5)
+            res = R.drawable.ic_batt_empty;
+        else if (battery_level < 15)
+            res = R.drawable.ic_batt_1;
+        else if (battery_level < 30)
+            res = R.drawable.ic_batt_2;
+        else if (battery_level < 50)
+            res = R.drawable.ic_batt_3;
+        else if (battery_level < 75)
+            res = R.drawable.ic_batt_4;
+        else if (battery_level < 90)
+            res = R.drawable.ic_batt_5;
+        else
+            res = R.drawable.ic_batt_full;
+
+        battery_image.setImageResource(res);
     }
 
 }

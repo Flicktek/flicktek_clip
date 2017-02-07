@@ -42,7 +42,6 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
-import no.nordicsemi.android.log.ILogSession;
 import no.nordicsemi.android.log.Logger;
 import com.flicktek.android.clip.FeaturesActivity;
 import com.flicktek.android.clip.R;
