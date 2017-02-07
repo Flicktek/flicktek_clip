@@ -2,6 +2,8 @@ package com.flicktek.android.clip;
 
 import android.util.Log;
 
+import com.flicktek.android.clip.menus.MainActivity;
+
 public class Aria {
     private static final String TAG = "FlickTek";
 
@@ -85,7 +87,13 @@ public class Aria {
         sendSmartPhoneMessage(getGestureString(gesture), GESTURE_INTENT);
     }
 
-    public static void backMenu() {
+    public static void backMenu(MainActivity mainActivity) {
+        if (mainActivity == null) {
+            return;
+        }
+
+        mainActivity.showToastMessage("Back");
+        mainActivity.backFragment();
     }
 
     //------------- BATTERY LEVELS -------------------------

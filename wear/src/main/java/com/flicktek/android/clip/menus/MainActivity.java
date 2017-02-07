@@ -346,24 +346,39 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         }).start();
     }
 
-    public void showFragment(final Fragment _fragment, final boolean _isSameView) {
+    public void backFragment() {
+        Log.d(TAG, "showFragment");
+        runOnUiThread(new Runnable() {
+
+            public void run() {
+                FragmentManager fragmentManager = getFragmentManager();
+                if (fragmentManager.getBackStackEntryCount() > 1){
+                    fragmentManager.popBackStackImmediate();
+                    fragmentManager.beginTransaction().commit();
+                } else {
+                    finish(); // Closes app
+                }
+            }
+        });
+    }
+
+    public void showFragment(final Fragment _fragment, final boolean isNewView) {
         Log.d(TAG, "showFragment");
         runOnUiThread(new Runnable() {
 
             public void run() {
                 try {
                     FragmentManager fragmentManager = getFragmentManager();
-                    //fragmentManager.popBackStackImmediate();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-                    if (_isSameView == false) {
-                        transaction.setCustomAnimations(R.animator.fade_in_left, R.animator.fade_out_right);
-                        //transaction.setCustomAnimations(R.animator.fade_in_right, R.animator.fade_out_left);
+                    if (isNewView == false) {
+                        transaction.setCustomAnimations(R.animator.fade_in_right, R.animator.fade_out_left,
+                                R.animator.fade_in_left, R.animator.fade_out_right);
                     } else {
                         transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
                     }
 
-                    transaction.replace(R.id.container, _fragment);
+                    transaction.replace(R.id.container, _fragment).addToBackStack("FragmentB");
                     transaction.commit();
                 } catch (Exception e) {
                     e.printStackTrace();

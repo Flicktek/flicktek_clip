@@ -213,7 +213,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
                                 }
                             });
                 } else {
-                    Aria.backMenu();
+                    Aria.backMenu(mainActivity);
                 }
                 exit_pressed = true;
                 return;

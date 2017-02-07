@@ -84,6 +84,12 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
 
         Typeface mainFont = Typeface.createFromAsset(mainActivity.getAssets(), getString(R.string.main_font));
 
+        bClose = (Button) rootView.findViewById(R.id.b_media_close);
+        bClose.setTypeface(mainFont);
+        bClose.setOnClickListener(this);
+
+        bClose.setVisibility(View.VISIBLE);
+
         if (config == null) {
             mainActivity.showToastMessage("Missing configuration");
             return rootView;
@@ -107,12 +113,6 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
 
             }
             tvTitle.setText(title);
-
-            bClose = (Button) rootView.findViewById(R.id.b_media_close);
-            bClose.setTypeface(mainFont);
-            bClose.setOnClickListener(this);
-
-            bClose.setVisibility(View.VISIBLE);
 
             tv_control = (TextView) rootView.findViewById(R.id.tv_control);
             tv_control.setTypeface(mainFont);
@@ -285,7 +285,7 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     }
 
     public void close() {
-        Aria.backMenu();
+        Aria.backMenu(mainActivity);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
