@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.MainActivity;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +26,7 @@ public class AppModel {
     private boolean isSelected;
     private JSONObject json;
     private int viewId;
+    public boolean isHeader;
 
     public AppModel(String _name, String _packageName, Drawable _icon, int _viewId) {
         this.name = _name;
@@ -50,6 +53,18 @@ public class AppModel {
 
     public void setConfiguration(JSONObject jsonObj) {
         json = jsonObj;
+        if (json == null)
+            return;
+
+        try {
+            isHeader = json.getBoolean("header");
+        } catch (JSONException e) {
+        }
+
+        try {
+            this.name = json.getString("text");
+        } catch (JSONException e) {
+        }
     }
 
     public JSONObject getConfiguration() {
@@ -119,13 +134,18 @@ public class AppModel {
         if (getConfiguration() != null) {
             String target = getTarget();
             if (target != null) {
-                if (target.compareTo("media_menu") == 0) {
-                    mainActivity.newMediaFragment(this);
+                if (target.compareTo("menu_list") == 0) {
+                    mainActivity.showFragment(MenuFragment.newInstance(this.name, this.getTarget()), false);
                 } else
-                if (target.compareTo("fragment_class") == 0) {
+                if (target.compareTo("media_controller") == 0) {
+                    mainActivity.newMediaFragment(this);
+                } else if (target.compareTo("fragment_class") == 0) {
                     mainActivity.newFragment(this);
+                } else if (target.compareTo("close") == 0) {
+                    mainActivity.finish();
+                } else {
+                    mainActivity.showToastMessage("Don't have a valid target " + target);
                 }
-
                 return;
             }
 
@@ -142,6 +162,7 @@ public class AppModel {
 
     /**
      * Returns the name of a class that we would like to build to jump into
+     *
      * @return The class doesn't contain the package name, the dev has to append it PACKAGE_NAME + Class
      */
     @Nullable

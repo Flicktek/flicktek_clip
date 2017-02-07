@@ -24,13 +24,13 @@ package com.flicktek.android.clip.ble;
 
 import android.bluetooth.BluetoothGatt;
 
-import com.flicktek.android.clip.uart.UARTProfile;
+import com.flicktek.android.clip.FlicktekCommands;
 
 public class BleProfileProvider {
 
 	public static BleProfile findProfile(final BluetoothGatt gatt) {
-		if (UARTProfile.matchDevice(gatt))
-			return new UARTProfile();
+		if (FlicktekCommands.matchDevice(gatt))
+			return FlicktekCommands.getInstance();
 		return null;
 	}
 }

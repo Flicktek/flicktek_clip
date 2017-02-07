@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.flicktek.android.clip.ble.BleManager;
 import com.flicktek.android.clip.ble.BleProfile;
@@ -38,6 +39,8 @@ import java.util.LinkedList;
 import java.util.UUID;
 
 public class UARTProfile extends BleProfile {
+	private static final String TAG = "UARTProfile";
+
 	/** Broadcast sent when a UART message is received. */
 	public static final String BROADCAST_DATA_RECEIVED = "com.flicktek.android.clip.uart.BROADCAST_DATA_RECEIVED";
 	/** The message. */
@@ -93,16 +96,28 @@ public class UARTProfile extends BleProfile {
 		mRXCharacteristic = null;
 	}
 
+	protected void onDataArrived(byte [] buffer) {
+		Log.v(TAG, "NOT PROCESSED DATA " + new String(buffer));
+	}
+
 	@Override
 	protected void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
 		// This method will not be called as notifications were not enabled in initGatt(..).
 		final Intent intent = new Intent(BROADCAST_DATA_RECEIVED);
 		intent.putExtra(EXTRA_DATA, characteristic.getStringValue(0));
 		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+
+		// Singleton capture
+		onDataArrived(characteristic.getValue());
 	}
 
 	@Override
 	protected void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
+		if (mOutgoingBuffer == null) {
+			// We don't have any more buffers left
+			return;
+		}
+
 		// When the whole buffer has been sent
 		final byte[] buffer = mOutgoingBuffer;
 		if (mBufferOffset == buffer.length) {
@@ -118,14 +133,13 @@ public class UARTProfile extends BleProfile {
 	 * Sends the given text to RX characteristic.
 	 * @param text the text to be sent
 	 */
-	public void send(final String text) {
+	public void send(final byte [] buffer) {
 		// Are we connected?
 		if (mRXCharacteristic == null)
 			return;
 
-		// An outgoing buffer may not be null if there is already another packet being sent. We do nothing in this case.
-		if (!TextUtils.isEmpty(text) && mOutgoingBuffer == null) {
-			final byte[] buffer = mOutgoingBuffer = text.getBytes();
+		if (mOutgoingBuffer == null) {
+			mOutgoingBuffer = buffer;
 			mBufferOffset = 0;
 
 			// Depending on whether the characteristic has the WRITE REQUEST property or not, we will either send it as it is (hoping the long write is implemented),
@@ -140,6 +154,19 @@ public class UARTProfile extends BleProfile {
 				mBufferOffset = buffer.length;
 				getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
 			}
+		} else {
+			getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
+		}
+	}
+
+	/**
+	 * Sends the given text to RX characteristic.
+	 * @param text the text to be sent
+	 */
+	public void send(final String text) {
+		// An outgoing buffer may not be null if there is already another packet being sent. We do nothing in this case.
+		if (!TextUtils.isEmpty(text)) {
+			send(text.getBytes());
 		}
 	}
 }

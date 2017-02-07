@@ -40,7 +40,6 @@ import android.widget.Toast;
 
 import com.flicktek.android.clip.ble.BleProfileService;
 import com.flicktek.android.clip.ble.DevicesAdapter;
-import com.flicktek.android.clip.menus.MainActivity;
 
 public class ScannerActivity extends Activity {
 	private static final String TAG = "ScannerActivity";

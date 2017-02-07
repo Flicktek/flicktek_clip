@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.flicktek.android.clip.menus;
+package com.flicktek.android.clip;
 
 import android.app.AlarmManager;
 import android.app.Fragment;
@@ -50,9 +50,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flicktek.android.clip.FlicktekManager;
-import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.ble.BleProfileService;
+import com.flicktek.android.clip.menus.AppModel;
+import com.flicktek.android.clip.menus.MediaFragment;
+import com.flicktek.android.clip.menus.MenuFragment;
 import com.flicktek.android.clip.uart.UARTCommandsAdapter;
 import com.flicktek.android.clip.uart.UARTProfile;
 import com.flicktek.android.clip.uart.domain.Command;
@@ -138,7 +139,11 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        // Singleton initialize
+        FlicktekCommands.getInstance().init(getApplicationContext());
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main_stub);
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub_main);
@@ -152,7 +157,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 setActivityFlags();
                 Log.v(TAG, "Stub override. IsRound? " + isRound);
 
-                Fragment fragment = MenuFragment.newInstance("Dashboard", "menu_dashboard");
+                Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
                 showFragment(fragment, true);
                 return windowInsets;
             }
@@ -241,7 +246,14 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     @Override
     public void onResume() {
+        //EventBus.getDefault().register(this);
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //EventBus.getDefault().unregister(this);
     }
 
     @Override

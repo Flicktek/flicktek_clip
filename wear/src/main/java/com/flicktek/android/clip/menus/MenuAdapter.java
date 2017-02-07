@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.util.Helpers;
 
@@ -23,11 +24,12 @@ import java.util.List;
 
 /**
  * Adapter for the menu.
- *
+ * <p>
  * You can manually add items using the ArrayAdapter<AppModel> or load JSON files from the resources
  */
 public class MenuAdapter extends ArrayAdapter<AppModel> {
     private static final String TAG = "MenuAdapter";
+    public boolean hasHeader = false;
 
     public MenuAdapter(Context _context, int _resourceId, List<AppModel> _objects) {
         super(_context, _resourceId, _objects);
@@ -52,16 +54,14 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
         for (int i = 0; i < menu_items.length(); i++) {
             JSONObject item_config = menu_items.getJSONObject(i);
             Drawable drawable = Helpers.getDrawableFromResources(main, "drawable", item_config);
-            if (drawable!=null) {
-                String text = "";
-                try {
-                    text = item_config.getString("text");
-                } catch (Exception e) {
-                }
 
-                AppModel appModel = new AppModel(text, null, drawable, AppModel.NO_VIEW);
+            if (drawable != null) {
+                AppModel appModel = new AppModel(null, null, drawable, AppModel.NO_VIEW);
                 appModel.setConfiguration(item_config);
                 this.add(appModel);
+
+                if (appModel.isHeader)
+                    hasHeader = true;
             }
         }
 
@@ -80,13 +80,33 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
         AppModel item = getItem(_position);
 
         ViewHolder holder;
+        ViewHeader header;
+
+        if (_view != null) {
+            if (item.isHeader) {
+                if (!_view.getClass().isInstance(ViewHeader.class)) {
+                    _view = null;
+                }
+            } else {
+                if (!_view.getClass().isInstance(ViewHolder.class))
+                    _view = null;
+            }
+        }
 
         if (_view == null) {
-            holder = new ViewHolder();
-
             LayoutInflater inflater = LayoutInflater.from(getContext());
-
             MainActivity main = (MainActivity) getContext();
+
+            if (item.isHeader) {
+                header = new ViewHeader();
+                _view = inflater.inflate(R.layout.item_menu_header, _parent, false);
+                _view.setBackgroundResource(R.drawable.bg_dark);
+                header.imageView = (ImageView) _view.findViewById(R.id.iv_header);
+                header.imageView.setImageDrawable(item.getIcon());
+                return _view;
+            }
+
+            holder = new ViewHolder();
 
             if (main.isRound) {
                 _view = inflater.inflate(R.layout.item_menu_round, _parent, false);
@@ -133,6 +153,10 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
 
     private static class ViewHolder {
         TextView textView;
+        ImageView imageView;
+    }
+
+    private static class ViewHeader {
         ImageView imageView;
     }
 

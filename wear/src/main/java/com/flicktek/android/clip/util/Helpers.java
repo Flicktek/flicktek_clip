@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.flicktek.android.clip.R;
-import com.flicktek.android.clip.menus.MainActivity;
+import com.flicktek.android.clip.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,9 +49,11 @@ public class Helpers {
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            main.showToastMessage("Failed UnsupportedEncodingException " + json_resource_name);
             return null;
         } catch (IOException e) {
             e.printStackTrace();
+            main.showToastMessage("Failed IOException " + json_resource_name);
             Log.e(TAG, "Failed reading JSON");
             return null;
         }
@@ -62,6 +64,7 @@ public class Helpers {
             jsonObj = new JSONObject(json);
         } catch (JSONException e) {
             e.printStackTrace();
+            main.showToastMessage("Failed JSONException " + json_resource_name);
             Log.e(TAG, "Failed parsing JSON");
         }
         return jsonObj;

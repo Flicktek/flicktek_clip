@@ -58,7 +58,7 @@
 		<activity android:name="com.flicktek.android.clip.uart.UARTCommandsActivity"
 			android:launchMode="singleTop"/>
 
-		<activity android:name="com.flicktek.android.clip.menus.MainActivity"
+		<activity android:name="com.flicktek.android.clip.MainActivity"
 				  android:launchMode="singleTop"/>
 
 		<!-- This receiver needs to be exported as it listens for notification broadcasts. -->

@@ -1,0 +1,13 @@
+{
+  "back_button": true,
+  "menu_items": [
+    {
+      "text": "Piano",
+      "drawable": "ic_slideshow_black_48dp"
+    },
+    {
+      "text": "Testing",
+      "drawable": "ic_home_circle_black"
+    }
+  ]
+}

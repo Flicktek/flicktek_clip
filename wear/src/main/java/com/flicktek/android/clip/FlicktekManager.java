@@ -2,8 +2,6 @@ package com.flicktek.android.clip;
 
 import android.util.Log;
 
-import com.flicktek.android.clip.menus.MainActivity;
-
 public class FlicktekManager {
     private static final String TAG = "FlickTek";
 
@@ -52,6 +50,10 @@ public class FlicktekManager {
     public static void onDisconnecting() {
         mStatus = STATUS_DISCONNECTING;
         mIsConnected = false;
+    }
+
+    public static void sendDeviceMessage(byte[] buf) {
+
     }
 
     //------------- GESTURES -------------------------
@@ -103,4 +105,5 @@ public class FlicktekManager {
     public static int getBatteryLevel() {
         return mBatteryLevel;
     }
+
 }

@@ -2,47 +2,50 @@
   "back_button": false,
   "menu_items": [
     {
+      "header": true,
+      "text": "Flicktek",
+      "drawable": "logo_flicktek_green"
+    },
+    {
       "text": "Setup",
       "drawable": "ic_settings_black_48dp",
-      "target": "media_menu",
-      "configuration": "menu_setup"
+      "target": "menu_list",
+      "json": "json_setup"
     },
     {
       "text": "Games",
       "drawable": "ic_games_black_48dp",
-      "target": "media_menu",
-      "configuration": "media_games"
+      "target": "menu_list",
+      "json": "json_games"
     },
     {
       "text": "Notifications",
       "drawable": "ic_notifications_black_48dp",
-      "target": "fragment",
-      "configuration": "notifications"
+      "target": "fragment_class",
+      "class": "notifications"
     },
     {
       "text": "Remote Control",
       "drawable": "ic_cast_black_48dp",
-      "target": "media_menu",
-      "configuration": "notifications"
+      "target": "menu_list",
+      "json": "json_remote_control"
     },
     {
       "text": "Apps",
       "drawable": "ic_apps_black_48dp",
-      "target": "media_menu",
-      "configuration": "notifications"
+      "target": "fragment_class",
+      "class": "AppsSystem"
     },
     {
       "text": "Others",
       "drawable": "ic_devices_other_black_48dp",
-      "target": "media_menu",
-      "configuration": "notifications"
+      "target": "menu_list",
+      "json": "menu_others"
     },
     {
       "text": "Disconnect",
       "drawable": "ic_close_black_48dp",
-      "target": "activity",
-      "intent": "disconnect"
+      "target": "close"
     }
-
   ]
 }

@@ -19,8 +19,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flicktek.android.ArsEvents.GestureEvent;
+import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.FlicktekManager;
+import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.util.Helpers;
 
@@ -289,7 +290,7 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onGesturePerformed(GestureEvent gestureEvent) {
+    public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
         int gesture = gestureEvent.status;
 
         switch (gesture) {

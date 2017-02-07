@@ -13,10 +13,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flicktek.android.ArsEvents.GestureEvent;
+import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.FlicktekManager;
+import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.R;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -104,7 +106,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
     private void initList() {
         Log.d(TAG, "initList: ");
-        menuIndex = 0;
+
         ArrayList<AppModel> list = new ArrayList<AppModel>();
 
         if (mainActivity.isRound) {
@@ -119,9 +121,15 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             e.printStackTrace();
         }
 
+        if (menuAdapter.hasHeader)
+            menuIndex = 1;
+        else
+            menuIndex = 0;
+
         lvMenu.setAdapter(menuAdapter);
         lvMenu.setOnItemClickListener(this);
-        changeCurrentMenuIndex(0);
+
+        changeCurrentMenuIndex(menuIndex);
     }
 
     public void onStart() {
@@ -131,14 +139,14 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume: ");
+        EventBus.getDefault().register(this);
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        Log.d(TAG, "onPause: ");
         super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     private void updateUi() {
@@ -181,22 +189,28 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
     boolean exit_pressed = false;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onGesturePerformed(GestureEvent gestureEvent) {
+    public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
         Log.d(TAG, "onGesturePerformed: " + gestureEvent.status.toString() + " index " + Integer.toString(menuIndex));
         int gesture = gestureEvent.status;
+        int minValue = 0;
+
+        if (menuAdapter.hasHeader) {
+            minValue = 1;
+        }
 
         switch (gesture) {
             case (FlicktekManager.GESTURE_UP):
-                if (menuIndex > 0)
+                if (menuIndex > minValue)
                     changeCurrentMenuIndex(menuIndex - 1);
                 else
                     changeCurrentMenuIndex(menuAdapter.getCount() - 1);
                 break;
             case (FlicktekManager.GESTURE_DOWN):
-                if (menuIndex < menuAdapter.getCount() - 1)
+                if (menuIndex < menuAdapter.getCount() - 1) {
                     changeCurrentMenuIndex(menuIndex + 1);
-                else
-                    changeCurrentMenuIndex(0);
+                } else {
+                    changeCurrentMenuIndex(minValue);
+                }
                 break;
             case (FlicktekManager.GESTURE_ENTER):
                 openCurrentItem();
