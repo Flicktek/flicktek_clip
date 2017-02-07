@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flicktek.android.ArsEvents.GestureEvent;
-import com.flicktek.android.clip.Aria;
+import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.R;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -186,23 +186,23 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         int gesture = gestureEvent.status;
 
         switch (gesture) {
-            case (Aria.GESTURE_UP):
+            case (FlicktekManager.GESTURE_UP):
                 if (menuIndex > 0)
                     changeCurrentMenuIndex(menuIndex - 1);
                 else
                     changeCurrentMenuIndex(menuAdapter.getCount() - 1);
                 break;
-            case (Aria.GESTURE_DOWN):
+            case (FlicktekManager.GESTURE_DOWN):
                 if (menuIndex < menuAdapter.getCount() - 1)
                     changeCurrentMenuIndex(menuIndex + 1);
                 else
                     changeCurrentMenuIndex(0);
                 break;
-            case (Aria.GESTURE_ENTER):
+            case (FlicktekManager.GESTURE_ENTER):
                 openCurrentItem();
                 break;
 
-            case (Aria.GESTURE_HOME):
+            case (FlicktekManager.GESTURE_HOME):
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(
                             new Runnable() {
@@ -213,7 +213,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
                                 }
                             });
                 } else {
-                    Aria.backMenu(mainActivity);
+                    FlicktekManager.backMenu(mainActivity);
                 }
                 exit_pressed = true;
                 return;

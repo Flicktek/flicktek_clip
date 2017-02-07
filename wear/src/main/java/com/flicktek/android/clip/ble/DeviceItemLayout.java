@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.flicktek.android.clip;
+package com.flicktek.android.clip.ble;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -30,6 +30,8 @@ import android.support.wearable.view.WearableListView;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.flicktek.android.clip.R;
 
 public class DeviceItemLayout extends RelativeLayout implements WearableListView.OnCenterProximityListener {
 	private static final int ANIMATION_DURATION_MS = 150;

@@ -20,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flicktek.android.ArsEvents.GestureEvent;
-import com.flicktek.android.clip.Aria;
+import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.util.Helpers;
 
@@ -98,8 +98,8 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
         try {
             try {
                 String activity_name = config.getString("activity");
-                Aria.sendSmartPhoneMessage(activity_name,
-                        Aria.PHONE_LAUNCH_INTENT);
+                FlicktekManager.sendSmartPhoneMessage(activity_name,
+                        FlicktekManager.PHONE_LAUNCH_INTENT);
             } catch (Exception e) {
                 Log.v(TAG, "No activity to be launched");
             }
@@ -269,23 +269,23 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
         }
         if (_view == iconNext) {
             status = STATUS_NEXT;
-            Aria.onTouchGesture(Aria.GESTURE_DOWN);
+            FlicktekManager.onTouchGesture(FlicktekManager.GESTURE_DOWN);
             updateUi();
         }
         if (_view == iconPP) {
             status = STATUS_PLAY;
-            Aria.onTouchGesture(Aria.GESTURE_ENTER);
+            FlicktekManager.onTouchGesture(FlicktekManager.GESTURE_ENTER);
             updateUi();
         }
         if (_view == iconPrev) {
             status = STATUS_PREV;
-            Aria.onTouchGesture(Aria.GESTURE_UP);
+            FlicktekManager.onTouchGesture(FlicktekManager.GESTURE_UP);
             updateUi();
         }
     }
 
     public void close() {
-        Aria.backMenu(mainActivity);
+        FlicktekManager.backMenu(mainActivity);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -293,19 +293,19 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
         int gesture = gestureEvent.status;
 
         switch (gesture) {
-            case (Aria.GESTURE_BACK):
+            case (FlicktekManager.GESTURE_BACK):
                 status = STATUS_EXIT;
                 break;
-            case (Aria.GESTURE_HOME):
+            case (FlicktekManager.GESTURE_HOME):
                 status = STATUS_EXIT;
                 break;
-            case (Aria.GESTURE_ENTER):
+            case (FlicktekManager.GESTURE_ENTER):
                 status = STATUS_PLAY;
                 break;
-            case (Aria.GESTURE_DOWN):
+            case (FlicktekManager.GESTURE_DOWN):
                 status = STATUS_NEXT;
                 break;
-            case (Aria.GESTURE_UP):
+            case (FlicktekManager.GESTURE_UP):
                 status = STATUS_PREV;
                 break;
         }

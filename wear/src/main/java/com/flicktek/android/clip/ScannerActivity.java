@@ -39,6 +39,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.flicktek.android.clip.ble.BleProfileService;
+import com.flicktek.android.clip.ble.DevicesAdapter;
 import com.flicktek.android.clip.menus.MainActivity;
 
 public class ScannerActivity extends Activity {
@@ -132,7 +133,7 @@ public class ScannerActivity extends Activity {
 
 		Log.v(TAG, "onResume");
 
-		if (Aria.isConnected()) {
+		if (FlicktekManager.isConnected()) {
 			Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 			intent.putExtra(BleProfileService.EXTRA_DEVICE_ADDRESS, "Relaunch");
 			startActivity(intent);

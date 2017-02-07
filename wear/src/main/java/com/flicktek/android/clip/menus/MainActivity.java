@@ -50,7 +50,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flicktek.android.clip.Aria;
+import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.ble.BleProfileService;
 import com.flicktek.android.clip.uart.UARTCommandsAdapter;
@@ -437,7 +437,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     static LinearLayout old_battery_layout = null;
 
     public void updateBattery(LinearLayout battery_layout, TextView battery_text, ImageView battery_image) {
-        int battery_level = Aria.getBatteryLevel();
+        int battery_level = FlicktekManager.getBatteryLevel();
 
         if (battery_level == 0)
             return;

@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.flicktek.android.clip.menus.MainActivity;
 
-public class Aria {
+public class FlicktekManager {
     private static final String TAG = "FlickTek";
 
     public final static int GESTURE_ENTER = 1;
