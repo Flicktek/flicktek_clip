@@ -1,0 +1,29 @@
+{
+  "back_button": true,
+  "menu_items": [
+    {
+      "text": "Calibrate",
+      "drawable": "ic_adjust_black_48dp",
+      "target": "fragment_class",
+      "class": "CalibrationFragmentScroll"
+    },
+    {
+      "text": "Learning Intro",
+      "drawable": "i_sim",
+      "target": "intent",
+      "action": "intro_video"
+    },
+    {
+      "text": "Learning",
+      "drawable": "i_learn",
+      "target": "intent",
+      "action": "intro_video"
+    },
+    {
+      "text": "Settings",
+      "drawable": "ic_settings_black_48dp",
+      "target": "menu_list",
+      "json": "json_remote_control"
+    }
+  ]
+}

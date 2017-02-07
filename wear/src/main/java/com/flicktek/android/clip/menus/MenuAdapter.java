@@ -46,7 +46,7 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
         JSONObject jsonObj = Helpers.getJsonFromResources(main, jsonResourceName);
 
         if (jsonObj == null)
-            throw new Exception("Something went wrong reading JSON");
+            throw new Exception("Something went wrong reading JSON " + jsonResourceName);
 
         // Parse the JSON array and populate the internal adapter with menu items.
         JSONArray menu_items = jsonObj.getJSONArray("menu_items");

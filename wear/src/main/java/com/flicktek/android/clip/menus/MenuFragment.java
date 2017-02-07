@@ -119,6 +119,8 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             menuAdapter.populateFromJson(jsonName);
         } catch (Exception e) {
             e.printStackTrace();
+            mainActivity.showToastMessage(e.toString());
+            return;
         }
 
         if (menuAdapter.hasHeader)

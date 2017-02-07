@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.MainActivity;
 
 import org.json.JSONException;
@@ -109,12 +110,27 @@ public class AppModel {
         return target;
     }
 
+    @Nullable
+    public String getTargetConfigurationJSON() {
+        if (json == null)
+            return null;
+
+        String jsonTarget = null;
+        try {
+            jsonTarget = json.getString("json");
+        } catch (JSONException e) {
+            Log.v(TAG, "No target on object");
+            return null;
+        }
+        return jsonTarget;
+    }
+
     public void performAction(MainActivity mainActivity) {
         int viewId = getViewId();
 
         switch (viewId) {
             case AppModel.BACK_APPLICATION:
-
+                FlicktekManager.backMenu(mainActivity);
                 return;
             case AppModel.RUN_PACKAGE:
                 String appToLaunch = getPackageName();
@@ -135,9 +151,11 @@ public class AppModel {
             String target = getTarget();
             if (target != null) {
                 if (target.compareTo("menu_list") == 0) {
-                    mainActivity.showFragment(MenuFragment.newInstance(this.name, this.getTarget()), false);
-                } else
-                if (target.compareTo("media_controller") == 0) {
+                    mainActivity.showFragment(
+                            MenuFragment.newInstance(
+                                    this.name,
+                                    this.getTargetConfigurationJSON()), false);
+                } else if (target.compareTo("media_controller") == 0) {
                     mainActivity.newMediaFragment(this);
                 } else if (target.compareTo("fragment_class") == 0) {
                     mainActivity.newFragment(this);
@@ -172,7 +190,7 @@ public class AppModel {
 
         String target = null;
         try {
-            target = json.getString("fragment_class");
+            target = json.getString("class");
         } catch (JSONException e) {
             Log.v(TAG, "No target on object");
             return null;
