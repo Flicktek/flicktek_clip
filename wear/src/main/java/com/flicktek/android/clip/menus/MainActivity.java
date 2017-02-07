@@ -151,6 +151,9 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
                 setActivityFlags();
                 Log.v(TAG, "Stub override. IsRound? " + isRound);
+
+                Fragment fragment = MenuFragment.newInstance("Dashboard", "menu_dashboard");
+                showFragment(fragment, true);
                 return windowInsets;
             }
         });
@@ -234,6 +237,11 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     public void onConnected(final Bundle bundle) {
         Wearable.DataApi.addListener(mGoogleApiClient, this);
         Wearable.MessageApi.addListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -351,6 +359,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                     if (_isSameView == false) {
                         transaction.setCustomAnimations(R.animator.fade_in_left, R.animator.fade_out_right);
                         //transaction.setCustomAnimations(R.animator.fade_in_right, R.animator.fade_out_left);
+                    } else {
+                        transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
                     }
 
                     transaction.replace(R.id.container, _fragment);

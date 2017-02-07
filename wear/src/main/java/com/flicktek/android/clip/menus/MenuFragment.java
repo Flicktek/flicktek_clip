@@ -119,10 +119,6 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             e.printStackTrace();
         }
 
-        menuAdapter.add(new AppModel("Back", null,
-                getResources().getDrawable(R.drawable.ic_arrow_back_black_48dp, mainActivity.getTheme()),
-                AppModel.BACK_APPLICATION));
-
         lvMenu.setAdapter(menuAdapter);
         lvMenu.setOnItemClickListener(this);
         changeCurrentMenuIndex(0);

@@ -251,7 +251,6 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
                         break;
                     case STATUS_EXIT:
                         break;
-
                 }
                 ;
             }//run

@@ -1,0 +1,16 @@
+{
+  "menu_items": [
+    {
+      "text": "Slides",
+      "drawable": "ic_slideshow_black_48dp",
+      "target": "media_menu",
+      "configuration": "media_custom_slides"
+    },
+    {
+      "text": "IoT Demo",
+      "drawable": "ic_home_circle_black",
+      "target": "media_menu",
+      "configuration": "media_unity_demo"
+    }
+  ]
+}

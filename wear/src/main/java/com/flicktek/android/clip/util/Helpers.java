@@ -90,9 +90,9 @@ public class Helpers {
 
         int res_id;
         if (package_name.length() == 0)
-            res_id = res.getIdentifier(drawable, "build/intermediates/exploded-aar/com.google.android.gms/play-services-base/9.2.0/res/drawable", main.getPackageName());
+            res_id = res.getIdentifier(drawable, "drawable", main.getPackageName());
         else
-            res_id = res.getIdentifier(drawable, "build/intermediates/exploded-aar/com.google.android.gms/play-services-base/9.2.0/res/drawable", package_name);
+            res_id = res.getIdentifier(drawable, "drawable", package_name);
 
         Log.d(TAG, "ID " + res_id);
 

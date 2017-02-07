@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,15 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
                 this.add(appModel);
             }
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (jsonObj.getBoolean("back_button")) {
+                add(new AppModel("Back", null,
+                        res.getDrawable(R.drawable.ic_arrow_back_black_48dp, main.getTheme()),
+                        AppModel.BACK_APPLICATION));
+            }
+        }
+
         return true;
     }
 
