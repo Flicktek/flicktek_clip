@@ -5,7 +5,7 @@
       "text": "Calibrate",
       "drawable": "ic_adjust_black_48dp",
       "target": "fragment_class",
-      "class": "CalibrationFragmentScroll"
+      "class": "menus.calibration.CalibrationFragmentScroll"
     },
     {
       "text": "Learning Intro",

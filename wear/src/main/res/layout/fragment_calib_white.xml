@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_light"
+                android:orientation="vertical">
+
+    <android.support.wearable.view.BoxInsetLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    <RelativeLayout
+        android:id="@+id/media_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        app:layout_box="bottom"
+        >
+
+        <ImageView
+            android:id="@+id/calibration_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="48dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_enter_circle_black"
+            android:tint="@color/black"
+            android:visibility="invisible"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"/>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="Enter"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="10dp"
+            android:text="Text"
+            android:textColor="@color/grey"
+            android:textSize="10dp"/>
+
+        <Button
+            android:id="@+id/b_close"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_above="@id/tv_status"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/ic_arrow_back_black_48dp"
+            android:backgroundTint="@color/black"/>
+
+    </RelativeLayout>
+    </android.support.wearable.view.BoxInsetLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/counter_container"
+        >
+
+        <ImageView
+            android:id="@+id/counting_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:layout_marginEnd="5dp"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:src="@drawable/ic_looks_5_black_48dp"
+            android:tint="@color/black"
+            android:visibility="visible"/>
+    </RelativeLayout>
+
+</RelativeLayout>

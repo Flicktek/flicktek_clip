@@ -5,6 +5,13 @@ import android.util.Log;
 public class FlicktekManager {
     private static final String TAG = "FlickTek";
 
+    public final static int DEBUG_DISABLED = 0;
+    public final static int DEBUG_ENABLED  = 1;
+    public final static int DEBUG_CRAZY    = 10;
+
+    // Debug levels
+    public static int mDebugLevel = DEBUG_DISABLED;
+
     public final static int GESTURE_ENTER = 1;
     public final static int GESTURE_HOME = 2;
     public final static int GESTURE_UP = 3;
@@ -106,4 +113,7 @@ public class FlicktekManager {
         return mBatteryLevel;
     }
 
+    public static void gotoDashboard(MainActivity mainActivity) {
+
+    }
 }

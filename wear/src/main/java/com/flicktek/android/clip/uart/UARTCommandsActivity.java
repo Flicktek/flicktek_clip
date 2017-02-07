@@ -92,8 +92,8 @@ public class UARTCommandsActivity extends Activity implements UARTCommandsAdapte
 				case UARTProfile.BROADCAST_DATA_RECEIVED: {
 					// Here we could have shown the incoming message somehow.
 					// However, notifications on TX characteristics are not enabled so this does not have to be implemented.
-//					final String message = intent.getStringExtra(UARTProfile.EXTRA_DATA);
-//					Toast.makeText(UARTCommandsActivity.this, message, Toast.LENGTH_SHORT).show();
+					//final String message = intent.getStringExtra(UARTProfile.EXTRA_DATA);
+					//Toast.makeText(UARTCommandsActivity.this, message, Toast.LENGTH_SHORT).show();
 					break;
 				}
 			}

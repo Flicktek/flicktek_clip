@@ -21,22 +21,60 @@
   -->
 
 <resources>
-	<string name="app_name">FlickTek Clip</string>
-	<string name="not_available">n/a</string>
+    <string name="app_name">FlickTek Clip</string>
 
-	<string name="devices_list_title">Bluetooth devices</string>
-	<string name="devices_list_scanning">Scanning for nearby devices…</string>
-	<string name="devices_list_start_scan">Scan for nearby devices</string>
-	<string name="devices_list_available">Available</string>
-	<string name="devices_list_bonded">Bonded</string>
-	<string name="devices_list_bonding">Bonding…</string>
-	<string name="devices_list_device_not_supported">Device not supported.</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Hello Square World!</string>
+    <string name="battery_icon">battery_icon</string>
+    <string name="ERROR_ARIA_DISCONNECTED">Clip is disconnected, check batteries or range.</string>
+    <string name="calibration_enter">Enter</string>
+    <string name="calibration_up">Up</string>
+    <string name="calibration_down">Down</string>
+    <string name="calibration_home">Home</string>
 
-	<string name="state_connecting">Connecting…</string>
+    <string-array name="Gestures_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
 
-	<string name="configuration_empty">This configuration is empty.</string>
-	<string name="configuration_deleted">Configuration was deleted.</string>
+    <string-array name="Repetitions_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
 
-	<string name="action_disconnect">Disconnect</string>
-	<string name="notif_uart_device_connected">UART device connected</string>
+    <string-array name="Flicktek_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+    </string-array>
+
+    <string name="not_available">n/a</string>
+
+    <string name="devices_list_title">Bluetooth devices</string>
+    <string name="devices_list_scanning">Scanning for nearby devices…</string>
+    <string name="devices_list_start_scan">Scan for nearby devices</string>
+    <string name="devices_list_available">Available</string>
+    <string name="devices_list_bonded">Bonded</string>
+    <string name="devices_list_bonding">Bonding…</string>
+    <string name="devices_list_device_not_supported">Device not supported.</string>
+
+    <string name="state_connecting">Connecting…</string>
+
+    <string name="configuration_empty">This configuration is empty.</string>
+    <string name="configuration_deleted">Configuration was deleted.</string>
+
+    <string name="action_disconnect">Disconnect</string>
+    <string name="notif_uart_device_connected">UART device connected</string>
 </resources>

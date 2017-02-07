@@ -116,8 +116,10 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                     break;
                 }
                 case UARTProfile.BROADCAST_DATA_RECEIVED: {
-                    final String message = intent.getStringExtra(UARTProfile.EXTRA_DATA);
-                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    if (FlicktekManager.mDebugLevel >= FlicktekManager.DEBUG_CRAZY) {
+                        final String message = intent.getStringExtra(UARTProfile.EXTRA_DATA);
+                        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 }
             }
@@ -157,9 +159,21 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 setActivityFlags();
                 Log.v(TAG, "Stub override. IsRound? " + isRound);
 
-                Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
-                showFragment(fragment, true);
                 return windowInsets;
+            }
+        });
+
+        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
+            @Override
+            public void onLayoutInflated(WatchViewStub stub) {
+                stub.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                    @Override
+                    public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                        int chinHeight = insets.getSystemWindowInsetBottom();
+                        // chinHeight = 30;
+                        return insets;
+                    }
+                });
             }
         });
 
@@ -242,6 +256,9 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     public void onConnected(final Bundle bundle) {
         Wearable.DataApi.addListener(mGoogleApiClient, this);
         Wearable.MessageApi.addListener(mGoogleApiClient, this);
+
+        Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
+        showFragment(fragment, true);
     }
 
     @Override
@@ -390,7 +407,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                         transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
                     }
 
-                    transaction.replace(R.id.container, _fragment).addToBackStack("FragmentB");
+                    transaction.replace(R.id.container, _fragment).addToBackStack("MainActivity");
                     transaction.commit();
                 } catch (Exception e) {
                     e.printStackTrace();
