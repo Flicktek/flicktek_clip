@@ -388,6 +388,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 FragmentManager fragmentManager = getFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 1){
                     fragmentManager.popBackStackImmediate();
+                    Log.d(TAG, "BackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
                     fragmentManager.beginTransaction().commit();
                 } else {
                     finish(); // Closes app

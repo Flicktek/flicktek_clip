@@ -407,9 +407,14 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
             public void run() {
                 try {
                     FragmentManager fragmentManager = getFragmentManager();
+                    Log.d(TAG, "Animated Start getBackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
+
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.setCustomAnimations(R.animator.fade_in_left, R.animator.fade_out_left);
+                    //transaction.addToBackStack("CalibrationAnimated");
+                    transaction.disallowAddToBackStack();
                     transaction.replace(R.id.container, _fragment);
+                    Log.d(TAG, "Animated End   getBackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
                     transaction.commit();
                 } catch (Exception e) {
                     e.printStackTrace();

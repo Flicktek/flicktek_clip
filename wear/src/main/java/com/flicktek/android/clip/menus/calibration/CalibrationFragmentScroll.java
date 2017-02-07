@@ -98,11 +98,14 @@ public class CalibrationFragmentScroll extends Fragment implements View.OnClickL
                 try {
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    Log.d(TAG, "Start Scroll getBackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
 
                     transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
-
-                    transaction.replace(R.id.container, _fragment).addToBackStack("CalibrationFragment");
+                    transaction.replace(R.id.container, _fragment);
+                    transaction.addToBackStack("CalibrationFragment");
                     transaction.commit();
+                    Log.d(TAG, "End  Scroll getBackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -101,7 +101,8 @@ public class FlicktekManager {
             return;
         }
 
-        mainActivity.showToastMessage("Back");
+        //mainActivity.showToastMessage("Back");
+        Log.d(TAG, "getBackStackEntryCount: " + mainActivity.getFragmentManager().getBackStackEntryCount());
         mainActivity.backFragment();
     }
 
