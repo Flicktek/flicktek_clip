@@ -59,21 +59,24 @@ public class ScannerActivity extends Activity {
 					final int state = intent.getIntExtra(BleProfileService.EXTRA_CONNECTION_STATE, BleProfileService.STATE_DISCONNECTED);
 					switch (state) {
 						case BleProfileService.STATE_LINK_LOSS:
-
+							Log.v(TAG, "------------- STATE LINK LOSS -- ---------------");
 							break;
 						case BleProfileService.STATE_DISCONNECTED:
+							Log.v(TAG, "------------- STATE DISCONNECTED ---------------");
 							mDeviceAdapter.setConnectingPosition(-1);
 						break;
 					}
 					break;
 				}
 				case BleProfileService.BROADCAST_DEVICE_READY: {
+					Log.v(TAG, "--------------- DEVICE READY -------------------");
 					final Intent activity = new Intent(ScannerActivity.this, MainActivity.class); //UARTConfigurationsActivity.class
 					startActivity(activity);
 					finish();
 					break;
 				}
 				case BleProfileService.BROADCAST_DEVICE_NOT_SUPPORTED: {
+					Log.v(TAG, "------------- DEVICE NOT SUPPORTED -------------");
 					Toast.makeText(ScannerActivity.this, R.string.devices_list_device_not_supported, Toast.LENGTH_SHORT).show();
 					mDeviceAdapter.setConnectingPosition(-1);
 					break;

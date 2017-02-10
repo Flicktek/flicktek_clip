@@ -22,6 +22,9 @@
 
 package com.flicktek.android.clip;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
 import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -173,7 +176,6 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
                 setActivityFlags();
                 Log.v(TAG, "Stub override. IsRound? " + isRound);
-
                 return windowInsets;
             }
         });
@@ -181,6 +183,13 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
+                Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
+                showFragment(fragment, true);
+
+                if (!FlicktekManager.isCalibrated()) {
+                    FlicktekCommands.getInstance().onQueryForCalibration();
+                }
+
                 stub.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                     @Override
                     public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
@@ -269,29 +278,29 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     @Override
     public void onConnected(final Bundle bundle) {
+        Log.v(TAG, "onConnected");
         Wearable.DataApi.addListener(mGoogleApiClient, this);
         Wearable.MessageApi.addListener(mGoogleApiClient, this);
-
-        Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
-        showFragment(fragment, true);
     }
 
     // We try to launch once the calibration if we are not calibrated
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNotCalibrated(FlicktekCommands.onNotCalibrated notCalibrated) {
+        Log.v(TAG, "onNotCalibrated");
         newFragment("menus.calibration.CalibrationFragmentScroll");
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDeviceReady(FlicktekCommands.onDeviceReady ready) {
+        Log.v(TAG, "onDeviceReady");
         FlicktekCommands.getInstance().onQueryForCalibration();
     }
 
     @Override
     public void onResume() {
+        super.onResume();
         Log.v(TAG, "onResume");
         EventBus.getDefault().register(this);
-        super.onResume();
     }
 
     @Override
@@ -421,7 +430,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     }
 
     public void showFragment(final Fragment _fragment, final boolean isNewView) {
-        Log.d(TAG, "showFragment");
+        Log.d(TAG, "showFragment " + _fragment.getClass().getCanonicalName());
         runOnUiThread(new Runnable() {
 
             public void run() {

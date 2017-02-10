@@ -41,7 +41,6 @@ import java.util.LinkedList;
 import java.util.UUID;
 
 public class UARTProfile extends BleProfile {
-
     private static final String TAG = "UARTProfile";
 
     /**

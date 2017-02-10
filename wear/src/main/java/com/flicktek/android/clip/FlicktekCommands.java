@@ -13,9 +13,6 @@ import static android.os.Debug.isDebuggerConnected;
 public class FlicktekCommands extends UARTProfile {
     private final String TAG = "FlicktekCommands";
 
-    // First handshake between devices happened
-    public boolean mIsHandshakeOk = false;
-
     // Singleton
     private static FlicktekCommands mInstance = null;
 
@@ -143,7 +140,7 @@ public class FlicktekCommands extends UARTProfile {
     @Override
     protected void onDataArrived(byte[] buf_str) {
         String str = new String(buf_str);
-        Log.v(TAG, "RX: [" + str + "]");
+        Log.v(TAG, "RX: " + str + "");
         onCommandArrived(buf_str);
     }
 
@@ -268,8 +265,14 @@ public class FlicktekCommands extends UARTProfile {
         writeStatus_Calib();
 
         if (isDebuggerConnected()) {
-            Log.d(TAG, "------- DEBUG ACTIVE --------");
+            Log.v(TAG, "--------------- DEBUG ACTIVE -------------------");
+
+            // Report all the prints through the BLE UART channel
             writeSingleCommand(COMMAND_DEBUG, 1);
+
+            // Fake calibration!
+            Log.v(TAG, "-----------FAKE CALIBRATION ACTIVE -------------");
+            writeSingleCommand(COMMAND_DEBUG, 2);
         }
     }
 
@@ -398,9 +401,9 @@ public class FlicktekCommands extends UARTProfile {
                     return;
                 case COMMAND_OK:
                     if (value == 'K') {
-                        Log.d(TAG, "OK FOUND!");
-                        if (!mIsHandshakeOk) {
-                            mIsHandshakeOk = true;
+                        Log.v(TAG, "------------------ OK FOUND! -------------------");
+                        if (!FlicktekManager.isHandshakeOk()) {
+                            FlicktekManager.setHandshakeOk(true);
                             onDeviceRespondedToConnection();
                             EventBus.getDefault().post(new onDeviceReady());
                         }
@@ -410,17 +413,22 @@ public class FlicktekCommands extends UARTProfile {
             return;
         }
 
+        // Data packages always have the following format [CMD:DATA]
+        // A valid response for a command is [ACK:CV] Being C the command and V the data value sent
+
         // Value written correctly
-        if (buf_str[0] == 'A' && buf_str[1] == 'C' && buf_str[2] == 'K') {
-            int cmd = buf_str[4];
-            int value = buf_str[5] - '0';
+        if (buf_str[0] == '[' && buf_str[1] == 'A' && buf_str[2] == 'C' && buf_str[3] == 'K') {
+            int cmd = buf_str[5];
+            int value = buf_str[6] - '0';
 
             switch (cmd) {
                 case COMMAND_CAS_IS_CALIBRATED:
                     if (value == 0) {
                         Log.v(TAG, "Aria is not calibrated!");
+                        FlicktekManager.setCalibration(false);
                         EventBus.getDefault().post(new onNotCalibrated());
                     } else {
+                        FlicktekManager.setCalibration(true);
                         writeStatus_Exec();
                     }
                     break;
@@ -446,7 +454,7 @@ public class FlicktekCommands extends UARTProfile {
     @Override
     protected void release() {
         super.release();
-        mIsHandshakeOk = false;
+        FlicktekManager.onRelease();
     }
 
     //------------------------------------------------------------------------------
