@@ -57,8 +57,13 @@ public class ScannerActivity extends Activity {
 			switch (action) {
 				case BleProfileService.BROADCAST_CONNECTION_STATE: {
 					final int state = intent.getIntExtra(BleProfileService.EXTRA_CONNECTION_STATE, BleProfileService.STATE_DISCONNECTED);
-					if (state == BleProfileService.STATE_DISCONNECTED) {
-						mDeviceAdapter.setConnectingPosition(-1);
+					switch (state) {
+						case BleProfileService.STATE_LINK_LOSS:
+
+							break;
+						case BleProfileService.STATE_DISCONNECTED:
+							mDeviceAdapter.setConnectingPosition(-1);
+						break;
 					}
 					break;
 				}

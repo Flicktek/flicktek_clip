@@ -37,6 +37,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 
+import com.flicktek.android.clip.error.GattError;
+import com.flicktek.android.clip.utility.DebugLogger;
+import com.flicktek.android.clip.utility.ParserUtils;
+
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -44,9 +48,6 @@ import java.util.UUID;
 
 import no.nordicsemi.android.log.ILogSession;
 import no.nordicsemi.android.log.Logger;
-import com.flicktek.android.clip.error.GattError;
-import com.flicktek.android.clip.utility.DebugLogger;
-import com.flicktek.android.clip.utility.ParserUtils;
 
 /**
  * <p>The BleManager is responsible for managing the low level communication with a Bluetooth Smart device. Please see profiles implementation for an example of use.

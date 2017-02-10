@@ -52,7 +52,7 @@ public class DevicesAdapter extends WearableListView.Adapter {
 
 	private static final String FlicktekDevicePrefix = "FlickTek";
 
-	private final static long SCAN_DURATION = 5000;
+	private final static long SCAN_DURATION = 120000;
 
 	private final List<BluetoothDevice> mDevices = new ArrayList<>();
 	private final LayoutInflater mInflater;
@@ -129,6 +129,7 @@ public class DevicesAdapter extends WearableListView.Adapter {
 			viewHolder.mName.setText(mScanning ? R.string.devices_list_scanning : R.string.devices_list_start_scan);
 			viewHolder.mAddress.setText(null);
 			viewHolder.mIcon.showIndeterminateProgress(mScanning);
+			viewHolder.mRSSI.setVisibility(View.GONE);
 		}
 	}
 
@@ -164,7 +165,8 @@ public class DevicesAdapter extends WearableListView.Adapter {
 		}
 
 		final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
-		final ScanSettings settings = new ScanSettings.Builder().setReportDelay(1000).setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
+		final ScanSettings settings = new ScanSettings.Builder().setReportDelay(1000).
+				setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
 		scanner.startScan(null, settings, mScanCallback);
 
 		// Setup timer that will stop scanning
@@ -206,6 +208,7 @@ public class DevicesAdapter extends WearableListView.Adapter {
 		@Override
 		public void onScanResult(final int callbackType, final ScanResult result) {
 			// empty
+			Log.v(TAG, "onScanResult");
 		}
 
 		@Override
@@ -214,13 +217,18 @@ public class DevicesAdapter extends WearableListView.Adapter {
 			for (final ScanResult result : results) {
 				final BluetoothDevice device = result.getDevice();
 				String name = device.getName();
-				Log.v(TAG, "Found device " + name + " " + device.getAddress() + " RSSI "+ result.getRssi());
-				if (name != null && name.startsWith(FlicktekDevicePrefix)) {
-					if (!mDevices.contains(device)) {
-						Log.v(TAG, "Found FlickTek " + name + " " + result.getRssi());
-						mDevices.add(device);
+				if (name != null) {
+					Log.v(TAG, "Found device [" + device.getAddress() + "] RSSI " + result.getRssi() + " " + name);
+					if (name.startsWith(FlicktekDevicePrefix)) {
+						mRSSI.put(device.getAddress(), result.getRssi());
+						if (!mDevices.contains(device)) {
+							Log.v(TAG, "------------ " + name + " ------------");
+							mDevices.add(device);
+						} else {
+							int idx = mDevices.indexOf(device);
+							notifyItemChanged(idx);
+						}
 					}
-					mRSSI.put(device.getAddress(), result.getRssi());
 				}
 			}
 

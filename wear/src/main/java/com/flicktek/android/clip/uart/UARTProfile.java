@@ -24,12 +24,14 @@ package com.flicktek.android.clip.uart;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.ble.BleManager;
 import com.flicktek.android.clip.ble.BleProfile;
 import com.flicktek.android.clip.ble.BleProfileApi;
@@ -39,134 +41,178 @@ import java.util.LinkedList;
 import java.util.UUID;
 
 public class UARTProfile extends BleProfile {
-	private static final String TAG = "UARTProfile";
 
-	/** Broadcast sent when a UART message is received. */
-	public static final String BROADCAST_DATA_RECEIVED = "com.flicktek.android.clip.uart.BROADCAST_DATA_RECEIVED";
-	/** The message. */
-	public static final String EXTRA_DATA = "com.flicktek.android.clip.EXTRA_DATA";
+    private static final String TAG = "UARTProfile";
 
-	/** Nordic UART Service UUID */
-	private static final UUID UART_SERVICE_UUID = UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
-	/** RX characteristic UUID */
-	private static final UUID UART_RX_CHARACTERISTIC_UUID = UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
-	/** TX characteristic UUID */
-	private static final UUID UART_TX_CHARACTERISTIC_UUID = UUID.fromString("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
-	/** The maximum packet size is 20 bytes. */
-	private static final int MAX_PACKET_SIZE = 20;
+    /**
+     * Broadcast sent when a UART message is received.
+     */
+    public static final String BROADCAST_DATA_RECEIVED = "com.flicktek.android.clip.uart.BROADCAST_DATA_RECEIVED";
+    /**
+     * The message.
+     */
+    public static final String EXTRA_DATA = "com.flicktek.android.clip.EXTRA_DATA";
 
-	/**
-	 * This method should return true if the profile matches the given device. That means if the device has the required services.
-	 * @param gatt the GATT device
-	 * @return true if the device is supported by that profile, false otherwise.
-	 */
-	public static boolean matchDevice(final BluetoothGatt gatt) {
-		final BluetoothGattService service = gatt.getService(UART_SERVICE_UUID);
-		return service != null && service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID) != null && service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID) != null;
-	}
+    /**
+     * Nordic UART Service UUID
+     */
+    private static final UUID UART_SERVICE_UUID = UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
+    /**
+     * RX characteristic UUID
+     */
+    private static final UUID UART_RX_CHARACTERISTIC_UUID = UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
+    /**
+     * TX characteristic UUID
+     */
+    private static final UUID UART_TX_CHARACTERISTIC_UUID = UUID.fromString("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
+    /**
+     * The maximum packet size is 20 bytes.
+     */
+    private static final int MAX_PACKET_SIZE = 20;
 
-	private BluetoothGattCharacteristic mTXCharacteristic;
-	private BluetoothGattCharacteristic mRXCharacteristic;
-	private byte[] mOutgoingBuffer;
-	private int mBufferOffset;
+    /**
+     * This method should return true if the profile matches the given device. That means if the device has the required services.
+     *
+     * @param gatt the GATT device
+     * @return true if the device is supported by that profile, false otherwise.
+     */
+    public static boolean matchDevice(final BluetoothGatt gatt) {
+        final BluetoothGattService service = gatt.getService(UART_SERVICE_UUID);
+        return service != null && service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID) != null && service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID) != null;
+    }
 
-	@Override
-	protected Deque<BleManager.Request> initGatt(final BluetoothGatt gatt) {
-		final BluetoothGattService service = gatt.getService(UART_SERVICE_UUID);
-		mTXCharacteristic = service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID);
-		mRXCharacteristic = service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID);
+    private BluetoothGattCharacteristic mTXCharacteristic;
+    private BluetoothGattCharacteristic mRXCharacteristic;
+    private byte[] mOutgoingBuffer;
+    private int mBufferOffset;
 
-		final int rxProperties = mRXCharacteristic.getProperties();
-		boolean writeRequest = (rxProperties & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
+    @Override
+    protected Deque<BleManager.Request> initGatt(final BluetoothGatt gatt) {
+        final BluetoothGattService service = gatt.getService(UART_SERVICE_UUID);
+        mTXCharacteristic = service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID);
+        mRXCharacteristic = service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID);
 
-		// Set the WRITE REQUEST type when the characteristic supports it. This will allow to send long write (also if the characteristic support it).
-		// In case there is no WRITE REQUEST property, this manager will divide texts longer then 20 bytes into up to 20 bytes chunks.
-		if (writeRequest)
-			mRXCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+        final int rxProperties = mRXCharacteristic.getProperties();
+        boolean writeRequest = (rxProperties & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
 
-		// We don't want to enable notifications on TX characteristic as we are not showing them here. A watch may be just used to send data. At least now.
-		final LinkedList<BleProfileApi.Request> requests = new LinkedList<>();
-		requests.add(BleProfileApi.Request.newEnableNotificationsRequest(mTXCharacteristic));
-		return requests;
-	}
+        // Set the WRITE REQUEST type when the characteristic supports it. This will allow to send long write (also if the characteristic support it).
+        // In case there is no WRITE REQUEST property, this manager will divide texts longer then 20 bytes into up to 20 bytes chunks.
+        if (writeRequest)
+            mRXCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
 
-	@Override
-	protected void release() {
-		mTXCharacteristic = null;
-		mRXCharacteristic = null;
-	}
+        // We don't want to enable notifications on TX characteristic as we are not showing them here. A watch may be just used to send data. At least now.
+        final LinkedList<BleProfileApi.Request> requests = new LinkedList<>();
+        requests.add(BleProfileApi.Request.newEnableNotificationsRequest(mTXCharacteristic));
 
-	protected void onDataArrived(byte [] buffer) {
-		Log.v(TAG, "NOT PROCESSED DATA " + new String(buffer));
-	}
+        return requests;
+    }
 
-	@Override
-	protected void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-		// This method will not be called as notifications were not enabled in initGatt(..).
-		final Intent intent = new Intent(BROADCAST_DATA_RECEIVED);
-		intent.putExtra(EXTRA_DATA, characteristic.getStringValue(0));
-		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+    @Override
+    protected void release() {
+        mTXCharacteristic = null;
+        mRXCharacteristic = null;
+    }
 
-		// Singleton capture
-		onDataArrived(characteristic.getValue());
-	}
+    protected void onDataArrived(byte[] buffer) {
+        Log.v(TAG, "NOT PROCESSED DATA " + new String(buffer));
+    }
 
-	@Override
-	protected void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-		if (mOutgoingBuffer == null) {
-			// We don't have any more buffers left
-			return;
-		}
+    @Override
+    protected void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
+        // This method will not be called as notifications were not enabled in initGatt(..).
 
-		// When the whole buffer has been sent
-		final byte[] buffer = mOutgoingBuffer;
-		if (mBufferOffset == buffer.length) {
-			mOutgoingBuffer = null;
-		} else { // Otherwise...
-			final int length = Math.min(buffer.length - mBufferOffset, MAX_PACKET_SIZE);
-			getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, mBufferOffset, length));
-			mBufferOffset += length;
-		}
-	}
+        final Intent intent = new Intent(BROADCAST_DATA_RECEIVED);
+        intent.putExtra(EXTRA_DATA, characteristic.getStringValue(0));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
 
-	/**
-	 * Sends the given text to RX characteristic.
-	 * @param text the text to be sent
-	 */
-	public void send(final byte [] buffer) {
-		// Are we connected?
-		if (mRXCharacteristic == null)
-			return;
+        // Singleton capture
+        onDataArrived(characteristic.getValue());
+    }
 
-		if (mOutgoingBuffer == null) {
-			mOutgoingBuffer = buffer;
-			mBufferOffset = 0;
+    @Override
+    protected void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
+        if (mOutgoingBuffer == null) {
+            // We don't have any more buffers left
+            return;
+        }
 
-			// Depending on whether the characteristic has the WRITE REQUEST property or not, we will either send it as it is (hoping the long write is implemented),
-			// or divide it into up to 20 bytes chunks and send them one by one.
-			final boolean writeRequest = (mRXCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
+        // When the whole buffer has been sent
+        final byte[] buffer = mOutgoingBuffer;
+        if (mBufferOffset == buffer.length) {
+            mOutgoingBuffer = null;
+        } else { // Otherwise...
+            final int length = Math.min(buffer.length - mBufferOffset, MAX_PACKET_SIZE);
+            getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, mBufferOffset, length));
+            mBufferOffset += length;
+        }
+    }
 
-			if (!writeRequest) { // no WRITE REQUEST property
-				final int length = Math.min(buffer.length, MAX_PACKET_SIZE);
-				mBufferOffset += length;
-				getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, length));
-			} else { // there is WRITE REQUEST property, let's try Long Write
-				mBufferOffset = buffer.length;
-				getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
-			}
-		} else {
-			getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
-		}
-	}
+    /**
+     * Sends the given text to RX characteristic.
+     *
+     * @param text the text to be sent
+     */
+    public void send(final byte[] buffer) {
+        // Are we connected?
+        if (mRXCharacteristic == null)
+            return;
 
-	/**
-	 * Sends the given text to RX characteristic.
-	 * @param text the text to be sent
-	 */
-	public void send(final String text) {
-		// An outgoing buffer may not be null if there is already another packet being sent. We do nothing in this case.
-		if (!TextUtils.isEmpty(text)) {
-			send(text.getBytes());
-		}
-	}
+        if (mOutgoingBuffer == null) {
+            mOutgoingBuffer = buffer;
+            mBufferOffset = 0;
+
+            // Depending on whether the characteristic has the WRITE REQUEST property or not, we will either send it as it is (hoping the long write is implemented),
+            // or divide it into up to 20 bytes chunks and send them one by one.
+            final boolean writeRequest = (mRXCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
+
+            if (!writeRequest) { // no WRITE REQUEST property
+                final int length = Math.min(buffer.length, MAX_PACKET_SIZE);
+                mBufferOffset += length;
+                getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, length));
+            } else { // there is WRITE REQUEST property, let's try Long Write
+                mBufferOffset = buffer.length;
+                getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
+            }
+        } else {
+            getApi().enqueue(BleProfileApi.Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
+        }
+    }
+
+    public void onReadyToSendData(boolean ready) {
+        Log.v(TAG, "onReadyToSendData " + ready);
+    }
+
+    @Override
+    public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor) {
+        super.onDescriptorWrite(gatt, descriptor);
+
+        Log.v(TAG, "onDescriptorWrite");
+
+        UUID uuid = descriptor.getUuid();
+        byte[] value = descriptor.getValue();
+        if (uuid.equals(BleManager.CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID)) {
+            if (value.equals(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) {
+                Log.v(TAG, "onDescriptorWrite " + BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                onReadyToSendData(true);
+                return;
+            }
+            if (value.equals(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)) {
+                Log.v(TAG, "onDescriptorWrite " + BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                onReadyToSendData(false);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Sends the given text to RX characteristic.
+     *
+     * @param text the text to be sent
+     */
+    public void send(final String text) {
+        // An outgoing buffer may not be null if there is already another packet being sent. We do nothing in this case.
+        if (!TextUtils.isEmpty(text)) {
+            send(text.getBytes());
+        }
+    }
 }

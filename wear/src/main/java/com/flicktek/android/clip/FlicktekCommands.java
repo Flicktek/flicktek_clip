@@ -13,6 +13,9 @@ import static android.os.Debug.isDebuggerConnected;
 public class FlicktekCommands extends UARTProfile {
     private final String TAG = "FlicktekCommands";
 
+    // First handshake between devices happened
+    public boolean mIsHandshakeOk = false;
+
     // Singleton
     private static FlicktekCommands mInstance = null;
 
@@ -99,6 +102,13 @@ public class FlicktekCommands extends UARTProfile {
     public void onQueryForCalibration() {
         Log.v(TAG, "-------------- IS CALIBRATED -------------------");
         writeSingleCommand(COMMAND_CAS_IS_CALIBRATED, 0);
+    }
+
+    @Override
+    public void onReadyToSendData(boolean ready) {
+        Log.v(TAG, "onReadyToSendData " + ready);
+        Log.v(TAG, "---------- LETS REPORT WE ARE ALIVE-------------");
+        writeSingleCommand(COMMAND_OK, 1);
     }
 
     public void onDeviceRespondedToConnection() {
@@ -389,8 +399,11 @@ public class FlicktekCommands extends UARTProfile {
                 case COMMAND_OK:
                     if (value == 'K') {
                         Log.d(TAG, "OK FOUND!");
-                        onDeviceRespondedToConnection();
-                        EventBus.getDefault().post(new onDeviceReady());
+                        if (!mIsHandshakeOk) {
+                            mIsHandshakeOk = true;
+                            onDeviceRespondedToConnection();
+                            EventBus.getDefault().post(new onDeviceReady());
+                        }
                     }
                     break;
             }
@@ -428,6 +441,12 @@ public class FlicktekCommands extends UARTProfile {
         }
 
         //EventBus.getDefault().post(new CharacterEvent(_value));
+    }
+
+    @Override
+    protected void release() {
+        super.release();
+        mIsHandshakeOk = false;
     }
 
     //------------------------------------------------------------------------------

@@ -3,9 +3,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/rl_item_menu"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="100dp"
                 android:paddingTop="15dp"
                 android:paddingBottom="15dp"
+                android:gravity="center"
     >
     <ImageView
         android:id="@+id/iv_header"

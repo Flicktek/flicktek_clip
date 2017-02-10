@@ -79,17 +79,16 @@ public class Helpers {
         // an internal resource.
         String package_name = new String();
         try {
-
             package_name = config.getString("package");
         } catch (JSONException ex) {
-            Log.d(TAG, "Use default tag " + ex);
+            //Log.d(TAG, "Use default tag " + ex);
         }
 
         String drawable = null;
         try {
             drawable = config.getString(drawable_name);
         } catch (JSONException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return null;
         }
 
@@ -101,7 +100,7 @@ public class Helpers {
         else
             res_id = res.getIdentifier(drawable, "drawable", package_name);
 
-        Log.d(TAG, "ID " + res_id);
+        //Log.d(TAG, "ID " + res_id);
 
         // The resource doesn't exist?, use a X
         if (res_id == 0) {

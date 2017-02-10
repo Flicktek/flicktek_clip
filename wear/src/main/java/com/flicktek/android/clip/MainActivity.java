@@ -72,6 +72,10 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -106,8 +110,14 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             switch (action) {
                 case BleProfileService.BROADCAST_CONNECTION_STATE: {
                     final int state = intent.getIntExtra(BleProfileService.EXTRA_CONNECTION_STATE, BleProfileService.STATE_DISCONNECTED);
-                    if (state == BleProfileService.STATE_DISCONNECTED)
-                        finish();
+                    switch (state) {
+                        case BleProfileService.STATE_LINK_LOSS:
+                            Toast.makeText(MainActivity.this, "Temporarily disconnected from device", Toast.LENGTH_SHORT).show();
+                            break;
+                        case BleProfileService.STATE_DISCONNECTED:
+                            finish();
+                            break;
+                    }
                     break;
                 }
                 case BleProfileService.BROADCAST_ERROR: {
@@ -266,16 +276,29 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         showFragment(fragment, true);
     }
 
+    // We try to launch once the calibration if we are not calibrated
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNotCalibrated(FlicktekCommands.onNotCalibrated notCalibrated) {
+        newFragment("menus.calibration.CalibrationFragmentScroll");
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeviceReady(FlicktekCommands.onDeviceReady ready) {
+        FlicktekCommands.getInstance().onQueryForCalibration();
+    }
+
     @Override
     public void onResume() {
-        //EventBus.getDefault().register(this);
+        Log.v(TAG, "onResume");
+        EventBus.getDefault().register(this);
         super.onResume();
     }
 
     @Override
     public void onPause() {
+        Log.v(TAG, "onPause");
         super.onPause();
-        //EventBus.getDefault().unregister(this);
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -424,13 +447,12 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     }
 
     /**
-     * Creates a fragment by looking at the class on file
+     * Creates a fragment searching by class name
      *
      * @param appModel
      */
-    public void newFragment(AppModel appModel) {
+    public void newFragment(String classFragment) {
         String packageName = getPackageName();
-        String classFragment = appModel.getFragmentClass();
         String className = packageName + "." + classFragment;
 
         Fragment myFragment = null;
@@ -450,6 +472,16 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         }
 
         showFragment(myFragment, false);
+    }
+
+    /**
+     * Creates a fragment by looking at the class on file
+     *
+     * @param appModel
+     */
+    public void newFragment(AppModel appModel) {
+        String classFragment = appModel.getFragmentClass();
+        newFragment(classFragment);
     }
 
     /**
