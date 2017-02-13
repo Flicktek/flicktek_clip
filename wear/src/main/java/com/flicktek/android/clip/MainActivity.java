@@ -141,6 +141,20 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         }
     };
 
+    // Check if the screen is off and we get aria to sleep after a some time so we save energy
+    private BroadcastReceiver mScreenIsOn = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                Log.v(TAG, "---------- Screen is off --------");
+                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), true);
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                Log.v(TAG, "---------- Screen is on --------");
+                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), false);
+            }
+        }
+    };
+
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(final ComponentName name, final IBinder service) {
@@ -219,6 +233,12 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         filter.addAction(BleProfileService.BROADCAST_ERROR);
         filter.addAction(UARTProfile.BROADCAST_DATA_RECEIVED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mServiceBroadcastReceiver, filter);
+
+
+        final IntentFilter filterScreen = new IntentFilter();
+        filterScreen.addAction(Intent.ACTION_SCREEN_OFF);
+        filterScreen.addAction(Intent.ACTION_SCREEN_ON);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mScreenIsOn, filter);
     }
 
     @Override
@@ -298,7 +318,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     @Override
     public void onResume() {
-        FlicktekCommands.getInstance().setApplicationPaused(false);
+        FlicktekCommands.getInstance().setApplicationPaused(this, false);
         super.onResume();
         Log.v(TAG, "onResume");
         EventBus.getDefault().register(this);
@@ -308,7 +328,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     public void onPause() {
         Log.v(TAG, "onPause");
         super.onPause();
-        FlicktekCommands.getInstance().setApplicationPaused(true);
+        FlicktekCommands.getInstance().setApplicationPaused(this, true);
         EventBus.getDefault().unregister(this);
     }
 

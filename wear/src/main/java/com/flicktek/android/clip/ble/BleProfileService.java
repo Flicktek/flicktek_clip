@@ -33,8 +33,10 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.FlicktekManager;
 
 public class BleProfileService extends Service implements BleManagerCallbacks {
@@ -75,6 +77,20 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
     private boolean mConnected;
     private BluetoothDevice mBluetoothDevice;
     private String mDeviceName;
+
+    // Check if the screen is off and we get aria to sleep after a some time so we save energy
+    private BroadcastReceiver mScreenIsOn = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                Log.v(TAG, "---------- Screen is off --------");
+                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), true);
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                Log.v(TAG, "---------- Screen is on --------");
+                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), false);
+            }
+        }
+    };
 
     private final BroadcastReceiver mBluetoothStateBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -193,6 +209,11 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         // Register broadcast receivers
         registerReceiver(mBluetoothStateBroadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 
+        final IntentFilter filterScreen = new IntentFilter();
+        filterScreen.addAction(Intent.ACTION_SCREEN_OFF);
+        filterScreen.addAction(Intent.ACTION_SCREEN_ON);
+        registerReceiver(mScreenIsOn, filterScreen);
+
         // Service has now been created
         onServiceCreated();
 
@@ -239,6 +260,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         super.onDestroy();
         // Unregister broadcast receivers
         unregisterReceiver(mBluetoothStateBroadcastReceiver);
+        unregisterReceiver(mScreenIsOn);
 
         // shutdown the manager
         mBleManager.close();

@@ -1,8 +1,13 @@
 package com.flicktek.android.clip;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.flicktek.android.clip.uart.UARTProfile;
@@ -12,6 +17,10 @@ import org.greenrobot.eventbus.EventBus;
 import static android.os.Debug.isDebuggerConnected;
 
 public class FlicktekCommands extends UARTProfile {
+
+    // Time for the device to go to sleep after it gets out of focus
+    private static final long ALARM_SLEEP_TIME = 60000;
+
     private final String TAG = "FlicktekCommands";
 
     // Singleton
@@ -95,12 +104,46 @@ public class FlicktekCommands extends UARTProfile {
 
     private Context mContext;
 
+    private PendingIntent mAlarmPendingIntent;
+
     // The application is out of view so we are on paused
     // This will make the service to try to launch the MainActivity intent in case
     // we have a detected gesture and we are not on focus.
 
-    public void setApplicationPaused(boolean applicationPaused) {
+    public void setApplicationPaused(Context context, boolean applicationPaused) {
         mIsApplicationPaused = applicationPaused;
+
+        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        if (mIsApplicationPaused) {
+            if (mAlarmPendingIntent != null) {
+                Log.v(TAG, "+ There is an alarm to sleep already!");
+                return;
+            }
+
+            BroadcastReceiver br = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context c, Intent i) {
+                    Log.v(TAG, "+ Sleep receiver!");
+                    if (mIsApplicationPaused) {
+                        Log.v(TAG, "+ We are still sleeping, lets turn Clip off");
+                        writeStatus_Sleep();
+                    }
+                    mAlarmPendingIntent = null;
+                }
+            };
+
+            Log.v(TAG, "+++++++++++ GO TO SLEEP IN " + ALARM_SLEEP_TIME + "+++++++++++");
+            mContext.registerReceiver(br, new IntentFilter("com.flicktek.sleep"));
+
+            mAlarmPendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent("com.flicktek.sleep"), 0);
+
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + ALARM_SLEEP_TIME, mAlarmPendingIntent);
+        } else {
+            if (mAlarmPendingIntent != null) {
+                alarmManager.cancel(mAlarmPendingIntent);
+            }
+            writeStatus_Exec();
+        }
     }
 
     public void init(Context context) {
@@ -539,12 +582,13 @@ public class FlicktekCommands extends UARTProfile {
     }
 
     public class onGestureEvent {
-        public  Integer status;
-        public  Integer quality;
+        public Integer status;
+        public Integer quality;
 
         public onGestureEvent(int value) {
             this.status = value;
         }
+
         public onGestureEvent(int value, int quality) {
 
             this.status = value;
