@@ -106,6 +106,13 @@ public class CalibrationFragmentScroll extends Fragment implements View.OnClickL
                     transaction.commit();
                     Log.d(TAG, "End  Scroll getBackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
 
+                    Log.i(TAG, "-------- BEGIN SCROLL FRAGMENT --------");
+                    for(int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++){
+                        FragmentManager.BackStackEntry backStackEntryAt = fragmentManager.getBackStackEntryAt(entry);
+                        Log.i(TAG, "Fragment: " + backStackEntryAt.getId() + " " + backStackEntryAt.getName());
+                    }
+                    Log.i(TAG, "---------- END SCROLL FRAGMENT --------");
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

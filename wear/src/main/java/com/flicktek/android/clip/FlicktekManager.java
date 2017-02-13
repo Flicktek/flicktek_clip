@@ -1,5 +1,6 @@
 package com.flicktek.android.clip;
 
+import android.app.FragmentManager;
 import android.util.Log;
 
 public class FlicktekManager {
@@ -129,8 +130,10 @@ public class FlicktekManager {
             return;
         }
 
+        FragmentManager fragmentManager = mainActivity.getFragmentManager();
+
         //mainActivity.showToastMessage("Back");
-        Log.d(TAG, "getBackStackEntryCount: " + mainActivity.getFragmentManager().getBackStackEntryCount());
+        Log.d(TAG, "getBackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
         mainActivity.backFragment();
     }
 
