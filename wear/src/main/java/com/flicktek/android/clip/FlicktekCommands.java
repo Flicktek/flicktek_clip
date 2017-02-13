@@ -2,6 +2,7 @@ package com.flicktek.android.clip;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.flicktek.android.clip.uart.UARTProfile;
@@ -86,12 +87,25 @@ public class FlicktekCommands extends UARTProfile {
     private int currentGestureIndex;
     private int currentGestureIteration;
 
+    private boolean mIsApplicationPaused = false;
+
     public FlicktekCommands() {
         Log.d(TAG, "FlicktekCommands");
     }
 
+    private Context mContext;
+
+    // The application is out of view so we are on paused
+    // This will make the service to try to launch the MainActivity intent in case
+    // we have a detected gesture and we are not on focus.
+
+    public void setApplicationPaused(boolean applicationPaused) {
+        mIsApplicationPaused = applicationPaused;
+    }
+
     public void init(Context context) {
         Log.d(TAG, "init: ");
+        mContext = context;
         numGestures = context.getResources().getInteger(R.integer.calibration_gestures);
         numRepetitions = context.getResources().getInteger(R.integer.calibration_iterations);
     }
@@ -134,6 +148,13 @@ public class FlicktekCommands extends UARTProfile {
                 break;
         }
         Log.d(TAG, "onGestureChanged: " + value + " = " + _value);
+
+        if (mIsApplicationPaused) {
+            final Intent activity = new Intent(mContext, MainActivity.class);
+            activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.getApplicationContext().startActivity(activity);
+        }
+
         EventBus.getDefault().post(new onGestureEvent(_value));
     }
 
