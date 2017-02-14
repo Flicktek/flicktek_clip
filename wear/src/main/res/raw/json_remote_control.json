@@ -11,7 +11,7 @@
       "text": "IoT Demo",
       "drawable": "ic_home_circle_black",
       "target": "media_controller",
-      "configuration": "json_unity_demo"
+      "configuration": "media_unity_demo"
     }
   ]
 }

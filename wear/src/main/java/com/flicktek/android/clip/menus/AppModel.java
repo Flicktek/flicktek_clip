@@ -26,7 +26,6 @@ public class AppModel {
     public static final String TARGET_MEDIA_CONTROLLER = "media_controller";
     public static final String TARGET_REMOTE_ACTIVITY = "remote_activity";
     public static final String TARGET_FRAGMENT_CLASS = "fragment_class";
-    public static final String TARGET_REMOTE_INTENT = "remote_intent";
     public static final String TARGET_MEDIA_LIST = "menu_list";
     public static final String TARGET_CLOSE = "close";
 
@@ -165,6 +164,7 @@ public class AppModel {
         if (target == null)
             return;
 
+        String action = getAction();
         switch (target) {
             case TARGET_MEDIA_LIST:
                 mainActivity.showFragment(
@@ -182,9 +182,8 @@ public class AppModel {
                 mainActivity.shutdown();
                 break;
             case TARGET_REMOTE_ACTIVITY:
-                String action = getAction();
                 if (action != null) {
-                    Toast.makeText(mainActivity, "Launching intent " + action, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mainActivity, "Launching internal activity on the device " + action, Toast.LENGTH_SHORT).show();
                     mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
                             Constants.FLICKTEK_CLIP.LAUNCH_ACTIVITY, action);
                 }

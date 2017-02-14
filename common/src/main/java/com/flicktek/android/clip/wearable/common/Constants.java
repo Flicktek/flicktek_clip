@@ -54,7 +54,6 @@ public final class Constants {
 
         public static final String START_MUSIC_PATH = "/music";
 
-        public static final String LAUNCH_PACKAGE_INTENT = "/package";
         public static final String LAUNCH_ACTIVITY = "/activity";
         public static final String LAUNCH_FRAGMENT = "/intent";
         public static final String LAUNCH_INTENT = "/intent";

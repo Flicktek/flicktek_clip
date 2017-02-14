@@ -112,19 +112,6 @@ public class FlicktekManager {
 
     //------------- SMARTWATCH -------------------------
 
-    public final static String PHONE_LAUNCH_INTENT = "/intent";
-    public final static String GESTURE_INTENT = "/gesture";
-
-    public static void sendSmartPhoneMessage(String activity_name, String phoneLaunchIntent) {
-        Log.v(TAG, "sendSmartPhoneMessage " + activity_name + " Intent " + phoneLaunchIntent);
-    }
-
-    /* The interface created a gesture, we have to redirect the message to the Smartphone */
-    public static void onTouchGesture(int gesture) {
-        Log.v(TAG, "onTouchGesture " + gesture);
-        sendSmartPhoneMessage(getGestureString(gesture), GESTURE_INTENT);
-    }
-
     public static void backMenu(MainActivity mainActivity) {
         if (mainActivity == null) {
             return;

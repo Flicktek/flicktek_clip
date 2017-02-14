@@ -110,6 +110,17 @@ public class WearListenerService extends WearableListenerService {
 
             if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_INTENT)) {
                 Log.v(TAG, "Launch Intent! " + text);
+
+                // If we are the same package name we will launch the activity internally
+                // Otherwise it is some application that we want to launch
+                String packageName = getPackageName();
+                if (!text.startsWith(packageName)) {
+                    PackageManager pm = getPackageManager();
+                    Intent intent = pm.getLaunchIntentForPackage(text);
+                    startActivity(intent);
+                    return;
+                }
+
                 final Intent intent = new Intent(text);
                 intent.putExtra("launch", text);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -123,14 +134,6 @@ public class WearListenerService extends WearableListenerService {
                 startIntent.putExtra("fragment", text);
                 startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(startIntent);
-                return;
-            }
-
-            // Check to see if the message is to start an activity
-            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_PACKAGE_INTENT)) {
-                PackageManager pm = getPackageManager();
-                Intent intent = pm.getLaunchIntentForPackage(text);
-                startActivity(intent);
                 return;
             }
 
@@ -196,7 +199,7 @@ public class WearListenerService extends WearableListenerService {
             }
 
         } catch (Exception e) {
-            Log.d(TAG, "onMessageReceived Failed [" + path + "] " + text + " " +e.toString());
+            Log.d(TAG, "onMessageReceived Failed [" + path + "] " + text + " " + e.toString());
         }
 
         switch (messageEvent.getPath()) {

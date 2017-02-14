@@ -318,7 +318,7 @@ public class SlideFragment extends Fragment implements View.OnClickListener, Wea
     }
 
     @Override
-    public void onGestureReceived(String gesture) {
+    public void onGestureReceived(final String gesture) {
         if (gesture.equals("DOWN")) {
             status = STATUS_NEXT;
             updateUi();
@@ -330,8 +330,15 @@ public class SlideFragment extends Fragment implements View.OnClickListener, Wea
             updateUi();
         }
 
-        Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gesture, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
-        toast.show();
+        mainActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gesture, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
+                    toast.show();
+                } catch (Exception e) {
+                };
+            };
+        });
     }
 }

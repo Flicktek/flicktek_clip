@@ -445,6 +445,17 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         }).start();
     }
 
+
+    /**
+     * Sends the given command to the handheld.
+     *
+     * @param command the message
+     */
+    public void sendGestureToHandheld(int touch) {
+        Log.v(TAG, "-------- GESTURE TO HANDHELD " + touch + "--------------");
+        sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.GESTURE, Integer.toString(touch));
+    }
+
     public void backFragment() {
         Log.d(TAG, "showFragment");
         runOnUiThread(new Runnable() {

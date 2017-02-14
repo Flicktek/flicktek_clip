@@ -274,17 +274,17 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
         }
         if (_view == iconNext) {
             status = STATUS_NEXT;
-            FlicktekManager.onTouchGesture(FlicktekManager.GESTURE_DOWN);
+            mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_DOWN);
             updateUi();
         }
         if (_view == iconPP) {
             status = STATUS_PLAY;
-            FlicktekManager.onTouchGesture(FlicktekManager.GESTURE_ENTER);
+            mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_ENTER);
             updateUi();
         }
         if (_view == iconPrev) {
             status = STATUS_PREV;
-            FlicktekManager.onTouchGesture(FlicktekManager.GESTURE_UP);
+            mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_UP);
             updateUi();
         }
     }
