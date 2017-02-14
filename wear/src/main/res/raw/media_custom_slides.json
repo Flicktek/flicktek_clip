@@ -1,0 +1,40 @@
+{
+  "title": "",
+  "background": "bkg_custom_slides",
+  "activity": "com.flicktek.android.clip.slides",
+  "gesture_actions": [
+    {
+      "text": "Previous",
+      "package": "android",
+      "drawable": "ic_media_previous",
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:previous/destination:$(SERVER)",
+      "onGesture": "up",
+      "target": "phone"
+    },
+    {
+      "text": "Next",
+      "package": "android",
+      "drawable": "ic_media_next",
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:next/destination:$(SERVER)",
+      "onGesture": "down",
+      "target": "phone"
+    },
+    {
+      "text": "Start show",
+      "package": "android",
+      "drawable": "ic_media_play",
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:start_show/destination:$(SERVER)",
+      "onGesture": "enter",
+      "target": "phone"
+    },
+    {
+      "text": "End show",
+      "package": "android",
+      "drawable": "ic_media_pause",
+
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:show_end/destination:$(SERVER)",
+      "onGesture": "home",
+      "target": "phone"
+    }
+  ]
+}

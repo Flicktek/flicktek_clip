@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.MainActivity;
+import com.flicktek.android.clip.wearable.common.Constants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +21,14 @@ public class AppModel {
     public static final int NO_VIEW = -1;
     public static final int BACK_APPLICATION = -2;
     public static final int RUN_PACKAGE = -3;
+
+    // Items on the list
+    public static final String TARGET_MEDIA_CONTROLLER = "media_controller";
+    public static final String TARGET_REMOTE_ACTIVITY = "remote_activity";
+    public static final String TARGET_FRAGMENT_CLASS = "fragment_class";
+    public static final String TARGET_REMOTE_INTENT = "remote_intent";
+    public static final String TARGET_MEDIA_LIST = "menu_list";
+    public static final String TARGET_CLOSE = "close";
 
     private String name;
     private String packageName;
@@ -147,35 +156,43 @@ public class AppModel {
             return;
         }
 
-        if (getConfiguration() != null) {
-            String target = getTarget();
-            if (target != null) {
-                if (target.compareTo("menu_list") == 0) {
-                    mainActivity.showFragment(
-                            MenuFragment.newInstance(
-                                    this.name,
-                                    this.getTargetConfigurationJSON()), false);
-                } else if (target.compareTo("media_controller") == 0) {
-                    mainActivity.newMediaFragment(this);
-                } else if (target.compareTo("fragment_class") == 0) {
-                    mainActivity.newFragment(this);
-                } else if (target.compareTo("close") == 0) {
-                    mainActivity.shutdown();
-                } else {
-                    mainActivity.showToastMessage("Don't have a valid target " + target);
-                }
-                return;
-            }
-
-            String action = getAction();
-            if (action != null) {
-                // TODO Run intent
-                Toast.makeText(mainActivity, "Launching intent " + action, Toast.LENGTH_SHORT).show();
-                return;
-            }
+        if (getConfiguration() == null) {
+            Toast.makeText(mainActivity, "Missing what to do with current item ", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        Toast.makeText(mainActivity, "Missing what to do with current item ", Toast.LENGTH_SHORT).show();
+        String target = getTarget();
+        if (target == null)
+            return;
+
+        switch (target) {
+            case TARGET_MEDIA_LIST:
+                mainActivity.showFragment(
+                        MenuFragment.newInstance(
+                                this.name,
+                                this.getTargetConfigurationJSON()), false);
+                break;
+            case TARGET_MEDIA_CONTROLLER:
+                mainActivity.newMediaFragment(this);
+                break;
+            case TARGET_FRAGMENT_CLASS:
+                mainActivity.newFragment(this);
+                break;
+            case TARGET_CLOSE:
+                mainActivity.shutdown();
+                break;
+            case TARGET_REMOTE_ACTIVITY:
+                String action = getAction();
+                if (action != null) {
+                    Toast.makeText(mainActivity, "Launching intent " + action, Toast.LENGTH_SHORT).show();
+                    mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                            Constants.FLICKTEK_CLIP.LAUNCH_ACTIVITY, action);
+                }
+                break;
+            default:
+                mainActivity.showToastMessage("Don't have a valid target " + target);
+                break;
+        }
     }
 
     /**

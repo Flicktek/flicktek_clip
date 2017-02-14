@@ -10,14 +10,14 @@
     {
       "text": "Learning Intro",
       "drawable": "i_sim",
-      "target": "intent",
-      "action": "intro_video"
+      "target": "remote_activity",
+      "action": "VideoActivity"
     },
     {
       "text": "Learning",
       "drawable": "i_learn",
-      "target": "intent",
-      "action": "intro_video"
+      "target": "remote_activity",
+      "action": "VideoActivity"
     },
     {
       "text": "Settings",

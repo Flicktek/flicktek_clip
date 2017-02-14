@@ -22,6 +22,7 @@
 
 package com.flicktek.android.clip.wearable;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.util.Log;
@@ -29,7 +30,6 @@ import android.util.Log;
 import com.flicktek.android.clip.ClipIntents;
 import com.flicktek.android.clip.LaunchActivity;
 import com.flicktek.android.clip.MainActivity;
-import com.flicktek.android.clip.VideoActivity;
 import com.flicktek.android.clip.uart.UARTService;
 import com.flicktek.android.clip.wearable.common.Constants;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -87,7 +87,7 @@ public class WearListenerService extends WearableListenerService {
             path = messageEvent.getPath();
             text = new String(messageEvent.getData());
 
-            if (path.equals("/music")) {
+            if (path.equals(Constants.FLICKTEK_CLIP.START_MUSIC_PATH)) {
                 Intent intent = new Intent("android.intent.action.MUSIC_PLAYER");
                 startActivity(intent);
 
@@ -98,31 +98,39 @@ public class WearListenerService extends WearableListenerService {
             }
 
             // Check to see if the message is to start an activity
-            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_INTENT)) {
-                //HACK Since we are hacking for demo
-                if (text.equals("com.deus_hex.aria.main_video")) {
-                    Intent startIntent = new Intent(this, VideoActivity.class);
-                    startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(startIntent);
-                    return;
-                }
+            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_ACTIVITY)) {
+                Intent res = new Intent();
+                String mPackage = getPackageName();
+                String mClass = "." + text;
+                res.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                res.setComponent(new ComponentName(mPackage, mPackage + mClass));
+                startActivity(res);
+                return;
+            }
 
-                if (!text.equals("com.deus_hex.aria.slides")) {
-                    PackageManager pm = getPackageManager();
-                    Intent intent = pm.getLaunchIntentForPackage(text);
-                    startActivity(intent);
-                    return;
-                } else {
-                    path = Constants.FLICKTEK_CLIP.START_ACTIVITY_SLIDES;
-                }
+            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_INTENT)) {
+                Log.v(TAG, "Launch Intent! " + text);
+                final Intent intent = new Intent(text);
+                intent.putExtra("launch", text);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                return;
             }
 
             // Check to see if the message is to start an activity
-            if (path.equals(Constants.FLICKTEK_CLIP.START_ACTIVITY_SLIDES)) {
-                Log.v(TAG, "Launch application");
+            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT)) {
                 Intent startIntent = new Intent(this, MainActivity.class);
+                startIntent.putExtra("fragment", text);
                 startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(startIntent);
+                return;
+            }
+
+            // Check to see if the message is to start an activity
+            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_PACKAGE_INTENT)) {
+                PackageManager pm = getPackageManager();
+                Intent intent = pm.getLaunchIntentForPackage(text);
+                startActivity(intent);
                 return;
             }
 
@@ -134,6 +142,18 @@ public class WearListenerService extends WearableListenerService {
                 startActivity(startIntent);
                 return;
             }
+
+            if (path.equals(Constants.FLICKTEK_CLIP.START_MUSIC_PATH)) {
+                Intent intent = new Intent("android.intent.action.MUSIC_PLAYER");
+                startActivity(intent);
+
+                if (!text.equals("launch"))
+                    ClipIntents.openBroadcastIntent(this,
+                            "com.android.music.musicservicecommand",
+                            "command", text);
+                return;
+            }
+
 
             int value = -1;
             boolean isNumber = false;
@@ -176,7 +196,7 @@ public class WearListenerService extends WearableListenerService {
             }
 
         } catch (Exception e) {
-            Log.d(TAG, "onMessageReceived Failed [" + path + "] " + text);
+            Log.d(TAG, "onMessageReceived Failed [" + path + "] " + text + " " +e.toString());
         }
 
         switch (messageEvent.getPath()) {

@@ -423,7 +423,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
      *
      * @param command the message
      */
-    private void sendMessageToHandheld(final @NonNull Context context, final @NonNull String route, final @NonNull String command) {
+    public void sendMessageToHandheld(final @NonNull Context context, final @NonNull String route, final @NonNull String command) {
         new Thread(new Runnable() {
             @Override
             public void run() {

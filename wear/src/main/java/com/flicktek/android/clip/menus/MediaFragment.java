@@ -24,6 +24,7 @@ import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.util.Helpers;
+import com.flicktek.android.clip.wearable.common.Constants;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -65,12 +66,24 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainActivity = (MainActivity) getActivity();
+
         String json = getArguments().getString(ARG_JSON);
 
         try {
             JSONObject parent = new JSONObject(json);
             String configuration_json = parent.getString(JSON_CONFIGURATION);
             config = Helpers.getJsonFromResources((MainActivity) getActivity(), configuration_json);
+
+            try {
+                String activity_name = config.getString("activity");
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.LAUNCH_INTENT, activity_name);
+
+            } catch (Exception e) {
+                Log.v(TAG, "No activity to be launched");
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "Failed parsing JSON");
@@ -78,7 +91,6 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mainActivity = (MainActivity) getActivity();
         View rootView = null;
 
         rootView = inflater.inflate(R.layout.fragment_media, container, false);
@@ -97,14 +109,6 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
         }
 
         try {
-            try {
-                String activity_name = config.getString("activity");
-                FlicktekManager.sendSmartPhoneMessage(activity_name,
-                        FlicktekManager.PHONE_LAUNCH_INTENT);
-            } catch (Exception e) {
-                Log.v(TAG, "No activity to be launched");
-            }
-
             String title = "Empty";
 
             TextView tvTitle = (TextView) rootView.findViewById(R.id.tv_media_title);

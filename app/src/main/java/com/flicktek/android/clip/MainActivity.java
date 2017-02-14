@@ -267,6 +267,11 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
      * Sets up UI components and their callback handlers.
      */
     private void setupViews() {
+        if (config == null) {
+            Log.v(TAG, "No configuration supplied for this activity");
+            return;
+        }
+
         try {
             String menu_config = config.getString("json");
             if (menu_config != null) {
@@ -274,12 +279,12 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                 return;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         try {
             String launch = config.getString("launch");
             switch (launch) {
-                case "SlideFragment":
+                case "com.flicktek.android.clip.slides":
                     showFragment(SlideFragment.newInstance("media_slide", ""), true);
                     break;
 
@@ -289,7 +294,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                     break;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

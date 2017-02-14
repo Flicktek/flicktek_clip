@@ -71,8 +71,11 @@
 
             android:theme="@style/AppTheme">
             <intent-filter>
-                <action android:name="com.deus_tech.aria.slides"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.flicktek.android.clip.slides"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -97,7 +100,7 @@
             android:theme="@style/AppTheme"
             android:launchMode="singleTask" >
             <intent-filter>
-                <action android:name="com.deus_tech.aria.videos" />
+                <action android:name="com.flicktek.android.clip.intent_videos" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
