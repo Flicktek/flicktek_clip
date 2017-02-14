@@ -50,6 +50,10 @@ import com.flicktek.android.clip.uart.UARTService;
 import com.flicktek.android.clip.wearable.WearListenerService;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
@@ -60,7 +64,7 @@ import java.util.UUID;
  * to the paired wearable.
  */
 public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UARTBinder>
-        implements UARTInterface, WearListenerService.MyGestureListener {
+        implements UARTInterface {
     private static final String TAG = "MainActivity";
 
     ///////////////////////////////////////////////////////////////////////////
@@ -187,13 +191,14 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         }
 
         WearListenerService.mApplicationActive = true;
-        WearListenerService.setCustomObjectListener(this);
+        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         WearListenerService.mApplicationActive = false;
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -219,7 +224,6 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     @Override
     protected void onCreateView(Bundle savedInstanceState) {
         config = getIntent().getExtras();
-        WearListenerService.setCustomObjectListener(this);
         setContentView(R.layout.activity_fragments);
         setupViews();
     }
@@ -302,7 +306,9 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public void onGestureReceived(String gesture) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
+        String gesture = FlicktekManager.getGestureString(gestureEvent.status);
         Toast toast = Toast.makeText(getApplicationContext(), gesture, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
         toast.show();

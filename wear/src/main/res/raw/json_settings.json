@@ -1,0 +1,23 @@
+{
+  "back_button": true,
+  "menu_items": [
+    {
+      "text": "Amplitude",
+      "drawable": "ic_adjust_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.MenuPlaceholder"
+    },
+    {
+      "text": "Adjust refresh",
+      "drawable": "ic_adjust_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.MenuPlaceholder"
+    },
+    {
+      "text": "Activate Debug",
+      "drawable": "ic_adjust_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.MenuPlaceholder"
+    }
+  ]
+}

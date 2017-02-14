@@ -28,6 +28,8 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.flicktek.android.clip.ClipIntents;
+import com.flicktek.android.clip.FlicktekCommands;
+import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.LaunchActivity;
 import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.uart.UARTService;
@@ -41,12 +43,6 @@ import com.google.android.gms.wearable.WearableListenerService;
  */
 public class WearListenerService extends WearableListenerService {
     private static final String TAG = "WEARABLE_SERVICE";
-
-    public static MyGestureListener mListener;
-
-    public static void setCustomObjectListener(MyGestureListener listener) {
-        mListener = listener;
-    }
 
     GoogleApiClient mGoogleApiClient;
 
@@ -170,30 +166,29 @@ public class WearListenerService extends WearableListenerService {
 
             if (path.equals(Constants.FLICKTEK_CLIP.GESTURE)) {
                 if (isNumber) {
-                    String gesture = "";
-                    switch (value) {
-                        case 1:
-                            gesture = "ENTER";
-                            break;
-                        case 2:
-                            gesture = "HOME";
-                            break;
-                        case 3:
-                            gesture = "UP";
-                            break;
-                        case 4:
-                            gesture = "DOWN";
-                            break;
-                    }
-
                     if (!mApplicationActive) {
+                        String gesture = "";
+                        switch (value) {
+                            case 1:
+                                gesture = "ENTER";
+                                break;
+                            case 2:
+                                gesture = "HOME";
+                                break;
+                            case 3:
+                                gesture = "UP";
+                                break;
+                            case 4:
+                                gesture = "DOWN";
+                                break;
+                        }
                         Log.v(TAG, "Gesture: " + gesture + " Broadcast gesture ");
                         ClipIntents.openBroadcastIntent(this, ClipIntents.ACTION_URI_GESTURE, gesture);
                     } else {
-                        if (mListener != null)
-                            mListener.onGestureReceived(gesture);
-
-                        Log.v(TAG, "Gesture: " + gesture + " Application is active ");
+                        // We propagate the gesture through the event system
+                        FlicktekCommands.getInstance().onGestureChanged(value);
+                        Log.v(TAG, "Gesture: " + FlicktekManager.getGestureString(value) +
+                                " Application is active " + value);
                     }
                 }
             }
@@ -230,9 +225,5 @@ public class WearListenerService extends WearableListenerService {
                 super.onMessageReceived(messageEvent);
                 break;
         }
-    }
-
-    public interface MyGestureListener {
-        void onGestureReceived(String gesture);
     }
 }

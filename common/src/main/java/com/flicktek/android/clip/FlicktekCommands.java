@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.flicktek.android.clip.common.R;
 import com.flicktek.android.clip.uart.UARTProfile;
 
 import org.greenrobot.eventbus.EventBus;
@@ -172,33 +173,22 @@ public class FlicktekCommands extends UARTProfile {
     }
 
     public void onGestureChanged(int value) {
-        int _value = value;
-        switch (_value) {
-            case 1:
-                _value = FlicktekManager.GESTURE_ENTER;
-                break;
-            case 2:
-                _value = FlicktekManager.GESTURE_HOME;
-                break;
-            case 3:
-                _value = FlicktekManager.GESTURE_UP;
-                break;
-            case 4:
-                _value = FlicktekManager.GESTURE_DOWN;
-                break;
-            case 5:
-                _value = FlicktekManager.GESTURE_BACK;
-                break;
-        }
-        Log.d(TAG, "onGestureChanged: " + value + " = " + _value);
+        Log.d(TAG, "onGestureChanged: " + value );
 
         if (mIsApplicationPaused) {
+            if (mContext!=null) {
+                Intent LaunchIntent = mContext.getPackageManager().getLaunchIntentForPackage(mContext.getPackageName());
+                mContext.startActivity(LaunchIntent);
+            }
+
+            /*
             final Intent activity = new Intent(mContext, MainActivity.class);
             activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.getApplicationContext().startActivity(activity);
+            */
         }
 
-        EventBus.getDefault().post(new onGestureEvent(_value));
+        EventBus.getDefault().post(new onGestureEvent(value));
     }
 
     @Override
@@ -590,7 +580,6 @@ public class FlicktekCommands extends UARTProfile {
         }
 
         public onGestureEvent(int value, int quality) {
-
             this.status = value;
             this.quality = quality;
         }

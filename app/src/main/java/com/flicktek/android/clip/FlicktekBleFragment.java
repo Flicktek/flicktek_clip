@@ -29,6 +29,9 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -43,7 +46,7 @@ import java.util.Random;
 
 import static java.util.Locale.US;
 
-public class FlicktekBleFragment extends Fragment implements View.OnClickListener, WearListenerService.MyGestureListener {
+public class FlicktekBleFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "SlideFragment";
     private static final String ARG_JSON = "JSON";
     private static final String ARG_EXTRA = "EXTRA";
@@ -101,7 +104,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             //e.printStackTrace();
             Log.e(TAG, "Failed parsing JSON");
         }
-        WearListenerService.setCustomObjectListener(this);
+
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -247,7 +250,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     @Override
     public void onResume() {
         WearListenerService.mApplicationActive = true;
-        WearListenerService.setCustomObjectListener(this);
+        EventBus.getDefault().register(this);
         super.onResume();
 
         mTimer = new Runnable() {
@@ -345,6 +348,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         super.onPause();
 
         mHandler.removeCallbacks(mTimer);
+        EventBus.getDefault().unregister(this);
     }
 
     double mLastRandom = 2;
@@ -549,9 +553,9 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     public void close() {
     }
 
-    @Override
-    public void onGestureReceived(String gesture) {
-        Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gesture, Toast.LENGTH_SHORT);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
+        Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gestureEvent.status, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
         toast.show();
     }

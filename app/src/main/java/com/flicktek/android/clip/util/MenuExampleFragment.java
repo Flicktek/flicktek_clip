@@ -8,16 +8,13 @@ import com.flicktek.android.clip.AppModel;
 import com.flicktek.android.clip.MenuAdapter;
 import com.flicktek.android.clip.MenuFragment;
 import com.flicktek.android.clip.R;
-import com.flicktek.android.clip.wearable.WearListenerService;
 
 import java.util.ArrayList;
 
 /**
  * Generic menu fragment inheritable
  */
-public class MenuExampleFragment extends MenuFragment implements AdapterView.OnItemClickListener,
-        WearListenerService.MyGestureListener {
-
+public class MenuExampleFragment extends MenuFragment implements AdapterView.OnItemClickListener {
     private String TAG = "MenuFragment";
 
     // Default bundle constructor as google best practices

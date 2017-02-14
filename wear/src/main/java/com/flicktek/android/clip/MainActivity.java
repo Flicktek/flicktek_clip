@@ -80,7 +80,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class MainActivity extends WearableActivity implements UARTCommandsAdapter.OnCommandSelectedListener, GoogleApiClient.ConnectionCallbacks,
-        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
+        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, FlicktekManager.BackMenu {
     private static final String TAG = "MainActivity";
 
     public static boolean isRound;

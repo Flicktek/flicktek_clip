@@ -23,7 +23,7 @@
       "text": "Settings",
       "drawable": "ic_settings_black_48dp",
       "target": "menu_list",
-      "json": "json_remote_control"
+      "json": "json_settings"
     }
   ]
 }

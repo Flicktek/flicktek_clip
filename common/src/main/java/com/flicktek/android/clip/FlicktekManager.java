@@ -1,6 +1,5 @@
 package com.flicktek.android.clip;
 
-import android.app.FragmentManager;
 import android.util.Log;
 
 public class FlicktekManager {
@@ -110,17 +109,16 @@ public class FlicktekManager {
         return "NONE";
     }
 
+    public interface BackMenu {
+        void backFragment();
+    }
+
     //------------- SMARTWATCH -------------------------
 
-    public static void backMenu(MainActivity mainActivity) {
+    public static void backMenu(BackMenu mainActivity) {
         if (mainActivity == null) {
             return;
         }
-
-        FragmentManager fragmentManager = mainActivity.getFragmentManager();
-
-        //mainActivity.showToastMessage("Back");
-        Log.d(TAG, "getBackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
         mainActivity.backFragment();
     }
 
@@ -128,10 +126,6 @@ public class FlicktekManager {
 
     public static int getBatteryLevel() {
         return mBatteryLevel;
-    }
-
-    public static void gotoDashboard(MainActivity mainActivity) {
-
     }
 
     public static String getFirmwareVersion() {

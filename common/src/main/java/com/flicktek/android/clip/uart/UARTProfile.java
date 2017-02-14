@@ -31,7 +31,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.ble.BleManager;
 import com.flicktek.android.clip.ble.BleProfile;
 import com.flicktek.android.clip.ble.BleProfileApi;

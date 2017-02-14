@@ -14,15 +14,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flicktek.android.clip.wearable.WearListenerService;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
 /**
  * Generic menu fragment inheritable
  */
-public class MenuFragment extends Fragment implements AdapterView.OnItemClickListener,
-        WearListenerService.MyGestureListener {
+public class MenuFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     protected static final String ARG_JSON_NAME = "jsonName";
     protected static final String ARG_MENU_NAME = "menuName";
@@ -60,7 +61,6 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         super.onCreate(savedInstanceState);
         jsonName = getArguments().getString(ARG_JSON_NAME);
         menuName = getArguments().getString(ARG_MENU_NAME);
-        WearListenerService.setCustomObjectListener(this);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -128,12 +128,14 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
     public void onResume() {
         Log.d(TAG, "onResume: ");
         super.onResume();
+        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
         Log.d(TAG, "onPause: ");
         super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     private void updateUi() {
@@ -179,26 +181,26 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         mainActivity.onBackPressed();
     }
 
-    @Override
-    public void onGestureReceived(String gesture) {
-        switch (gesture) {
-            case ("UP"):
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
+        switch (gestureEvent.status) {
+            case FlicktekManager.GESTURE_UP:
                 if (menuIndex > 0)
                     changeCurrentMenuIndex(menuIndex - 1);
                 else
                     changeCurrentMenuIndex(menuAdapter.getCount() - 1);
                 break;
-            case ("DOWN"):
+            case FlicktekManager.GESTURE_DOWN:
                 if (menuIndex < menuAdapter.getCount() - 1)
                     changeCurrentMenuIndex(menuIndex + 1);
                 else
                     changeCurrentMenuIndex(0);
                 break;
-            case ("ENTER"):
+            case FlicktekManager.GESTURE_ENTER:
                 openCurrentItem();
                 break;
 
-            case ("HOME"):
+            case FlicktekManager.GESTURE_HOME:
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(
                             new Runnable() {
@@ -217,7 +219,9 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
         exit_pressed = false;
 
-        Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gesture, Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(mainActivity.getApplicationContext(),
+                FlicktekManager.getGestureString(gestureEvent.status),
+                Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
         toast.show();
     }

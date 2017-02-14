@@ -23,9 +23,12 @@ import android.widget.Toast;
 import com.flicktek.android.clip.util.Helpers;
 import com.flicktek.android.clip.wearable.WearListenerService;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
-public class SlideFragment extends Fragment implements View.OnClickListener, WearListenerService.MyGestureListener {
+public class SlideFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "SlideFragment";
     private static final String ARG_JSON = "JSON";
     private static final String ARG_EXTRA = "EXTRA";
@@ -75,7 +78,6 @@ public class SlideFragment extends Fragment implements View.OnClickListener, Wea
             e.printStackTrace();
             Log.e(TAG, "Failed parsing JSON");
         }
-        WearListenerService.setCustomObjectListener(this);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -219,13 +221,14 @@ public class SlideFragment extends Fragment implements View.OnClickListener, Wea
     @Override
     public void onResume() {
         WearListenerService.mApplicationActive = true;
-        WearListenerService.setCustomObjectListener(this);
+        EventBus.getDefault().register(this);
         super.onResume();
     }
 
     @Override
     public void onPause() {
         WearListenerService.mApplicationActive = true;
+        EventBus.getDefault().unregister(this);
         super.onPause();
     }
 
@@ -317,23 +320,32 @@ public class SlideFragment extends Fragment implements View.OnClickListener, Wea
 
     }
 
-    @Override
-    public void onGestureReceived(final String gesture) {
-        if (gesture.equals("DOWN")) {
-            status = STATUS_NEXT;
-            updateUi();
-        } else if (gesture.equals("HOME")) {
-            status = STATUS_PLAY;
-            updateUi();
-        } else if (gesture.equals("UP")) {
-            status = STATUS_PREV;
-            updateUi();
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGesturePerformed(final FlicktekCommands.onGestureEvent gestureEvent) {
+        switch (gestureEvent.status) {
+            case FlicktekManager.GESTURE_UP:
+                status = STATUS_PREV;
+                updateUi();
+                break;
+            case FlicktekManager.GESTURE_DOWN:
+                status = STATUS_NEXT;
+                updateUi();
+                break;
+
+            case FlicktekManager.GESTURE_HOME:
+                status = STATUS_PLAY;
+                updateUi();
+                break;
+            default:
+                break;
         }
 
         mainActivity.runOnUiThread(new Runnable() {
             public void run() {
                 try {
-                    Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gesture, Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(mainActivity.getApplicationContext(),
+                            FlicktekManager.getGestureString(gestureEvent.status),
+                            Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
                     toast.show();
                 } catch (Exception e) {
