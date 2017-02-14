@@ -51,7 +51,7 @@ public class WearListenerService extends WearableListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.v(TAG, "------------- WearListenerService onCreate --------- ");
+        Log.v(TAG, "------------- WearListenerService onCreate [" + mLastFragment + "] --------- ");
     }
 
     public void keepAlive(boolean value) {
@@ -71,6 +71,8 @@ public class WearListenerService extends WearableListenerService {
         return true;
     }
 
+    private static String mLastFragment = "";
+
     @Override
     public void onMessageReceived(final MessageEvent messageEvent) {
         final String message = new String(messageEvent.getData());
@@ -82,6 +84,61 @@ public class WearListenerService extends WearableListenerService {
         try {
             path = messageEvent.getPath();
             text = new String(messageEvent.getData());
+
+            if (path.equals(Constants.FLICKTEK_CLIP.GESTURE)) {
+                int value = -1;
+                boolean isNumber = false;
+
+                try {
+                    value = Integer.valueOf(text);
+                    isNumber = true;
+                } catch (NumberFormatException f) {
+                    return;
+                }
+
+                if (isNumber) {
+                    if (!mApplicationActive) {
+                        String gesture = "";
+                        switch (value) {
+                            case 1:
+                                gesture = "ENTER";
+                                break;
+                            case 2:
+                                gesture = "HOME";
+                                break;
+                            case 3:
+                                gesture = "UP";
+                                break;
+                            case 4:
+                                gesture = "DOWN";
+                                break;
+                        }
+                        Log.v(TAG, "Gesture: " + gesture + " Broadcast gesture ");
+                        ClipIntents.openBroadcastIntent(this, ClipIntents.ACTION_URI_GESTURE, gesture);
+                    } else {
+                        // We propagate the gesture through the event system
+                        FlicktekCommands.getInstance().onGestureChanged(value);
+                        Log.v(TAG, "Gesture: " + FlicktekManager.getGestureString(value) +
+                                " Application is active " + value);
+                    }
+                }
+                return;
+            }
+
+            // Check to see if the message is to start an activity
+            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT)) {
+                // We don't want to relaunch the same fragment on and on
+                if (!mLastFragment.contentEquals(text)) {
+                    Intent startIntent = new Intent(this, MainActivity.class);
+                    startIntent.putExtra("launch", text);
+                    startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(startIntent);
+                    mLastFragment = text;
+                }
+                return;
+            } else {
+                mLastFragment = "";
+            }
 
             if (path.equals(Constants.FLICKTEK_CLIP.START_MUSIC_PATH)) {
                 Intent intent = new Intent("android.intent.action.MUSIC_PLAYER");
@@ -125,15 +182,6 @@ public class WearListenerService extends WearableListenerService {
             }
 
             // Check to see if the message is to start an activity
-            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT)) {
-                Intent startIntent = new Intent(this, MainActivity.class);
-                startIntent.putExtra("fragment", text);
-                startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(startIntent);
-                return;
-            }
-
-            // Check to see if the message is to start an activity
             if (path.equals(Constants.FLICKTEK_CLIP.START_ACTIVITY_PATH)) {
                 Log.v(TAG, "Launch application");
                 Intent startIntent = new Intent(this, LaunchActivity.class);
@@ -151,46 +199,6 @@ public class WearListenerService extends WearableListenerService {
                             "com.android.music.musicservicecommand",
                             "command", text);
                 return;
-            }
-
-
-            int value = -1;
-            boolean isNumber = false;
-
-            try {
-                value = Integer.valueOf(text);
-                isNumber = true;
-            } catch (NumberFormatException f) {
-
-            }
-
-            if (path.equals(Constants.FLICKTEK_CLIP.GESTURE)) {
-                if (isNumber) {
-                    if (!mApplicationActive) {
-                        String gesture = "";
-                        switch (value) {
-                            case 1:
-                                gesture = "ENTER";
-                                break;
-                            case 2:
-                                gesture = "HOME";
-                                break;
-                            case 3:
-                                gesture = "UP";
-                                break;
-                            case 4:
-                                gesture = "DOWN";
-                                break;
-                        }
-                        Log.v(TAG, "Gesture: " + gesture + " Broadcast gesture ");
-                        ClipIntents.openBroadcastIntent(this, ClipIntents.ACTION_URI_GESTURE, gesture);
-                    } else {
-                        // We propagate the gesture through the event system
-                        FlicktekCommands.getInstance().onGestureChanged(value);
-                        Log.v(TAG, "Gesture: " + FlicktekManager.getGestureString(value) +
-                                " Application is active " + value);
-                    }
-                }
             }
 
         } catch (Exception e) {

@@ -495,6 +495,17 @@ public class LaunchActivity extends Activity implements
         startActivity(startIntent);
     }
 
+    public void onStartGesturesActivityClick(View view) {
+        Log.v(TAG, "Launch application");
+        Intent startIntent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        // We launch a fragment class
+        bundle.putString("launch", "menus.AnimatedGestures");
+        startIntent.putExtras(bundle);
+        startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startIntent);
+    }
+
     public void onConnectivityActivityClick(View view) {
         Log.v(TAG, "Launch application");
         Intent startIntent = new Intent(this, MainActivity.class);

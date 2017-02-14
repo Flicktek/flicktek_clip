@@ -28,6 +28,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -156,7 +157,8 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                         Bundle bundle = new Bundle();
                         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(startIntent);
-                    };
+                    }
+                    ;
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -267,6 +269,16 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
     }
 
+    @Override
+    protected void onNewIntent(Intent intent){
+        setIntent(intent);
+        if(intent != null) {
+            config = getIntent().getExtras();
+            if (config != null)
+                setupViews();
+        }
+    }
+
     /**
      * Sets up UI components and their callback handlers.
      */
@@ -287,6 +299,13 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         }
         try {
             String launch = config.getString("launch");
+
+            Fragment fragment = getFragment(launch);
+            if (fragment != null) {
+                showFragment(fragment, false);
+                return;
+            }
+
             switch (launch) {
                 case "com.flicktek.android.clip.slides":
                     showFragment(SlideFragment.newInstance("media_slide", ""), true);
@@ -314,7 +333,8 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         toast.show();
     }
 
-    public void newFragmentFromClassName(String classFragment) {
+    @Nullable
+    public Fragment getFragment(String classFragment) {
         String packageName = getPackageName();
         String className = packageName + "." + classFragment;
 
@@ -331,10 +351,15 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
                 IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
-            return;
+            return null;
         }
+        return myFragment;
+    }
 
-        showFragment(myFragment, false);
+    public void newFragmentFromClassName(String classFragment) {
+        Fragment frg = getFragment(classFragment);
+        if (frg != null)
+            showFragment(frg, false);
     }
 
     /**

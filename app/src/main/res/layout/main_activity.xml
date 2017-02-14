@@ -189,6 +189,19 @@
             android:backgroundTint="@color/white"
             android:background="@drawable/ic_dropbox_black_48dp"/>
 
+        <ImageButton
+            android:id="@+id/start_gestures_activity"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/start_dropbox_activity"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:enabled="true"
+            android:onClick="onStartGesturesActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_done_white"/>
+
+
     </RelativeLayout>
 
 </RelativeLayout>

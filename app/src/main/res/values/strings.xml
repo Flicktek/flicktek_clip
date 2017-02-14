@@ -81,6 +81,12 @@
 	<string name="send_intent">Send broadcast Intent</string>
 	<string name="send_intent_wake">Send Intent WakeUP</string>
 	<string name="start_video_activity">Start video</string>
+	<string name="enter">ENTER</string>
+	<string name="home">HOME</string>
+	<string name="up">UP</string>
+	<string name="down">DOWN</string>
+	<string name="empty"/>
+	<string name="perform_gesture">Perform a gesture</string>
 
 
 </resources>

@@ -17,6 +17,7 @@ import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.R;
+import com.flicktek.android.clip.wearable.common.Constants;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -95,7 +96,8 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         // --- Battery layouts and display ---
 
         initList();
-
+        mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, "menus.AnimatedGestures");
         return rootView;
     }
 
@@ -202,15 +204,18 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
         switch (gesture) {
             case (FlicktekManager.GESTURE_UP):
-                if (menuIndex > minValue)
+                if (menuIndex > minValue) {
                     changeCurrentMenuIndex(menuIndex - 1);
-                else
+                } else {
+                    menuAdapter.disable_header();
                     changeCurrentMenuIndex(menuAdapter.getCount() - 1);
+                }
                 break;
             case (FlicktekManager.GESTURE_DOWN):
                 if (menuIndex < menuAdapter.getCount() - 1) {
                     changeCurrentMenuIndex(menuIndex + 1);
                 } else {
+                    menuAdapter.disable_header();
                     changeCurrentMenuIndex(minValue);
                 }
                 break;

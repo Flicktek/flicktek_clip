@@ -39,8 +39,8 @@
     {
       "text": "Others",
       "drawable": "ic_devices_other_black_48dp",
-      "target": "menu_list",
-      "json": "menu_others"
+      "target": "fragment_class",
+      "json": "PlaceHolder"
     },
     {
       "text": "Disconnect",

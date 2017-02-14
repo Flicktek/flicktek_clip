@@ -30,6 +30,7 @@ import java.util.List;
 public class MenuAdapter extends ArrayAdapter<AppModel> {
     private static final String TAG = "MenuAdapter";
     public boolean hasHeader = false;
+    public boolean disableHeader = false;
 
     public MenuAdapter(Context _context, int _resourceId, List<AppModel> _objects) {
         super(_context, _resourceId, _objects);
@@ -103,6 +104,11 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
                 _view.setBackgroundResource(R.drawable.bg_dark);
                 header.imageView = (ImageView) _view.findViewById(R.id.iv_header);
                 header.imageView.setImageDrawable(item.getIcon());
+
+                if (disableHeader) {
+                    _parent.setVisibility(View.GONE);
+                    _view.setVisibility(View.GONE);
+                }
                 return _view;
             }
 
@@ -149,6 +155,10 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
         }
 
         return _view;
+    }
+
+    public void disable_header() {
+        disableHeader = true;
     }
 
     private static class ViewHolder {
