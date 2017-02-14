@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flicktek.android.clip.wearable.MainWearableListenerService;
+import com.flicktek.android.clip.wearable.WearListenerService;
 
 import java.util.ArrayList;
 
@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * Generic menu fragment inheritable
  */
 public class MenuFragment extends Fragment implements AdapterView.OnItemClickListener,
-        MainWearableListenerService.MyGestureListener {
+        WearListenerService.MyGestureListener {
 
     protected static final String ARG_JSON_NAME = "jsonName";
     protected static final String ARG_MENU_NAME = "menuName";
@@ -60,7 +60,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         super.onCreate(savedInstanceState);
         jsonName = getArguments().getString(ARG_JSON_NAME);
         menuName = getArguments().getString(ARG_MENU_NAME);
-        MainWearableListenerService.setCustomObjectListener(this);
+        WearListenerService.setCustomObjectListener(this);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

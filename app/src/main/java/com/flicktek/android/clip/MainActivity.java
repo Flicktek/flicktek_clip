@@ -47,7 +47,7 @@ import com.flicktek.android.clip.profile.BleProfileService;
 import com.flicktek.android.clip.profile.BleProfileServiceReadyActivity;
 import com.flicktek.android.clip.uart.UARTInterface;
 import com.flicktek.android.clip.uart.UARTService;
-import com.flicktek.android.clip.wearable.MainWearableListenerService;
+import com.flicktek.android.clip.wearable.WearListenerService;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.lang.reflect.Constructor;
@@ -60,7 +60,7 @@ import java.util.UUID;
  * to the paired wearable.
  */
 public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UARTBinder>
-        implements UARTInterface, MainWearableListenerService.MyGestureListener {
+        implements UARTInterface, WearListenerService.MyGestureListener {
     private static final String TAG = "MainActivity";
 
     ///////////////////////////////////////////////////////////////////////////
@@ -152,8 +152,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                         Bundle bundle = new Bundle();
                         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(startIntent);
-                    }
-                    ;
+                    };
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -187,14 +186,14 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
             return;
         }
 
-        MainWearableListenerService.mApplicationActive = true;
-        MainWearableListenerService.setCustomObjectListener(this);
+        WearListenerService.mApplicationActive = true;
+        WearListenerService.setCustomObjectListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        MainWearableListenerService.mApplicationActive = false;
+        WearListenerService.mApplicationActive = false;
     }
 
     @Override
@@ -220,7 +219,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     @Override
     protected void onCreateView(Bundle savedInstanceState) {
         config = getIntent().getExtras();
-        MainWearableListenerService.setCustomObjectListener(this);
+        WearListenerService.setCustomObjectListener(this);
         setContentView(R.layout.activity_fragments);
         setupViews();
     }

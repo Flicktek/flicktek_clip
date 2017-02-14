@@ -41,7 +41,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flicktek.android.clip.dropbox.Dropbox;
-import com.flicktek.android.clip.wearable.MainWearableListenerService;
+import com.flicktek.android.clip.wearable.WearListenerService;
+import com.flicktek.android.clip.wearable.common.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -93,12 +94,6 @@ public class LaunchActivity extends Activity implements
     private static final int REQUEST_RESOLVE_ERROR = 1000;
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-
-    private static final String START_ACTIVITY_PATH = "/start-activity";
-    private static final String COUNT_PATH = "/count";
-    private static final String IMAGE_PATH = "/image";
-    private static final String IMAGE_KEY = "photo";
-    private static final String COUNT_KEY = "count";
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -162,7 +157,7 @@ public class LaunchActivity extends Activity implements
     @Override
     public void onResume() {
         super.onResume();
-        MainWearableListenerService.mApplicationActive = true;
+        WearListenerService.mApplicationActive = true;
         mDataItemGeneratorFuture = mGeneratorExecutor.scheduleWithFixedDelay(
                 new DataItemGenerator(), 1, 30, TimeUnit.SECONDS);
     }
@@ -170,7 +165,7 @@ public class LaunchActivity extends Activity implements
     @Override
     public void onPause() {
         super.onPause();
-        MainWearableListenerService.mApplicationActive = false;
+        WearListenerService.mApplicationActive = false;
         mDataItemGeneratorFuture.cancel(true /* mayInterruptIfRunning */);
     }
 
@@ -288,7 +283,7 @@ public class LaunchActivity extends Activity implements
             Log.d(TAG, "onMessageReceived Not a number [" + path + "] " + text);
         }
 
-        if (path.equals(MainWearableListenerService.ARIA_GESTURE)) {
+        if (path.equals(Constants.FLICKTEK_CLIP.GESTURE)) {
             if (isNumber) {
                 String gesture = "";
                 switch (value) {
@@ -366,7 +361,7 @@ public class LaunchActivity extends Activity implements
 
     private void sendStartActivityMessage(String node) {
         Wearable.MessageApi.sendMessage(
-                mGoogleApiClient, node, START_ACTIVITY_PATH, new byte[0]).setResultCallback(
+                mGoogleApiClient, node, Constants.FLICKTEK_CLIP.START_ACTIVITY_PATH, new byte[0]).setResultCallback(
                 new ResultCallback<SendMessageResult>() {
                     @Override
                     public void onResult(SendMessageResult sendMessageResult) {
@@ -417,8 +412,8 @@ public class LaunchActivity extends Activity implements
      * Sends the asset that was created from the photo we took by adding it to the Data Item store.
      */
     private void sendPhoto(Asset asset) {
-        PutDataMapRequest dataMap = PutDataMapRequest.create(IMAGE_PATH);
-        dataMap.getDataMap().putAsset(IMAGE_KEY, asset);
+        PutDataMapRequest dataMap = PutDataMapRequest.create(Constants.FLICKTEK_CLIP.IMAGE_PATH);
+        dataMap.getDataMap().putAsset(Constants.FLICKTEK_CLIP.IMAGE_KEY, asset);
         dataMap.getDataMap().putLong("time", new Date().getTime());
         PutDataRequest request = dataMap.asPutDataRequest();
         request.setUrgent();
@@ -615,8 +610,8 @@ public class LaunchActivity extends Activity implements
         @Override
         public void run() {
 
-            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(COUNT_PATH);
-            putDataMapRequest.getDataMap().putInt(COUNT_KEY, count++);
+            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.FLICKTEK_CLIP.COUNT_PATH);
+            putDataMapRequest.getDataMap().putInt(Constants.FLICKTEK_CLIP.COUNT_KEY, count++);
             PutDataRequest request = putDataMapRequest.asPutDataRequest();
             request.setUrgent();
             LOGD(TAG, "Generating DataItem: " + request);

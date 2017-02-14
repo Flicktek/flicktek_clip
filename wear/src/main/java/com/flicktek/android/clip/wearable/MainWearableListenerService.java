@@ -29,25 +29,56 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.flicktek.android.clip.R;
+import com.flicktek.android.clip.ScannerActivity;
 import com.flicktek.android.clip.uart.UARTConfigurationsActivity;
 import com.flicktek.android.clip.wearable.common.Constants;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 
 public class MainWearableListenerService extends com.google.android.gms.wearable.WearableListenerService {
-	public static final String TAG = "UARTWLS";
-
+	public static final String TAG = "SMARTPHONE_SERVICE";
 
 	private static final int UART_SHOW_CONFIGURATIONS = 1;
 	private static final int UART_DISCONNECT = 2;
 
 	private static final int UART_NOTIFICATION_ID = 1;
 
+	public void keepAlive(boolean value) {
+		if (value)
+			startService(new Intent(getApplicationContext(), getClass()));
+		else
+			stopSelf();
+	}
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		Log.v(TAG, "------------- MainWearableListenerService onCreate --------- ");
+	}
+
+	@Override
+	public void onRebind(Intent intent) {
+		keepAlive(false);
+	}
+
+	@Override
+	public boolean onUnbind(Intent intent) {
+		return true;
+	}
+
 	@Override
 	public void onMessageReceived(final MessageEvent messageEvent) {
 		final String message = new String(messageEvent.getData());
 		Log.v(TAG, "onMessageReceived " +message);
 		switch (messageEvent.getPath()) {
+
+			case Constants.FLICKTEK_CLIP.START_ACTIVITY_PATH: {
+				final Intent activity = new Intent(getApplicationContext(), ScannerActivity.class);
+				activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				getApplicationContext().startActivity(activity);
+				break;
+			}
+
 			case Constants.UART.DEVICE_CONNECTED: {
 				// Disconnect action
 				final Intent disconnectIntent = new Intent(ActionReceiver.ACTION_DISCONNECT);

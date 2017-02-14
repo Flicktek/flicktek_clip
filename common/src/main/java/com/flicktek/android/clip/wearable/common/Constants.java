@@ -33,6 +33,25 @@ public final class Constants {
 	public static final String ACTION_DISCONNECT = BASE_PATH + "/disconnect";
 
 	/**
+	 * Constants for the Clip
+	 */
+
+	public static final class FLICKTEK_CLIP {
+		public static final String START_ACTIVITY_PATH = "/start-activity";
+		public static final String START_ACTIVITY_SLIDES = "/start-slides";
+		public static final String DATA_ITEM_RECEIVED_PATH = "/data-item-received";
+		public static final String LAUNCH_INTENT = "/intent";
+
+		public static final String GESTURE = "/gesture";
+		public static final String COUNT_PATH = "/count";
+		public static final String INTENT_PATH = "/intent";
+
+		public static final String IMAGE_PATH = "/image";
+		public static final String IMAGE_KEY = "photo";
+		public static final String COUNT_KEY = "count";
+	}
+
+	/**
 	 * Constants for the UART profile.
 	 */
 	public static final class UART {

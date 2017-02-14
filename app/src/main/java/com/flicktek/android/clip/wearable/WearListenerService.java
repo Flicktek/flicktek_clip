@@ -39,8 +39,8 @@ import com.google.android.gms.wearable.WearableListenerService;
 /**
  * The main listener for messages from Wearable devices. There may be only one such service per application so it has to handle messages from all profiles.
  */
-public class MainWearableListenerService extends WearableListenerService {
-    private static final String TAG = "WearableListener";
+public class WearListenerService extends WearableListenerService {
+    private static final String TAG = "WEARABLE_SERVICE";
 
     public static MyGestureListener mListener;
 
@@ -48,19 +48,15 @@ public class MainWearableListenerService extends WearableListenerService {
         mListener = listener;
     }
 
-    private static final String START_ACTIVITY_PATH = "/start-activity";
-    private static final String START_ACTIVITY_SLIDES = "/start-slides";
-    private static final String DATA_ITEM_RECEIVED_PATH = "/data-item-received";
-    private static final String LAUNCH_INTENT = "/intent";
-
-    public static final String ARIA_GESTURE = "/gesture";
-    public static final String COUNT_PATH = "/count";
-    public static final String INTENT_PATH = "/intent";
-    public static final String IMAGE_PATH = "/image";
-    public static final String IMAGE_KEY = "photo";
     GoogleApiClient mGoogleApiClient;
 
     public static boolean mApplicationActive = false;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.v(TAG, "------------- WearListenerService onCreate --------- ");
+    }
 
     public void keepAlive(boolean value) {
         if (value)
@@ -82,7 +78,7 @@ public class MainWearableListenerService extends WearableListenerService {
     @Override
     public void onMessageReceived(final MessageEvent messageEvent) {
         final String message = new String(messageEvent.getData());
-        Log.v(TAG, "MainWearableListenerService " + message);
+        Log.v(TAG, "WearListenerService " + message);
 
         String path = "PATH";
         String text = "TEXT";
@@ -102,7 +98,7 @@ public class MainWearableListenerService extends WearableListenerService {
             }
 
             // Check to see if the message is to start an activity
-            if (path.equals(LAUNCH_INTENT)) {
+            if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_INTENT)) {
                 //HACK Since we are hacking for demo
                 if (text.equals("com.deus_hex.aria.main_video")) {
                     Intent startIntent = new Intent(this, VideoActivity.class);
@@ -117,12 +113,12 @@ public class MainWearableListenerService extends WearableListenerService {
                     startActivity(intent);
                     return;
                 } else {
-                    path = START_ACTIVITY_SLIDES;
+                    path = Constants.FLICKTEK_CLIP.START_ACTIVITY_SLIDES;
                 }
             }
 
             // Check to see if the message is to start an activity
-            if (path.equals(START_ACTIVITY_SLIDES)) {
+            if (path.equals(Constants.FLICKTEK_CLIP.START_ACTIVITY_SLIDES)) {
                 Log.v(TAG, "Launch application");
                 Intent startIntent = new Intent(this, MainActivity.class);
                 startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -131,7 +127,7 @@ public class MainWearableListenerService extends WearableListenerService {
             }
 
             // Check to see if the message is to start an activity
-            if (path.equals(START_ACTIVITY_PATH)) {
+            if (path.equals(Constants.FLICKTEK_CLIP.START_ACTIVITY_PATH)) {
                 Log.v(TAG, "Launch application");
                 Intent startIntent = new Intent(this, LaunchActivity.class);
                 startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -149,7 +145,7 @@ public class MainWearableListenerService extends WearableListenerService {
 
             }
 
-            if (path.equals(MainWearableListenerService.ARIA_GESTURE)) {
+            if (path.equals(Constants.FLICKTEK_CLIP.GESTURE)) {
                 if (isNumber) {
                     String gesture = "";
                     switch (value) {

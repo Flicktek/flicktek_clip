@@ -343,29 +343,42 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     public void onDataChanged(final DataEventBuffer dataEventBuffer) {
         for (final DataEvent event : dataEventBuffer) {
             final DataItem item = event.getDataItem();
-            final long id = ContentUris.parseId(item.getUri());
 
-            // Configuration added or edited
-            if (event.getType() == DataEvent.TYPE_CHANGED) {
-                final DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+            String path = item.getUri().getEncodedPath();
 
-                // Update UI on UI thread
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "CREATED", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else if (event.getType() == DataEvent.TYPE_DELETED) {
-                // Configuration removed
+            if (path.equals(Constants.FLICKTEK_CLIP.COUNT_PATH)) {
+                Log.v(TAG, "Count! " + path + " data " + item.toString());
+                return;
+            }
 
-                // Update UI on UI thread
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "DELETED", Toast.LENGTH_SHORT).show();
-                    }
-                });
+            Log.v(TAG, "Uri " + path + " data " + new String(item.getData()));
+            try {
+                final long id = ContentUris.parseId(item.getUri());
+
+                // Configuration added or edited
+                if (event.getType() == DataEvent.TYPE_CHANGED) {
+                    final DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+
+                    // Update UI on UI thread
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "CREATED", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                    // Configuration removed
+
+                    // Update UI on UI thread
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "DELETED", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                Log.v(TAG, "Data not a number");
             }
         }
     }
@@ -402,7 +415,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         if (mProfile != null)
             mProfile.send(text);
         else
-            sendMessageToHandheld(this, text);
+            sendMessageToHandheld(this, Constants.UART.COMMAND, text);
     }
 
     /**
@@ -410,7 +423,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
      *
      * @param command the message
      */
-    private void sendMessageToHandheld(final @NonNull Context context, final @NonNull String command) {
+    private void sendMessageToHandheld(final @NonNull Context context, final @NonNull String route, final @NonNull String command) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -421,7 +434,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
                 final NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(client).await();
                 for (Node node : nodes.getNodes()) {
-                    final MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(client, node.getId(), Constants.UART.COMMAND, command.getBytes()).await();
+                    final MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(client, node.getId(),
+                            route, command.getBytes()).await();
                     if (!result.getStatus().isSuccess()) {
                         Log.w(TAG, "Failed to send " + Constants.UART.COMMAND + " to " + node.getDisplayName());
                     }
@@ -594,6 +608,12 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
+        String gesture = String.valueOf(gestureEvent.status);
+        sendMessageToHandheld(this.getApplicationContext(), Constants.FLICKTEK_CLIP.GESTURE, gesture);
     }
 
     public void shutdown() {

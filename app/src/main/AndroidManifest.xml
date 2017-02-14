@@ -194,14 +194,14 @@
         <service
             android:name="com.flicktek.android.clip.uart.UARTService"
             android:label="@string/uart_feature_title"/>
-        <service android:name="com.flicktek.android.clip.wearable.MainWearableListenerService">
+
+        <service android:name="com.flicktek.android.clip.wearable.WearListenerService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED"/>
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/>
 
                 <data
                     android:host="*"
-                    android:pathPrefix="/flicktek"
                     android:scheme="wear"/>
             </intent-filter>
         </service>

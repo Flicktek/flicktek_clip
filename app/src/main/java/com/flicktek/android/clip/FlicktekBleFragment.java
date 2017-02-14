@@ -24,7 +24,7 @@ import android.widget.Toast;
 
 import com.flicktek.android.clip.dropbox.UploadData;
 import com.flicktek.android.clip.util.Helpers;
-import com.flicktek.android.clip.wearable.MainWearableListenerService;
+import com.flicktek.android.clip.wearable.WearListenerService;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -43,7 +43,7 @@ import java.util.Random;
 
 import static java.util.Locale.US;
 
-public class FlicktekBleFragment extends Fragment implements View.OnClickListener, MainWearableListenerService.MyGestureListener {
+public class FlicktekBleFragment extends Fragment implements View.OnClickListener, WearListenerService.MyGestureListener {
     private static final String TAG = "SlideFragment";
     private static final String ARG_JSON = "JSON";
     private static final String ARG_EXTRA = "EXTRA";
@@ -101,7 +101,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             //e.printStackTrace();
             Log.e(TAG, "Failed parsing JSON");
         }
-        MainWearableListenerService.setCustomObjectListener(this);
+        WearListenerService.setCustomObjectListener(this);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -246,8 +246,8 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onResume() {
-        MainWearableListenerService.mApplicationActive = true;
-        MainWearableListenerService.setCustomObjectListener(this);
+        WearListenerService.mApplicationActive = true;
+        WearListenerService.setCustomObjectListener(this);
         super.onResume();
 
         mTimer = new Runnable() {
@@ -341,7 +341,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onPause() {
-        MainWearableListenerService.mApplicationActive = true;
+        WearListenerService.mApplicationActive = true;
         super.onPause();
 
         mHandler.removeCallbacks(mTimer);
