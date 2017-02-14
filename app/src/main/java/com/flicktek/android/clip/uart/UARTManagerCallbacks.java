@@ -27,8 +27,7 @@ import android.bluetooth.BluetoothDevice;
 import com.flicktek.android.clip.profile.BleManagerCallbacks;
 
 public interface UARTManagerCallbacks extends BleManagerCallbacks {
-
-	void onDataReceived(final BluetoothDevice device, final String data);
+	void onDataReceived(final BluetoothDevice device, final byte[] data, String string);
 
 	void onDataSent(final BluetoothDevice device, final String data);
 }

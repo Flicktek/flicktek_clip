@@ -75,4 +75,12 @@
 	<string name="about_version">\n\nVersion: %s</string>
 	<string name="about_text">Based on nRF Toolbox, FlickTek Clip lets you control your FlickTek device.</string>
 
+	<string name="start">Start</string>
+	<string name="take_photo">Take a Photo</string>
+	<string name="send_photo">Send Photo</string>
+	<string name="send_intent">Send broadcast Intent</string>
+	<string name="send_intent_wake">Send Intent WakeUP</string>
+	<string name="start_video_activity">Start video</string>
+
+
 </resources>

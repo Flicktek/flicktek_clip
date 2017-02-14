@@ -28,22 +28,31 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.flicktek.android.clip.profile.BleManager;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.UUID;
 
 import no.nordicsemi.android.log.Logger;
-import com.flicktek.android.clip.profile.BleManager;
 
 public class UARTManager extends BleManager<UARTManagerCallbacks> {
-	/** Nordic UART Service UUID */
+	/**
+	 * Nordic UART Service UUID
+	 */
 	private final static UUID UART_SERVICE_UUID = UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
-	/** RX characteristic UUID */
+	/**
+	 * RX characteristic UUID
+	 */
 	private final static UUID UART_RX_CHARACTERISTIC_UUID = UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
-	/** TX characteristic UUID */
+	/**
+	 * TX characteristic UUID
+	 */
 	private final static UUID UART_TX_CHARACTERISTIC_UUID = UUID.fromString("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
-	/** The maximum packet size is 20 bytes. */
+	/**
+	 * The maximum packet size is 20 bytes.
+	 */
 	private static final int MAX_PACKET_SIZE = 20;
 
 	private BluetoothGattCharacteristic mRXCharacteristic, mTXCharacteristic;
@@ -123,9 +132,11 @@ public class UARTManager extends BleManager<UARTManagerCallbacks> {
 
 		@Override
 		public void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-			final String data = characteristic.getStringValue(0);
-			Logger.a(mLogSession, "\"" + data + "\" received");
-			mCallbacks.onDataReceived(gatt.getDevice(), data);
+			final String text = characteristic.getStringValue(0);
+			//Log.v("DATA", "\"" + text + "\" received");
+
+			final byte[] data = characteristic.getValue();
+			mCallbacks.onDataReceived(gatt.getDevice(), data, text);
 		}
 	};
 
@@ -137,6 +148,7 @@ public class UARTManager extends BleManager<UARTManagerCallbacks> {
 
 	/**
 	 * Sends the given text to RX characteristic.
+	 *
 	 * @param text the text to be sent
 	 */
 	public void send(final String text) {

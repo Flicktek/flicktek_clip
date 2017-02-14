@@ -43,7 +43,7 @@ public class SplashscreenActivity extends Activity {
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				final Intent newIntent = new Intent(SplashscreenActivity.this, FeaturesActivity.class);
+				final Intent newIntent = new Intent(SplashscreenActivity.this, LaunchActivity.class);
 				newIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
 				// Handle NFC message, if app was opened using NFC AAR record

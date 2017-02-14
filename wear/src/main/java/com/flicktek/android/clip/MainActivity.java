@@ -438,13 +438,13 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             public void run() {
                 FragmentManager fragmentManager = getFragmentManager();
 
-                if (fragmentManager.getBackStackEntryCount() > 1){
+                if (fragmentManager.getBackStackEntryCount() > 1) {
                     fragmentManager.popBackStack();
                     Log.d(TAG, "BackStackEntryCount: " + fragmentManager.getBackStackEntryCount());
                     fragmentManager.beginTransaction().commit();
 
                     Log.i(TAG, "-------- BEGIN BACK FRAGMENT --------");
-                    for(int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++){
+                    for (int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++) {
                         FragmentManager.BackStackEntry backStackEntryAt = fragmentManager.getBackStackEntryAt(entry);
                         Log.i(TAG, "Fragment: " + backStackEntryAt.getId() + " " + backStackEntryAt.getName());
                     }
@@ -473,11 +473,11 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                         transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
                     }
 
-                    transaction.replace(R.id.container, _fragment).addToBackStack("MainActivity " +  _fragment.getClass().getCanonicalName());
+                    transaction.replace(R.id.container, _fragment).addToBackStack("MainActivity " + _fragment.getClass().getCanonicalName());
                     transaction.commit();
 
                     Log.i(TAG, "-------- BEGIN SHOW FRAGMENT --------");
-                    for(int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++){
+                    for (int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++) {
                         FragmentManager.BackStackEntry backStackEntryAt = fragmentManager.getBackStackEntryAt(entry);
                         Log.i(TAG, "Fragment: " + backStackEntryAt.getId() + " " + backStackEntryAt.getName());
                     }
@@ -598,6 +598,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     public void shutdown() {
         FlicktekManager.onDisconnected();
-        mBleProfileServiceBinder.disconnect();
+        if (mBleProfileServiceBinder != null)
+            mBleProfileServiceBinder.disconnect();
     }
 }

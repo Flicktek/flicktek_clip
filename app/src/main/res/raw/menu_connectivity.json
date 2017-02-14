@@ -1,0 +1,10 @@
+{
+  "menu_items": [
+    {
+      "text": "Devices scan",
+      "drawable": "ic_slideshow_black_48dp",
+      "target": "media_menu",
+      "configuration": "media_custom_slides"
+    }
+  ]
+}

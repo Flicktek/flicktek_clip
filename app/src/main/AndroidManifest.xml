@@ -21,117 +21,195 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.flicktek.android.clip"
-	android:installLocation="auto">
+          package="com.flicktek.android.clip"
+          android:installLocation="auto">
 
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.BLUETOOTH" />
-	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-	<uses-permission android:name="android.permission.NFC" />
-	<uses-permission android:name="no.nordicsemi.android.LOG" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="no.nordicsemi.android.LOG"/>
 
-	<uses-feature
-		android:name="android.hardware.bluetooth_le"
-		android:required="true" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
-	<application
-		android:fullBackupContent="true"
-		android:allowBackup="true"
-		android:icon="@mipmap/ic_launcher"
-		android:roundIcon="@mipmap/ic_launcher_round"
-		android:label="@string/app_name"
-		android:theme="@style/AppTheme" >
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true"/>
 
-		<meta-data
-			android:name="com.google.android.gms.version"
-			android:value="@integer/google_play_services_version" />
+    <application
+        android:allowBackup="true"
+        android:fullBackupContent="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme">
 
-		<activity
-			android:name="com.flicktek.android.clip.SplashscreenActivity"
-			android:label="@string/app_name"
-			android:theme="@style/AppTheme.Fullscreen" >
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
+        <activity
+            android:name="com.dropbox.client2.android.AuthActivity"
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask">
 
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
+            <intent-filter>
+                <!-- Change this to be db- followed by your app key -->
+                <data android:scheme="db-gt4fpw5rkamkb8i"/>
+                <action android:name="android.intent.action.VIEW"/>
 
-			<meta-data android:name="android.app.shortcuts"
-				android:resource="@xml/shortcuts" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenLayout|screenSize"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
 
-			<intent-filter>
-				<action android:name="android.nfc.action.NDEF_DISCOVERED" />
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.deus_tech.aria.slides"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
-				<category android:name="android.intent.category.DEFAULT" />
+        <activity
+            android:name=".dropbox.Dropbox"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenLayout|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme"
 
-				<data android:mimeType="application/vnd.no.nordicsemi.type.app"/>
-				<data android:mimeType="application/vnd.no.nordicsemi.type.address"/>
-			</intent-filter>
-		</activity>
-		<activity
-			android:name="com.flicktek.android.clip.FeaturesActivity"
-			android:label="@string/app_name"
-            android:theme="@style/AppTheme.TranslucentStatusBar"
-			android:launchMode="singleTask" >
-		</activity>
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
-		<!-- Plug-in activities -->
+        <activity
+            android:name=".VideoActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenLayout|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="com.deus_tech.aria.videos" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
-		<activity
-			android:name="com.flicktek.android.clip.uart.UARTActivity"
-			android:icon="@drawable/ic_uart_feature"
-			android:label="@string/uart_feature_title"
-			android:windowSoftInputMode="adjustResize"
-			android:launchMode="singleTask" >
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="com.flicktek.android.clip.LAUNCHER" />
-			</intent-filter>
-		</activity>
+        <activity
+            android:name=".LaunchActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenLayout|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-		<activity
-			android:name="com.flicktek.android.clip.dfu.DfuActivity"
-			android:icon="@drawable/ic_dfu_feature"
-			android:label="@string/dfu_feature_title" >
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="com.flicktek.android.clip.LAUNCHER" />
-			</intent-filter>
-		</activity>
-		<activity
-			android:name="com.flicktek.android.clip.dfu.settings.SettingsActivity"
-			android:label="@string/dfu_settings_title" />
-		<activity
-			android:name="com.flicktek.android.clip.dfu.NotificationActivity"
-			android:label="@string/dfu_feature_title" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
 
-		<activity
-			android:name="com.flicktek.android.clip.dfu.DfuInitiatorActivity"
-			android:label="@string/dfu_service_title"
-			android:noHistory="true"
-			android:theme="@style/AppTheme.Translucent" >
-			<intent-filter>
-				<action android:name="no.nordicsemi.android.action.DFU_UPLOAD" />
+        <activity
+            android:name="com.flicktek.android.clip.SplashscreenActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Fullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
 
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
-		</activity>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
 
-		<service
-			android:name="com.flicktek.android.clip.uart.UARTService"
-			android:label="@string/uart_feature_title" />
-		<service android:name="com.flicktek.android.clip.wearable.MainWearableListenerService">
-			<intent-filter>
-				<action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
-				<action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-				<data android:scheme="wear" android:host="*" android:pathPrefix="/flicktek" />
-			</intent-filter>
-		</service>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts"/>
 
-		<provider android:name="com.flicktek.android.clip.uart.UARTLocalLogContentProvider"
-			android:authorities="com.flicktek.android.clip.uart.log"
-			android:exported="true"/>
-	</application>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:mimeType="application/vnd.no.nordicsemi.type.app"/>
+                <data android:mimeType="application/vnd.no.nordicsemi.type.address"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.flicktek.android.clip.FeaturesActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.TranslucentStatusBar">
+        </activity>
+
+        <!-- Plug-in activities -->
+
+        <activity
+            android:name="com.flicktek.android.clip.uart.UARTActivity"
+            android:icon="@drawable/ic_uart_feature"
+            android:label="@string/uart_feature_title"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.flicktek.android.clip.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.flicktek.android.clip.dfu.DfuActivity"
+            android:icon="@drawable/ic_dfu_feature"
+            android:label="@string/dfu_feature_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.flicktek.android.clip.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.flicktek.android.clip.dfu.settings.SettingsActivity"
+            android:label="@string/dfu_settings_title"/>
+        <activity
+            android:name="com.flicktek.android.clip.dfu.NotificationActivity"
+            android:label="@string/dfu_feature_title"/>
+
+        <activity
+            android:name="com.flicktek.android.clip.dfu.DfuInitiatorActivity"
+            android:label="@string/dfu_service_title"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.Translucent">
+            <intent-filter>
+                <action android:name="no.nordicsemi.android.action.DFU_UPLOAD"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.flicktek.android.clip.uart.UARTService"
+            android:label="@string/uart_feature_title"/>
+        <service android:name="com.flicktek.android.clip.wearable.MainWearableListenerService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED"/>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/>
+
+                <data
+                    android:host="*"
+                    android:pathPrefix="/flicktek"
+                    android:scheme="wear"/>
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="com.flicktek.android.clip.uart.UARTLocalLogContentProvider"
+            android:authorities="com.flicktek.android.clip.uart.log"
+            android:exported="true"/>
+    </application>
 
 </manifest>

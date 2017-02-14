@@ -52,18 +52,34 @@ import com.flicktek.android.clip.wearable.common.Constants;
 public class UARTService extends BleProfileService implements UARTManagerCallbacks {
 	private static final String TAG = "UARTService";
 
-	public static final String BROADCAST_UART_TX = "com.flicktek.android.clip.uart.BROADCAST_UART_TX";
-	public static final String BROADCAST_UART_RX = "com.flicktek.android.clip.uart.BROADCAST_UART_RX";
-	public static final String EXTRA_DATA = "com.flicktek.android.clip.uart.EXTRA_DATA";
+	public static final String BROADCAST_UART_TX = "com.flicktek.uart.BROADCAST_UART_TX";
+	public static final String BROADCAST_UART_RX = "com.flicktek.uart.BROADCAST_UART_RX";
+	public static final String EXTRA_TEXT_DATA = "com.flicktek.uart.EXTRA_TEXT_DATA";
+	public static final String EXTRA_RAW_DATA = "com.flicktek.uart.EXTRA_RAW_DATA";
+	public static final String EXTRA_RAW_DATA_SAMPLE = "com.flicktek.uart.SAMPLE_DATA";
 
-	/** A broadcast message with this action and the message in {@link Intent#EXTRA_TEXT} will be sent t the UART device. */
-	public final static String ACTION_SEND = "com.flicktek.android.clip.uart.ACTION_SEND";
-	/** A broadcast message with this action is triggered when a message is received from the UART device. */
-	private final static String ACTION_RECEIVE = "com.flicktek.android.clip.uart.ACTION_RECEIVE";
-	/** Action send when user press the DISCONNECT button on the notification. */
-	public final static String ACTION_DISCONNECT = "com.flicktek.android.clip.uart.ACTION_DISCONNECT";
-	/** A source of an action. */
-	public final static String EXTRA_SOURCE = "com.flicktek.android.clip.uart.EXTRA_SOURCE";
+	public static final String EXTRA_DATA_TYPE = "com.flicktek.uart.DATA_TYPE";
+
+	public final static int TYPE_TEXT_COMMAND = 1;
+	public final static int TYPE_TEXT_OUTPUT = 2;
+	public final static int TYPE_SAMPLE_DATA = 3;
+
+	/**
+	 * A broadcast message with this action and the message in {@link Intent#EXTRA_TEXT} will be sent t the UART device.
+	 */
+	public final static String ACTION_SEND = "com.flicktek.uart.ACTION_SEND";
+	/**
+	 * A broadcast message with this action is triggered when a message is received from the UART device.
+	 */
+	private final static String ACTION_RECEIVE = "com.flicktek.uart.ACTION_RECEIVE";
+	/**
+	 * Action send when user press the DISCONNECT button on the notification.
+	 */
+	public final static String ACTION_DISCONNECT = "com.flicktek.uart.ACTION_DISCONNECT";
+	/**
+	 * A source of an action.
+	 */
+	public final static String EXTRA_SOURCE = "com.flicktek.uart.EXTRA_SOURCE";
 	public final static int SOURCE_NOTIFICATION = 0;
 	public final static int SOURCE_WEARABLE = 1;
 	public final static int SOURCE_3RD_PARTY = 2;
@@ -74,6 +90,8 @@ public class UARTService extends BleProfileService implements UARTManagerCallbac
 
 	private GoogleApiClient mGoogleApiClient;
 	private UARTManager mManager;
+
+	private int mSampleNumber = 0;
 
 	private final LocalBinder mBinder = new UARTBinder();
 
@@ -144,6 +162,12 @@ public class UARTService extends BleProfileService implements UARTManagerCallbac
 	}
 
 	@Override
+	public void onDeviceReady(final BluetoothDevice device) {
+		super.onDeviceReady(device);
+		mManager.send("{s1}");
+	}
+
+	@Override
 	protected boolean stopWhenDisconnected() {
 		return false;
 	}
@@ -166,43 +190,93 @@ public class UARTService extends BleProfileService implements UARTManagerCallbac
 		return getString(R.string.not_available);
 	}
 
-	@Override
-	public void onDataReceived(final BluetoothDevice device, final String data) {
-		final Intent broadcast = new Intent(BROADCAST_UART_RX);
-		broadcast.putExtra(EXTRA_DEVICE, getBluetoothDevice());
-		broadcast.putExtra(EXTRA_DATA, data);
-		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
 
-		// send the data received to other apps, e.g. the Tasker
-		final Intent globalBroadcast = new Intent(ACTION_RECEIVE);
-		globalBroadcast.putExtra(BluetoothDevice.EXTRA_DEVICE, getBluetoothDevice());
-		globalBroadcast.putExtra(Intent.EXTRA_TEXT, data);
-		sendBroadcast(globalBroadcast);
+	public static void printHex(byte[] buf) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Data " + buf.length + " [ ");
+
+		for (byte b : buf) {
+			sb.append(String.format("%02X ", b));
+		}
+
+		sb.append("]");
+		Log.v(TAG, sb.toString());
+	}
+
+	public static boolean isSampleData(byte[] buf) {
+		if (buf.length != 20)
+			return false;
+
+		for (int t = 0; t < buf.length; t++) {
+			if (buf[t] >= 127)
+				return true;
+
+			if (buf[t] < 32 && buf[t] != '\n') {
+				return true;
+			}
+		}
+
+		//printHex(buf);
+		return false;
+	}
+
+	@Override
+	public void onDataReceived(final BluetoothDevice device, final byte[] data, String output) {
+		if (isSampleData(data)) {
+			//Log.v(TAG, "Data received [" + data + "]");
+            /*
+            final Intent globalBroadcast = new Intent(ACTION_RECEIVE);
+            globalBroadcast.putExtra(EXTRA_DEVICE, getBluetoothDevice());
+            globalBroadcast.putExtra(EXTRA_DATA_TYPE, TYPE_SAMPLE_DATA);
+            globalBroadcast.putExtra(EXTRA_RAW_DATA, data);
+            sendBroadcast(globalBroadcast);
+            */
+
+			final Intent broadcast = new Intent(BROADCAST_UART_RX);
+			broadcast.putExtra(EXTRA_DEVICE, getBluetoothDevice());
+			broadcast.putExtra(EXTRA_DATA_TYPE, TYPE_SAMPLE_DATA);
+			broadcast.putExtra(EXTRA_RAW_DATA, data);
+			broadcast.putExtra(EXTRA_RAW_DATA_SAMPLE, mSampleNumber++);
+			LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		} else {
+			// send the data received to other apps, e.g. the Tasker
+			final Intent broadcast = new Intent(BROADCAST_UART_RX);
+			broadcast.putExtra(EXTRA_DEVICE, getBluetoothDevice());
+			broadcast.putExtra(EXTRA_DATA_TYPE, TYPE_TEXT_OUTPUT);
+			broadcast.putExtra(EXTRA_TEXT_DATA, output);
+			LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+
+			if (output.equals("{OK}")) {
+				Log.v(TAG, "----------------- OK ---------------------");
+				// Start streaming!
+			}
+		}
 	}
 
 	@Override
 	public void onDataSent(final BluetoothDevice device, final String data) {
 		final Intent broadcast = new Intent(BROADCAST_UART_TX);
 		broadcast.putExtra(EXTRA_DEVICE, getBluetoothDevice());
-		broadcast.putExtra(EXTRA_DATA, data);
+		broadcast.putExtra(EXTRA_RAW_DATA, data);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
 	}
 
 	/**
 	 * Sends the given message to all connected wearables. If the path is equal to {@link Constants.UART#DEVICE_DISCONNECTED} the service will be stopped afterwards.
-	 * @param path message path
+	 *
+	 * @param path    message path
 	 * @param message the message
 	 */
 	private void sendMessageToWearables(final @NonNull String path, final @NonNull String message) {
-		if(mGoogleApiClient.isConnected()) {
+		if (mGoogleApiClient.isConnected()) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-					for(Node node : nodes.getNodes()) {
+					for (Node node : nodes.getNodes()) {
 						Logger.v(getLogSession(), "[WEAR] Sending message '" + path + "' to " + node.getDisplayName());
 						final MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, message.getBytes()).await();
-						if(result.getStatus().isSuccess()){
+						if (result.getStatus().isSuccess()) {
 							Logger.i(getLogSession(), "[WEAR] Message sent");
 						} else {
 							Logger.w(getLogSession(), "[WEAR] Sending message failed: " + result.getStatus().getStatusMessage());
@@ -221,15 +295,14 @@ public class UARTService extends BleProfileService implements UARTManagerCallbac
 
 	/**
 	 * Creates the notification
-	 * 
-	 * @param messageResId
-	 *            message resource id. The message must have one String parameter,<br />
-	 *            f.e. <code>&lt;string name="name"&gt;%s is connected&lt;/string&gt;</code>
-	 * @param defaults
-	 *            signals that will be used to notify the user
+	 *
+	 * @param messageResId message resource id. The message must have one String parameter,<br />
+	 *                     f.e. <code>&lt;string name="name"&gt;%s is connected&lt;/string&gt;</code>
+	 * @param defaults     signals that will be used to notify the user
 	 */
 	private void createNotification(final int messageResId, final int defaults) {
-		final Intent parentIntent = new Intent(this, FeaturesActivity.class);
+        /*
+        final Intent parentIntent = new Intent(this, FeaturesActivity.class);
 		parentIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		final Intent targetIntent = new Intent(this, UARTActivity.class);
 
@@ -249,6 +322,7 @@ public class UARTService extends BleProfileService implements UARTManagerCallbac
 		final Notification notification = builder.build();
 		final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		nm.notify(NOTIFICATION_ID, notification);
+		*/
 	}
 
 	/**

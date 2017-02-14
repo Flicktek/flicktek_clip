@@ -38,24 +38,27 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.R;
+import com.flicktek.android.clip.scanner.ScannerFragment;
+import com.flicktek.android.clip.uart.UARTService;
+import com.flicktek.android.clip.utility.DebugLogger;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
+
 import java.util.UUID;
 
 import no.nordicsemi.android.log.ILogSession;
 import no.nordicsemi.android.log.LocalLogSession;
 import no.nordicsemi.android.log.Logger;
-import com.flicktek.android.clip.AppHelpFragment;
-import com.flicktek.android.clip.R;
-import com.flicktek.android.clip.scanner.ScannerFragment;
-import com.flicktek.android.clip.utility.DebugLogger;
-
 /**
  * <p>
  * The {@link BleProfileServiceReadyActivity} activity is designed to be the base class for profile activities that uses services in order to connect to the
@@ -70,7 +73,7 @@ import com.flicktek.android.clip.utility.DebugLogger;
  */
 public abstract class BleProfileServiceReadyActivity<E extends BleProfileService.LocalBinder> extends AppCompatActivity implements
 		ScannerFragment.OnDeviceSelectedListener, BleManagerCallbacks {
-	private static final String TAG = "BleProfileServiceReadyActivity";
+	private static final String TAG = "ReadyActivity";
 
 	private static final String SIS_DEVICE_NAME = "device_name";
 	private static final String SIS_DEVICE = "device";
@@ -79,13 +82,21 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	private E mService;
 
-	private TextView mDeviceNameView;
-	private TextView mBatteryLevelView;
-	private Button mConnectButton;
+	public TextView mDeviceNameView;
+	public TextView mBatteryLevelView;
+	public Button mConnectButton;
 
 	private ILogSession mLogSession;
 	private BluetoothDevice mBluetoothDevice;
 	private String mDeviceName;
+
+	public void processSampleData(int sample, byte[] data) {
+		Log.v(TAG, "Process Data");
+	}
+
+	public void processTextData(String data) {
+		Log.v(TAG, "Process text " + data);
+	}
 
 	private final BroadcastReceiver mCommonBroadcastReceiver = new BroadcastReceiver() {
 		@Override
@@ -97,6 +108,20 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 			final BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BleProfileService.EXTRA_DEVICE);
 			final String action = intent.getAction();
 			switch (action) {
+				case UARTService.BROADCAST_UART_RX: {
+					final int state = intent.getIntExtra(UARTService.EXTRA_DATA_TYPE, UARTService.TYPE_TEXT_OUTPUT);
+					switch (state) {
+						case UARTService.TYPE_SAMPLE_DATA:
+							processSampleData(intent.getIntExtra(UARTService.EXTRA_RAW_DATA_SAMPLE, 0), intent.getByteArrayExtra(UARTService.EXTRA_RAW_DATA));
+							break;
+						case UARTService.TYPE_TEXT_COMMAND:
+						case UARTService.TYPE_TEXT_OUTPUT:
+							processTextData(intent.getStringExtra(UARTService.EXTRA_TEXT_DATA));
+							break;
+					}
+					return;
+				}
+
 				case BleProfileService.BROADCAST_CONNECTION_STATE: {
 					final int state = intent.getIntExtra(BleProfileService.EXTRA_CONNECTION_STATE, BleProfileService.STATE_DISCONNECTED);
 
@@ -184,15 +209,21 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 			// Update UI
 			mDeviceName = bleService.getDeviceName();
-			mDeviceNameView.setText(mDeviceName);
-			mConnectButton.setText(R.string.action_disconnect);
+
+			Log.v(TAG, " Device " + mDeviceName + " onServiceConnected");
+
+			//mDeviceNameView.setText(mDeviceName);
+			if (mConnectButton != null)
+				mConnectButton.setText(R.string.action_disconnect);
 
 			// And notify user if device is connected
 			if (bleService.isConnected()) {
+				Log.v(TAG, " Device " + mDeviceName + " onDeviceConnected");
 				onDeviceConnected(mBluetoothDevice);
 			} else {
 				// If the device is not connected it means that either it is still connecting,
 				// or the link was lost and service is trying to connect to it (autoConnect=true).
+				Log.v(TAG, " Device " + mDeviceName + " onDeviceConnecting");
 				onDeviceConnecting(mBluetoothDevice);
 			}
 		}
@@ -204,8 +235,11 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 			// It will be called only when there is critically low memory, in practice never
 			// when the activity is in foreground.
 			Logger.d(mLogSession, "Activity disconnected from the service");
-			mDeviceNameView.setText(getDefaultDeviceName());
-			mConnectButton.setText(R.string.action_connect);
+			//mDeviceNameView.setText(getDefaultDeviceName());
+			Log.v(TAG, " Device " + getDefaultDeviceName() + " onServiceDisconnected");
+
+			if (mConnectButton != null)
+				mConnectButton.setText(R.string.action_connect);
 
 			mService = null;
 			mDeviceName = null;
@@ -214,9 +248,14 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 			onServiceUnbinded();
 		}
 	};
+	/**
+	 * ATTENTION: This was auto-generated to implement the App Indexing API.
+	 * See https://g.co/AppIndexing/AndroidStudio for more information.
+	 */
+	private GoogleApiClient client;
 
 	@Override
-	protected final void onCreate(final Bundle savedInstanceState) {
+	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		ensureBLESupported();
@@ -235,15 +274,15 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 		// The onCreateView class should... create the view
 		onCreateView(savedInstanceState);
 
-		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
-		setSupportActionBar(toolbar);
-
 		// Common nRF Toolbox view references are obtained here
 		setUpView();
 		// View is ready to be used
 		onViewCreated(savedInstanceState);
 
 		LocalBroadcastManager.getInstance(this).registerReceiver(mCommonBroadcastReceiver, makeIntentFilter());
+		// ATTENTION: This was auto-generated to implement the App Indexing API.
+		// See https://g.co/AppIndexing/AndroidStudio for more information.
+		client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 	}
 
 	@Override
@@ -251,16 +290,11 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 		super.onResume();
 
 		/*
-		 * If the service has not been started before, the following lines will not start it. However, if it's running, the Activity will bind to it and
+         * If the service has not been started before, the following lines will not start it. However, if it's running, the Activity will bind to it and
 		 * notified via mServiceConnection.
 		 */
 		final Intent service = new Intent(this, getServiceClass());
 		bindService(service, mServiceConnection, 0); // we pass 0 as a flag so the service will not be created if not exists
-
-		/*
-		 * * - When user exited the UARTActivity while being connected, the log session is kept in the service. We may not get it before binding to it so in this
-		 * case this event will not be logged (mLogSession is null until onServiceConnected(..) is called). It will, however, be logged after the orientation changes.
-		 */
 	}
 
 	@Override
@@ -301,6 +335,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 		intentFilter.addAction(BleProfileService.BROADCAST_BOND_STATE);
 		intentFilter.addAction(BleProfileService.BROADCAST_BATTERY_LEVEL);
 		intentFilter.addAction(BleProfileService.BROADCAST_ERROR);
+		intentFilter.addAction(UARTService.BROADCAST_UART_RX);
 		return intentFilter;
 	}
 
@@ -362,10 +397,10 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	 */
 	protected final void setUpView() {
 		// set GUI
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		mConnectButton = (Button) findViewById(R.id.action_connect);
-		mDeviceNameView = (TextView) findViewById(R.id.device_name);
-		mBatteryLevelView = (TextView) findViewById(R.id.battery);
+		//mDeviceNameView = (TextView) findViewById(R.id.device_name);
+		//mBatteryLevelView = (TextView) findViewById(R.id.battery);
+
 	}
 
 	@Override
@@ -382,12 +417,6 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 		super.onRestoreInstanceState(savedInstanceState);
 		mDeviceName = savedInstanceState.getString(SIS_DEVICE_NAME);
 		mBluetoothDevice = savedInstanceState.getParcelable(SIS_DEVICE);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		getMenuInflater().inflate(R.menu.help, menu);
-		return true;
 	}
 
 	/**
@@ -407,10 +436,6 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 		switch (id) {
 			case android.R.id.home:
 				onBackPressed();
-				break;
-			case R.id.action_about:
-				final AppHelpFragment fragment = AppHelpFragment.getInstance(getAboutTextId());
-				fragment.show(getSupportFragmentManager(), "help_fragment");
 				break;
 			default:
 				return onOptionsItemSelected(id);
@@ -464,8 +489,12 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 		}
 		mBluetoothDevice = device;
 		mDeviceName = name;
-		mDeviceNameView.setText(name != null ? name : getString(R.string.not_available));
-		mConnectButton.setText(R.string.action_connecting);
+		//mDeviceNameView.setText(name != null ? name : getString(R.string.not_available));
+
+		Log.v(TAG, name != null ? name : getString(R.string.not_available));
+
+		if (mConnectButton != null)
+			mConnectButton.setText(R.string.action_connecting);
 
 		// The device may not be in the range but the service will try to connect to it if it reach it
 		Logger.d(mLogSession, "Creating service...");
@@ -491,21 +520,26 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	@Override
 	public void onDeviceConnected(final BluetoothDevice device) {
-		mDeviceNameView.setText(mDeviceName);
-		mConnectButton.setText(R.string.action_disconnect);
+		Log.v(TAG, "onDeviceConnected " + mDeviceName);
+		//mDeviceNameView.setText(mDeviceName);
+		if (mConnectButton != null)
+			mConnectButton.setText(R.string.action_disconnect);
 	}
 
 	@Override
 	public void onDeviceDisconnecting(final BluetoothDevice device) {
+		Log.v(TAG, "onDeviceDisconnecting " + mDeviceName);
 		// empty default implementation
 	}
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
-		mConnectButton.setText(R.string.action_connect);
-		mDeviceNameView.setText(getDefaultDeviceName());
-		if (mBatteryLevelView != null)
-			mBatteryLevelView.setText(R.string.not_available);
+		Log.v(TAG, "onDeviceDisconnected " + getDefaultDeviceName());
+		if (mConnectButton != null)
+			mConnectButton.setText(R.string.action_connect);
+		//mDeviceNameView.setText(getDefaultDeviceName());
+		//if (mBatteryLevelView != null)
+		//    mBatteryLevelView.setText(R.string.not_available);
 
 		try {
 			Logger.d(mLogSession, "Unbinding from the service...");
@@ -524,8 +558,8 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	@Override
 	public void onLinklossOccur(final BluetoothDevice device) {
-		if (mBatteryLevelView != null)
-			mBatteryLevelView.setText(R.string.not_available);
+		//if (mBatteryLevelView != null)
+		//    mBatteryLevelView.setText(R.string.not_available);
 	}
 
 	@Override
@@ -557,8 +591,10 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	@Override
 	public void onBatteryValueReceived(final BluetoothDevice device, final int value) {
-		if (mBatteryLevelView != null)
-			mBatteryLevelView.setText(getString(R.string.battery, value));
+		//if (mBatteryLevelView != null)
+		//    mBatteryLevelView.setText(getString(R.string.battery, value));
+
+		Log.v(TAG, "onBatteryValueReceived " + getString(R.string.battery, value));
 	}
 
 	@Override
@@ -644,6 +680,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	/**
 	 * Checks the {@link BleProfileService#EXTRA_DEVICE} in the given intent and compares it with the connected BluetoothDevice object.
+	 *
 	 * @param intent intent received via a broadcast from the service
 	 * @return true if the data in the intent apply to the connected device, false otherwise
 	 */
@@ -655,8 +692,8 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	/**
 	 * Shows the scanner fragment.
 	 *
-	 * @param filter               the UUID filter used to filter out available devices. The fragment will always show all bonded devices as there is no information about their
-	 *                             services
+	 * @param filter the UUID filter used to filter out available devices. The fragment will always show all bonded devices as there is no information about their
+	 *               services
 	 * @see #getFilterUUID()
 	 */
 	private void showDeviceScanningDialog(final UUID filter) {
@@ -689,5 +726,41 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	protected void showBLEDialog() {
 		final Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 		startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+	}
+
+	/**
+	 * ATTENTION: This was auto-generated to implement the App Indexing API.
+	 * See https://g.co/AppIndexing/AndroidStudio for more information.
+	 */
+	public Action getIndexApiAction() {
+		Thing object = new Thing.Builder()
+				.setName("BleProfileServiceReady Page") // TODO: Define a title for the content shown.
+				// TODO: Make sure this auto-generated URL is correct.
+				.setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+				.build();
+		return new Action.Builder(Action.TYPE_VIEW)
+				.setObject(object)
+				.setActionStatus(Action.STATUS_TYPE_COMPLETED)
+				.build();
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+
+		// ATTENTION: This was auto-generated to implement the App Indexing API.
+		// See https://g.co/AppIndexing/AndroidStudio for more information.
+		client.connect();
+		AppIndex.AppIndexApi.start(client, getIndexApiAction());
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+
+		// ATTENTION: This was auto-generated to implement the App Indexing API.
+		// See https://g.co/AppIndexing/AndroidStudio for more information.
+		AppIndex.AppIndexApi.end(client, getIndexApiAction());
+		client.disconnect();
 	}
 }
