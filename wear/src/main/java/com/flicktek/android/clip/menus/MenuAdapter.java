@@ -106,7 +106,6 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
                 header.imageView.setImageDrawable(item.getIcon());
 
                 if (disableHeader) {
-                    _parent.setVisibility(View.GONE);
                     _view.setVisibility(View.GONE);
                 }
                 return _view;

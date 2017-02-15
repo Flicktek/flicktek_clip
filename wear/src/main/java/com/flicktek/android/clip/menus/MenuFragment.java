@@ -167,7 +167,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         menuAdapter.notifyDataSetChanged();
         lvMenu.smoothScrollToPosition(menuIndex);
 
-        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery);
+        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, 0);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -191,6 +191,11 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
     }
 
     boolean exit_pressed = false;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBatteryLevel(FlicktekCommands.onBatteryEvent batteryEvent) {
+        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, batteryEvent.value);
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {

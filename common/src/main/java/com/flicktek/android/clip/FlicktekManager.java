@@ -124,6 +124,10 @@ public class FlicktekManager {
 
     //------------- Getters and setters -------------------------
 
+    public static void setBatteryLevel(int value) {
+        mBatteryLevel = value;
+    }
+
     public static int getBatteryLevel() {
         return mBatteryLevel;
     }

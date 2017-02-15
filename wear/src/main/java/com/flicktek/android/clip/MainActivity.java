@@ -573,8 +573,10 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     static int old_battery = 0;
     static LinearLayout old_battery_layout = null;
 
-    public void updateBattery(LinearLayout battery_layout, TextView battery_text, ImageView battery_image) {
-        int battery_level = FlicktekManager.getBatteryLevel();
+    public void updateBattery(LinearLayout battery_layout, TextView battery_text,
+                              ImageView battery_image, int battery_level) {
+        if (battery_level == 0)
+            battery_level = FlicktekManager.getBatteryLevel();
 
         if (battery_level == 0)
             return;

@@ -63,6 +63,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
     public static final String EXTRA_BOND_STATE = "com.flicktek.android.clip.EXTRA_BOND_STATE";
     public static final String EXTRA_ERROR_MESSAGE = "com.flicktek.android.clip.EXTRA_ERROR_MESSAGE";
     public static final String EXTRA_ERROR_CODE = "com.flicktek.android.clip.EXTRA_ERROR_CODE";
+    public static final String EXTRA_BATTERY_LEVEL = "com.flicktek.android.clip.EXTRA_BATTERY_LEVEL";
 
     public static final int STATE_LINK_LOSS = -1;
     public static final int STATE_DISCONNECTED = 0;
@@ -310,6 +311,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
         broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+        mBleManager.setBatteryNotifications(true);
         FlicktekManager.onConnected();
     }
 
@@ -376,6 +378,14 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
     }
 
     @Override
+    public void onBatteryValueReceived(final BluetoothDevice device, final int value) {
+        final Intent broadcast = new Intent(BROADCAST_BATTERY_LEVEL);
+        broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
+        broadcast.putExtra(EXTRA_BATTERY_LEVEL, value);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+    }
+
+    @Override
     public void onBonded(final BluetoothDevice device) {
         showToast(com.flicktek.android.clip.common.R.string.bonded);
 
@@ -423,6 +433,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         filter.addAction(BROADCAST_DEVICE_READY);
         filter.addAction(BROADCAST_DEVICE_NOT_SUPPORTED);
         filter.addAction(BROADCAST_ERROR);
+        filter.addAction(BROADCAST_BATTERY_LEVEL);
         return filter;
     }
 }

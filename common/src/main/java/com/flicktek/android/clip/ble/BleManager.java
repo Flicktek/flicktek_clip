@@ -636,6 +636,7 @@ public class BleManager implements BleProfileApi {
                 if (isBatteryLevelCharacteristic(characteristic)) {
                     final int batteryValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                     mBatteryValue = batteryValue;
+                    Log.v(TAG, "----------- BATTERY VALUE " + batteryValue + "-------------");
                     mProfile.onBatteryValueReceived(gatt, batteryValue);
                 } else {
                     // The value has been read. Notify the profile and proceed with the initialization queue.

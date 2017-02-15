@@ -3,6 +3,7 @@ package com.flicktek.android.clip;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -145,6 +146,13 @@ public class FlicktekCommands extends UARTProfile {
             }
             writeStatus_Exec();
         }
+    }
+
+    @Override
+    protected void onBatteryValueReceived(final BluetoothGatt gatt, final int value) {
+        Log.v(TAG, "onBatteryValueReceived " + value);
+        FlicktekManager.setBatteryLevel(value);
+        EventBus.getDefault().post(new onBatteryEvent(value));
     }
 
     public void init(Context context) {
@@ -568,6 +576,14 @@ public class FlicktekCommands extends UARTProfile {
             this.unit = quality % 10;
             quality = quality / 10;
             this.decimal = quality % 10;
+        }
+    }
+
+    public class onBatteryEvent {
+        public Integer value;
+
+        public onBatteryEvent(int value) {
+            this.value = value;
         }
     }
 

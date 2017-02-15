@@ -162,6 +162,15 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
 
         gestures_left = G_ITER_MAX - iteration + 1;
 
+        int value = 0;
+        switch (gesture_number) {
+            case GESTURE_ENTER: value = FlicktekManager.GESTURE_ENTER; break;
+            case GESTURE_HOME: value = FlicktekManager.GESTURE_HOME; break;
+            case GESTURE_UP: value = FlicktekManager.GESTURE_UP; break;
+            case GESTURE_DOWN: value = FlicktekManager.GESTURE_DOWN; break;
+        }
+        FlicktekCommands.getInstance().onGestureChanged(value);
+
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -257,6 +266,8 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
             Log.v(TAG, "Something went wrong!");
             return null;
         }
+
+        FlicktekCommands.getInstance().onGestureChanged(0);
 
         anim.addListener(new AnimatorListenerAdapter() {
             @Override
