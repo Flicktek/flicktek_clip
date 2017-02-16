@@ -49,7 +49,6 @@
         <activity
             android:name=".MainActivity"
             android:launchMode="singleInstance"
-            android:screenOrientation="landscape"
             />
 
         <!-- This receiver needs to be exported as it listens for notification broadcasts. -->

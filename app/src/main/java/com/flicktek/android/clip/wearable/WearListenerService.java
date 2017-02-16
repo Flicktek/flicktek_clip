@@ -38,6 +38,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * The main listener for messages from Wearable devices. There may be only one such service per application so it has to handle messages from all profiles.
  */
@@ -167,16 +172,36 @@ public class WearListenerService extends WearableListenerService {
                 // If we are the same package name we will launch the activity internally
                 // Otherwise it is some application that we want to launch
                 String packageName = getPackageName();
-                if (!text.startsWith(packageName)) {
+                if (!text.startsWith(packageName) && !text.startsWith("android.intent.action")) {
                     PackageManager pm = getPackageManager();
                     Intent intent = pm.getLaunchIntentForPackage(text);
-                    startActivity(intent);
+                    if (intent != null) {
+                        startActivity(intent);
+                        return;
+                    }
+                }
+
+                Map<String, List<String>> params = new HashMap<String, List<String>>();
+                String[] urlParts = text.split("\\?");
+                if (urlParts.length > 1) {
+                    final Intent intent = new Intent(urlParts[0]);
+                    String query = urlParts[1];
+                    for (String param : query.split("&")) {
+                        String pair[] = param.split("=");
+                        String key = URLDecoder.decode(pair[0], "UTF-8");
+                        String value = "";
+                        if (pair.length > 1) {
+                            value = URLDecoder.decode(pair[1], "UTF-8");
+                            intent.putExtra(key, value);
+                        }
+                    }
+                    getApplicationContext().sendBroadcast(intent);
                     return;
                 }
 
                 final Intent intent = new Intent(text);
-                intent.putExtra("launch", text);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("launch", text);
                 startActivity(intent);
                 return;
             }

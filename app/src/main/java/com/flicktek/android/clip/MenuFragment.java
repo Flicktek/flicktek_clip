@@ -14,6 +14,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.android.ConnectionEvents.ConnectedEvent;
+import com.flicktek.android.ConnectionEvents.ConnectingEvent;
+import com.flicktek.android.ConnectionEvents.DisconnectedEvent;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -179,6 +183,34 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
     public void back() {
         mainActivity.onBackPressed();
+    }
+
+    private int oldViewState = 0;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLinkLost(DisconnectedEvent event) {
+        if (tv_current_menu!=null) {
+            tv_current_menu.setText("DISCONNECTED");
+            oldViewState = tv_current_menu.getVisibility();
+            tv_current_menu.setVisibility(View.VISIBLE);
+            ll_battery.setVisibility(View.GONE);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onConnecting(ConnectingEvent event) {
+        if (tv_current_menu!=null)
+            tv_current_menu.setText("CONNECTING");
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLinkRestablished(ConnectedEvent connectedEvent) {
+        if (tv_current_menu!=null) {
+            tv_current_menu.setText(menuName);
+            if (oldViewState == View.GONE)
+                tv_current_menu.setVisibility(View.GONE);
+
+            ll_battery.setVisibility(View.VISIBLE);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

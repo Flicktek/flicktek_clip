@@ -19,16 +19,22 @@
       "json": "json_games"
     },
     {
-      "text": "Notifications",
-      "drawable": "ic_notifications_black_48dp",
-      "target": "fragment_class",
-      "class": "notifications"
+      "text": "Music",
+      "drawable": "ic_music_note_black_48dp",
+      "target": "media_controller",
+      "configuration": "media_music"
     },
     {
       "text": "Remote Control",
       "drawable": "ic_cast_black_48dp",
       "target": "menu_list",
       "json": "json_remote_control"
+    },
+    {
+      "text": "Stop Watch",
+      "drawable": "ic_timer_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.stopwatch.stopwatchFragment"
     },
     {
       "text": "Apps",

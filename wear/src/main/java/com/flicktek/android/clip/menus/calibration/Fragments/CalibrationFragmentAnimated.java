@@ -82,6 +82,8 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
 
         }
 
+        FlicktekManager.setCalibrationMode(true);
+
         animation_success = R.anim.calibration_enter;
         animation_error = R.anim.calibration_error;
 
@@ -351,13 +353,15 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
 
     public void close() {
         Log.d(TAG, "close: ");
+        FlicktekManager.setCalibrationMode(false);
         FlicktekCommands.getInstance().stopCalibration();
 
         int pop_flag;
-        if (bFinishedCalibration)
+        if (bFinishedCalibration) {
             pop_flag = FragmentManager.POP_BACK_STACK_INCLUSIVE;         // Previous menu to calibration
-        else
+        } else {
             pop_flag = 0; // Pop until the start calibration message
+        }
 
         mainActivity.getFragmentManager().popBackStack("CalibrationFragment", pop_flag);
         FlicktekManager.backMenu(mainActivity);

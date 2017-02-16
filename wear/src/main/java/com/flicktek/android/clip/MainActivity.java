@@ -106,16 +106,30 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         @Override
         public void onReceive(final Context context, final Intent intent) {
             final String action = intent.getAction();
+            boolean cancelCalibration = false;
 
             switch (action) {
                 case BleProfileService.BROADCAST_CONNECTION_STATE: {
                     final int state = intent.getIntExtra(BleProfileService.EXTRA_CONNECTION_STATE, BleProfileService.STATE_DISCONNECTED);
                     switch (state) {
                         case BleProfileService.STATE_LINK_LOSS:
-                            Toast.makeText(MainActivity.this, "Temporarily disconnected from device", Toast.LENGTH_SHORT).show();
+                            Log.v(TAG, "************ LINK LOST ****************");
+                            Toast.makeText(MainActivity.this, "Temporarily disconnected from device", Toast.LENGTH_LONG).show();
+                            cancelCalibration = true;
                             break;
                         case BleProfileService.STATE_DISCONNECTED:
+                            Log.v(TAG, "************ DISCONNECTED ****************");
+                            Toast.makeText(MainActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
+                            cancelCalibration = true;
                             finish();
+                            break;
+                        case BleProfileService.STATE_CONNECTED:
+                            Log.v(TAG, "************ CONNECTED ****************");
+                            Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
+                            break;
+                        case BleProfileService.STATE_CONNECTING:
+                            Log.v(TAG, "************ CONNECTING ****************");
+                            Toast.makeText(MainActivity.this, "Connecting to device", Toast.LENGTH_LONG).show();
                             break;
                     }
                     break;
@@ -134,6 +148,13 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                     }
                     break;
                 }
+            }
+
+            if (cancelCalibration && FlicktekManager.isCalibrating()) {
+                Log.v(TAG, "######## DASHBOARD ########");
+                getFragmentManager().popBackStack("Dashboard", 0);
+                Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
+                showFragment(fragment, "DashBoard", true);
             }
         }
     };
@@ -195,11 +216,9 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
-                showFragment(fragment, true);
+                showFragment(fragment, "Dashboard", true);
 
-                if (!FlicktekManager.isCalibrated()) {
-                    FlicktekCommands.getInstance().onQueryForCalibration();
-                }
+                FlicktekCommands.getInstance().onQueryForCalibration();
 
                 stub.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                     @Override
@@ -304,6 +323,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNotCalibrated(FlicktekCommands.onNotCalibrated notCalibrated) {
         Log.v(TAG, "onNotCalibrated");
+        getFragmentManager().popBackStack("Dashboard", 0);
         newFragment("menus.calibration.CalibrationFragmentScroll");
     }
 
@@ -482,7 +502,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         });
     }
 
-    public void showFragment(final Fragment _fragment, final boolean isNewView) {
+    public void showFragment(final Fragment _fragment, final String _fragment_name, final boolean isNewView) {
         Log.d(TAG, "showFragment " + _fragment.getClass().getCanonicalName());
         runOnUiThread(new Runnable() {
 
@@ -498,7 +518,13 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                         transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
                     }
 
-                    transaction.replace(R.id.container, _fragment).addToBackStack("MainActivity " + _fragment.getClass().getCanonicalName());
+                    String fragment_name = _fragment_name;
+
+                    if (fragment_name == null) {
+                        fragment_name = _fragment.getClass().getCanonicalName();
+                    }
+
+                    transaction.replace(R.id.container, _fragment).addToBackStack(fragment_name);
                     transaction.commit();
 
                     Log.i(TAG, "-------- BEGIN SHOW FRAGMENT --------");
@@ -541,7 +567,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             return;
         }
 
-        showFragment(myFragment, false);
+        showFragment(myFragment, className, false);
     }
 
     /**
@@ -562,7 +588,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
      */
     public void newMediaFragment(AppModel appModel) {
         MediaFragment mediaFragment = MediaFragment.newInstance(appModel.getConfiguration().toString());
-        showFragment(mediaFragment, false);
+        showFragment(mediaFragment, appModel.getName(), false);
     }
 
     /**

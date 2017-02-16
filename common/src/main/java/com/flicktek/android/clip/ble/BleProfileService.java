@@ -332,6 +332,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         final Intent broadcast = new Intent(BROADCAST_CONNECTION_STATE);
         broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_DISCONNECTED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+        FlicktekManager.onDisconnected();
 
         // Disable disconnection and try to connect again.
         // We don't want to close the application if we are disconnected!
@@ -348,6 +349,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
         broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_LINK_LOSS);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+        FlicktekManager.onLinkloss();
     }
 
     @Override

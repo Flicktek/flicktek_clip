@@ -1,0 +1,39 @@
+{
+  "title": "",
+  "background": "bkg_music",
+  "activity": "android.intent.action.MUSIC_PLAYER",
+  "media_actions": [
+    {
+      "text": "Previous",
+      "package": "android",
+      "drawable": "ic_media_previous",
+      "onGesture": "up",
+      "target": "phone",
+      "intent" : "com.android.music.musicservicecommand?command=next"
+    },
+    {
+      "text": "Next",
+      "package": "android",
+      "drawable": "ic_media_next",
+      "onGesture": "down",
+      "target": "phone",
+      "intent" : "com.android.music.musicservicecommand?command=previous"
+    },
+    {
+      "text": "Start show",
+      "package": "android",
+      "drawable": "ic_media_play",
+      "onGesture": "enter",
+      "target": "phone",
+      "intent" : "com.android.music.musicservicecommand?command=togglepause"
+    },
+    {
+      "text": "End show",
+      "package": "android",
+      "drawable": "ic_media_pause",
+      "onGesture": "home",
+      "target": "phone",
+      "intent" : "com.android.music.musicservicecommand?command=stop"
+    }
+  ]
+}

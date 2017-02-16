@@ -2,6 +2,13 @@ package com.flicktek.android.clip;
 
 import android.util.Log;
 
+import com.flicktek.android.ConnectionEvents.ConnectedEvent;
+import com.flicktek.android.ConnectionEvents.ConnectingEvent;
+import com.flicktek.android.ConnectionEvents.DisconnectedEvent;
+import com.flicktek.android.ConnectionEvents.DisconnectingEvent;
+
+import org.greenrobot.eventbus.EventBus;
+
 public class FlicktekManager {
     private static final String TAG = "FlickTek";
 
@@ -35,6 +42,7 @@ public class FlicktekManager {
     // First handshake between devices happened
     private static boolean mIsHandshakeOk = false;
     private static boolean mIsCalibrated = false;
+    private static boolean mIsCalibrating = false;
     private static int mReconnectAttempts = 0;
     private static int mLastPing = 0;
     private static int mBatteryLevel = 0;
@@ -64,17 +72,26 @@ public class FlicktekManager {
     public static void onConnecting() {
         mStatus = STATUS_CONNECTING;
         mIsConnected = false;
+        EventBus.getDefault().post(new ConnectingEvent());
     }
 
     public static void onConnected() {
         mStatus = STATUS_CONNECTED;
         mIsConnected = true;
+        mIsCalibrating = false;
+        EventBus.getDefault().post(new ConnectedEvent());
     }
 
     public static void onDisconnected() {
+        FlicktekManager.setHandshakeOk(false);
         mStatus = STATUS_DISCONNECTED;
         mIsConnected = false;
         mReconnectAttempts++;
+        EventBus.getDefault().post(new DisconnectedEvent());
+    }
+
+    public static void onLinkloss() {
+        onDisconnected();
     }
 
     public static void onDeviceReady() {
@@ -85,10 +102,19 @@ public class FlicktekManager {
     public static void onDisconnecting() {
         mStatus = STATUS_DISCONNECTING;
         mIsConnected = false;
+        EventBus.getDefault().post(new DisconnectingEvent());
     }
 
     public static void sendDeviceMessage(byte[] buf) {
 
+    }
+
+    public static boolean isCalibrating() {
+        return mIsCalibrating;
+    }
+
+    public static void setCalibrationMode(boolean calibration) {
+        mIsCalibrating = calibration;
     }
 
     //------------- GESTURES -------------------------

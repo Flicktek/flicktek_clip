@@ -12,6 +12,12 @@
       "drawable": "ic_home_circle_black",
       "target": "media_controller",
       "configuration": "media_unity_demo"
+    },
+    {
+      "text": "Music",
+      "drawable": "ic_music_note_black_48dp",
+      "target": "media_controller",
+      "configuration": "media_music"
     }
   ]
 }

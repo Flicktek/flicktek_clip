@@ -38,6 +38,8 @@ import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.FlicktekManager;
+
 import no.nordicsemi.android.log.ILogSession;
 import no.nordicsemi.android.log.LogContract;
 import no.nordicsemi.android.log.Logger;
@@ -391,6 +393,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_CONNECTING);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		FlicktekManager.onConnecting();
 	}
 
 	@Override
@@ -400,6 +403,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		FlicktekManager.onConnected();
 
 		mBleManager.setBatteryNotifications(true);
 	}
@@ -434,6 +438,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_DISCONNECTED);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		FlicktekManager.onDisconnected();
 
 		if (stopWhenDisconnected())
 			stopService();
@@ -451,6 +456,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_LINK_LOSS);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		FlicktekManager.onLinkloss();
 	}
 
 	@Override

@@ -45,6 +45,9 @@ public class AppModel {
     }
 
     public String getName() {
+        if (name == null) {
+            return "AppModel";
+        }
         return name;
     }
 
@@ -170,7 +173,7 @@ public class AppModel {
                 mainActivity.showFragment(
                         MenuFragment.newInstance(
                                 this.name,
-                                this.getTargetConfigurationJSON()), false);
+                                this.getTargetConfigurationJSON()), getName(), false);
                 break;
             case TARGET_MEDIA_CONTROLLER:
                 mainActivity.newMediaFragment(this);

@@ -29,6 +29,7 @@ import com.flicktek.android.clip.wearable.common.Constants;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,6 +54,41 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     private int status;
 
     private JSONObject config;
+
+    private class MediaAction {
+        private String gesture;
+        JSONObject config;
+
+        MediaAction(JSONObject config) {
+            gesture = "none";
+            this.config = config;
+
+            try {
+                gesture = config.getString("onGesture");
+            } catch (Exception e) {
+                Log.v(TAG, "No activity to be launched");
+            }
+        }
+
+        public String getGesture() {
+            return gesture;
+        }
+
+        public void performAction() {
+            try {
+                String intent = config.getString("intent");
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.LAUNCH_INTENT, intent);
+            } catch (Exception e) {
+                Log.v(TAG, "No activity to be launched");
+            }
+        }
+    }
+
+    private MediaAction media_UP;
+    private MediaAction media_DOWN;
+    private MediaAction media_ENTER;
+    private MediaAction media_HOME;
 
     // Default bundle constructor as google best practices
     public static MediaFragment newInstance(String jsonString) {
@@ -82,6 +118,31 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
 
             } catch (Exception e) {
                 Log.v(TAG, "No activity to be launched");
+            }
+
+            try {
+                JSONArray menu_items = config.getJSONArray("media_actions");
+                for (int i = 0; i < menu_items.length(); i++) {
+                    JSONObject item_config = menu_items.getJSONObject(i);
+                    MediaAction mediaAction = new MediaAction(item_config);
+
+                    switch (mediaAction.getGesture()) {
+                        case "up":
+                            media_UP = mediaAction;
+                            break;
+                        case "down":
+                            media_DOWN = mediaAction;
+                            break;
+                        case "enter":
+                            media_ENTER = mediaAction;
+                            break;
+                        case "home":
+                            media_HOME = mediaAction;
+                            break;
+                    }
+                }
+            } catch (Exception e) {
+                Log.v(TAG, "Error parsing actions " + e.toString());
             }
 
         } catch (JSONException e) {
@@ -271,25 +332,29 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     public void onClick(View _view) {
         if (_view == bClose) {
             close();
+            return;
         }
         if (_view == iconNext) {
             status = STATUS_NEXT;
             mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_DOWN);
-            updateUi();
         }
         if (_view == iconPP) {
             status = STATUS_PLAY;
             mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_ENTER);
-            updateUi();
         }
         if (_view == iconPrev) {
             status = STATUS_PREV;
             mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_UP);
-            updateUi();
         }
+
+        doGesture();
+        updateUi();
     }
 
     public void close() {
+        if (media_HOME !=null)
+            media_HOME.performAction();
+
         FlicktekManager.backMenu(mainActivity);
     }
 
@@ -338,10 +403,16 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
                 exit_pressed = true;
                 return;
             case (STATUS_PLAY):
+                if (media_ENTER!=null)
+                    media_ENTER.performAction();
                 break;
             case (STATUS_NEXT):
+                if (media_DOWN!=null)
+                    media_DOWN.performAction();
                 break;
             case (STATUS_PREV):
+                if (media_UP!=null)
+                    media_UP.performAction();
                 break;
         }
         exit_pressed = false;
