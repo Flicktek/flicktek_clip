@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,11 +29,18 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class SlideFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "SlideFragment";
     private static final String ARG_JSON = "JSON";
     private static final String ARG_EXTRA = "EXTRA";
     private static final String JSON_CONFIGURATION = "configuration";
+
+    private static final String PRESENTATION_FOLDER = "Presentation";
 
     private final int STATUS_PLAY = 0;
     private final int STATUS_NEXT = 1;
@@ -54,6 +62,74 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
 
     private JSONObject config;
 
+    private File[] presentation_files = null;
+
+    public boolean check_is_file_image(String filename) {
+        try {
+            String filenameArray[] = filename.split("\\.");
+            String extension = filenameArray[filenameArray.length - 1].toLowerCase();
+
+            switch (extension) {
+                case "jpg":
+                    return true;
+                case "jpeg":
+                    return true;
+                case "png":
+                    return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void read_presentation_folder(File presentation_folder) {
+        File[] files = presentation_folder.listFiles();
+
+        List<File> list_images = new ArrayList<File>();
+        Arrays.sort(files);
+        int count = 0;
+        for (File CurFile : files) {
+            if (CurFile.isDirectory()) {
+            } else {
+                String myfile = CurFile.getName();
+                if (check_is_file_image(CurFile.getName()))
+                    list_images.add(CurFile);
+                else
+                    Log.v(TAG, " File not an image! " + myfile);
+
+                count++;
+            }
+        }
+
+        if (count > 0) {
+            presentation_files = list_images.toArray(new File[list_images.size()]);
+            max_slides = count;
+        }
+    }
+
+    public void load_pictures_folder() {
+        File CameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString());
+        File[] files = CameraDirectory.listFiles();
+        Arrays.sort(files);
+        for (File CurFile : files) {
+            if (CurFile.isDirectory()) {
+                String directory = CurFile.getName();
+                if (directory.equals(PRESENTATION_FOLDER)) {
+                    read_presentation_folder(CurFile);
+                    return;
+                }
+
+                Log.v(TAG, " Directory " + directory);
+
+            } else {
+                String myfile = CurFile.getName();
+                Log.v(TAG, " File " + myfile);
+            }
+        }
+    }
+
     // Default bundle constructor as google best practices
     public static SlideFragment newInstance(String jsonString, String extra) {
         SlideFragment myFragment = new SlideFragment();
@@ -67,6 +143,8 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        load_pictures_folder();
 
         if (getArguments() == null)
             return;
@@ -195,16 +273,28 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
         bg_background_image = (RelativeLayout) rootView.findViewById(R.id.media_background);
 
         Drawable drawable = Helpers.getDrawableFromResources(mainActivity, "background", config);
-
         try {
             String extra = getArguments().getString(ARG_EXTRA);
             slide = Integer.valueOf(extra);
 
             String name = null;
             if (slide > 0) {
-                name = config.getString("slides_name") + slide;
-                max_slides = config.getInt("slides_number");
-                drawable = Helpers.getDrawableFromResourcesByName(mainActivity, name, config);
+                if (presentation_files != null) {
+                    String filename = presentation_files[slide - 1].getAbsolutePath();
+                    try {
+                        Drawable image = Drawable.createFromPath(filename);
+                        if (image != null)
+                            drawable = image;
+
+                        Log.v(TAG, "----------- LOADING " + filename + " -------------");
+                    } catch (Exception e) {
+                        Log.v(TAG, "Failed loading file " + filename);
+                    }
+                } else {
+                    name = config.getString("slides_name") + slide;
+                    max_slides = config.getInt("slides_number");
+                    drawable = Helpers.getDrawableFromResourcesByName(mainActivity, name, config);
+                }
             }
 
         } catch (Exception e) {
@@ -214,6 +304,22 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
         iCover = (ImageView) rootView.findViewById(R.id.imageCover);
         if (drawable != null)
             iCover.setImageDrawable(drawable);
+
+        iCover.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        status = STATUS_NEXT;
+                        updateUi();
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
+
 
         return rootView;
     }
@@ -284,8 +390,8 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
                     case STATUS_PREV:
                         iconPrev.startAnimation(showColor);
                         slide--;
-                        if (slide < 0)
-                            slide = 0;
+                        if (slide <= 0)
+                            slide = max_slides;
                         frag = SlideFragment.newInstance("media_slide", Integer.toString(slide));
                         showFragment(frag, false);
                         break;
@@ -349,8 +455,11 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
                     toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
                     toast.show();
                 } catch (Exception e) {
-                };
-            };
+                }
+                ;
+            }
+
+            ;
         });
     }
 }

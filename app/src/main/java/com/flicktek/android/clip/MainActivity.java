@@ -308,7 +308,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
             switch (launch) {
                 case "com.flicktek.android.clip.slides":
-                    showFragment(SlideFragment.newInstance("media_slide", ""), true);
+                    showFragment(SlideFragment.newInstance("media_slide", "1"), true);
                     break;
 
                 default:
@@ -350,7 +350,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
             myFragment = (Fragment) object;
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
                 IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return null;
         }
         return myFragment;

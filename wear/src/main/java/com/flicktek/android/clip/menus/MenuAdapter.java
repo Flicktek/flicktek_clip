@@ -100,7 +100,11 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
 
             if (item.isHeader) {
                 header = new ViewHeader();
-                _view = inflater.inflate(R.layout.item_menu_header, _parent, false);
+                if (main.isRound)
+                    _view = inflater.inflate(R.layout.item_menu_header_round, _parent, false);
+                else
+                    _view = inflater.inflate(R.layout.item_menu_header_rect, _parent, false);
+
                 _view.setBackgroundResource(R.drawable.bg_dark);
                 header.imageView = (ImageView) _view.findViewById(R.id.iv_header);
                 header.imageView.setImageDrawable(item.getIcon());

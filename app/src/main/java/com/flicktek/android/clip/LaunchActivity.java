@@ -471,7 +471,7 @@ public class LaunchActivity extends Activity implements
         Intent startIntent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
         // We launch a fragment class
-        bundle.putString("launch", "SlideFragment");
+        bundle.putString("launch", "com.flicktek.android.clip.slides");
         startIntent.putExtras(bundle);
         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startIntent);

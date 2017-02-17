@@ -89,6 +89,10 @@ public class Helpers {
                                                     String drawable_name,
                                                     JSONObject config) {
 
+        if (config == null) {
+            return main.getResources().getDrawable(R.drawable.ic_clear_white, main.getTheme());
+        }
+
         // You can specify a package, by default if there is no package we assume it is
         // an internal resource.
         String package_name = new String();
