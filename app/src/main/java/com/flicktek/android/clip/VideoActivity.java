@@ -28,6 +28,8 @@ import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.widget.VideoView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.Thing;
 
@@ -37,11 +39,15 @@ import com.google.android.gms.appindexing.Thing;
  */
 public class VideoActivity extends Activity implements SurfaceHolder.Callback, MediaPlayer.OnCompletionListener {
     VideoView mVideoView;
+    private Tracker mTracker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_main);
+
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
 
         getWindow().setFormat(PixelFormat.UNKNOWN);
 
@@ -54,6 +60,9 @@ public class VideoActivity extends Activity implements SurfaceHolder.Callback, M
         mVideoView.requestFocus();
         mVideoView.start();
         mVideoView.setOnCompletionListener(this);
+
+        mTracker.setScreenName("VideoActivity");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override

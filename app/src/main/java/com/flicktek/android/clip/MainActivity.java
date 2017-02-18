@@ -48,6 +48,8 @@ import com.flicktek.android.clip.profile.BleProfileServiceReadyActivity;
 import com.flicktek.android.clip.uart.UARTInterface;
 import com.flicktek.android.clip.uart.UARTService;
 import com.flicktek.android.clip.wearable.WearListenerService;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.greenrobot.eventbus.EventBus;
@@ -96,6 +98,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
     private final String UPLOAD_DIR = "/FlickTekCaptures/";
     private String mCaptureFileName;
+    public Tracker mTracker;
 
     private void loadAuth(AndroidAuthSession session) {
         SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
@@ -143,6 +146,9 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
 
         config = getIntent().getExtras();
         try {
@@ -244,7 +250,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         return R.string.uart_about_text;
     }
 
-    public void showFragment(final Fragment _fragment, final boolean _isSameView) {
+    public void showFragment(final Fragment _fragment, final String name, final boolean _isSameView) {
         Log.d(TAG, "showFragment: ");
         runOnUiThread(new Runnable() {
 
@@ -257,7 +263,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                         transaction.setCustomAnimations(R.animator.fade_in_right, R.animator.fade_out_left);
                     }
 
-                    transaction.replace(R.id.container, _fragment);
+                    transaction.replace(R.id.container, _fragment, name);
                     transaction.commit();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -266,6 +272,10 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
             }
         });
 
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Navigation")
+                .setAction(_fragment.getTag())
+                .build());
     }
 
     @Override
@@ -290,7 +300,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         try {
             String menu_config = config.getString("json");
             if (menu_config != null) {
-                showFragment(MenuFragment.newInstance("Menu", menu_config), true);
+                showFragment(MenuFragment.newInstance("Menu", menu_config), "Menu", true);
                 return;
             }
         } catch (Exception e) {
@@ -302,18 +312,18 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
             Fragment fragment = getFragment(launch);
             if (fragment != null) {
                 fragment.setArguments(getIntent().getExtras());
-                showFragment(fragment, false);
+                showFragment(fragment, launch, false);
                 return;
             }
 
             switch (launch) {
                 case "com.flicktek.android.clip.slides":
-                    showFragment(SlideFragment.newInstance("media_slide", "1"), true);
+                    showFragment(SlideFragment.newInstance("media_slide", "1"), "Slides", true);
                     break;
 
                 default:
                     mFlickTekGraphs = FlicktekBleFragment.newInstance("Ble", "");
-                    showFragment(mFlickTekGraphs, true);
+                    showFragment(mFlickTekGraphs, "R&D Sensor Graphs", true);
                     break;
             }
         } catch (Exception e) {
@@ -358,8 +368,9 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
     public void newFragmentFromClassName(String classFragment) {
         Fragment frg = getFragment(classFragment);
-        if (frg != null)
-            showFragment(frg, false);
+        if (frg != null) {
+            showFragment(frg, classFragment, false);
+        }
     }
 
     /**

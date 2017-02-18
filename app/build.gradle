@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 25
@@ -31,8 +32,10 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.google.android.gms:play-services-wearable:9.2.0'
-    compile 'com.google.android.gms:play-services-appindexing:9.2.0'
+
+    compile 'com.google.android.gms:play-services-analytics:9.0.0'
+    compile 'com.google.android.gms:play-services-wearable:9.0.0'
+    compile 'com.google.android.gms:play-services-appindexing:9.0.0'
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:design:25.0.1'
     compile 'no.nordicsemi.android.support.v18:scanner:1.0.0'

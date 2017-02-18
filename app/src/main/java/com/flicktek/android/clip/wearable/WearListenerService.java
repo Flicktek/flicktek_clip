@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import com.flicktek.android.clip.AnalyticsApplication;
 import com.flicktek.android.clip.ClipIntents;
 import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.FlicktekManager;
@@ -34,6 +35,8 @@ import com.flicktek.android.clip.LaunchActivity;
 import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.uart.UARTService;
 import com.flicktek.android.clip.wearable.common.Constants;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
@@ -52,6 +55,9 @@ public class WearListenerService extends WearableListenerService {
     GoogleApiClient mGoogleApiClient;
 
     public static boolean mApplicationActive = false;
+
+    public static String mMacDeviceConnected = "MAC_ADDRESS";
+    public static int mBatteryLevel = 0;
 
     @Override
     public void onCreate() {
@@ -89,6 +95,57 @@ public class WearListenerService extends WearableListenerService {
         try {
             path = messageEvent.getPath();
             text = new String(messageEvent.getData());
+
+            AnalyticsApplication application = (AnalyticsApplication) getApplication();
+            Tracker tracker = application.getDefaultTracker();
+
+            if (path.equals(Constants.FLICKTEK_CLIP.DEVICE_CONNECTION_STATE)) {
+                tracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("DeviceState")
+                        .setLabel(mMacDeviceConnected)
+                        .setAction(text)
+                        .build());
+                return;
+            }
+
+            if (path.equals(Constants.FLICKTEK_CLIP.DEVICE_MAC_ADDRESS)) {
+                mMacDeviceConnected = text;
+                tracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("DeviceState")
+                        .setLabel(mMacDeviceConnected)
+                        .setAction("MacAddress")
+                        .setValue(1)
+                        .build());
+
+                tracker.setScreenName("MAC "+ mMacDeviceConnected);
+                tracker.send(new HitBuilders.ScreenViewBuilder().build());
+                return;
+            }
+
+            if (path.equals(Constants.FLICKTEK_CLIP.BATTERY)) {
+                try {
+                    int battery_level = Integer.valueOf(text);
+                    tracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Battery")
+                            .setAction("Battery")
+                            .setLabel(mMacDeviceConnected)
+                            .setValue(battery_level)
+                            .build());
+                } catch (NumberFormatException f) {
+
+                }
+                return;
+            }
+
+            if (path.equals(Constants.FLICKTEK_CLIP.ANALYTICS_SCREEN)) {
+                String pack_name = getPackageName();
+                if (text.startsWith(pack_name)) {
+                    text = text.substring(pack_name.length() + 1,text.length());
+                }
+                tracker.setScreenName(text);
+                tracker.send(new HitBuilders.ScreenViewBuilder().build());
+                return;
+            }
 
             if (path.equals(Constants.FLICKTEK_CLIP.GESTURE)) {
                 int value = -1;

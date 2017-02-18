@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.flicktek.android.ConnectionEvents.ConnectedEvent;
 import com.flicktek.android.ConnectionEvents.ConnectingEvent;
 import com.flicktek.android.ConnectionEvents.DisconnectedEvent;
+import com.google.android.gms.analytics.HitBuilders;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -78,6 +79,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             tv_current_menu = (TextView) rootView.findViewById(R.id.tv_current_menu);
             tv_current_menu.setText(menuName);
         } else {
+            menuName = "MenuFragment";
             tv_current_menu.setVisibility(View.GONE);
         }
 
@@ -92,6 +94,9 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         // --- Battery layouts and display ---
 
         initList();
+
+        mainActivity.mTracker.setScreenName("MenuFragment " + menuName);
+        mainActivity.mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         return rootView;
     }

@@ -198,7 +198,7 @@ public class FlicktekManager {
         FlicktekManager.mLastPing = mLastPing;
     }
 
-    public void setMacAddress(String mac_address) {
+    public static void setMacAddress(String mac_address) {
         mMacAddress = mac_address;
     }
 

@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.flicktek.android.clip.dropbox.UploadData;
 import com.flicktek.android.clip.util.Helpers;
 import com.flicktek.android.clip.wearable.WearListenerService;
+import com.google.android.gms.analytics.HitBuilders;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -105,6 +106,8 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             Log.e(TAG, "Failed parsing JSON");
         }
 
+        mainActivity.mTracker.setScreenName("R&D Sensors ");
+        mainActivity.mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

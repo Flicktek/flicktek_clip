@@ -116,20 +116,28 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                             Log.v(TAG, "************ LINK LOST ****************");
                             Toast.makeText(MainActivity.this, "Temporarily disconnected from device", Toast.LENGTH_LONG).show();
                             cancelCalibration = true;
+                            sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_CONNECTION_STATE,
+                                    "LinkLoss");
                             break;
                         case BleProfileService.STATE_DISCONNECTED:
                             Log.v(TAG, "************ DISCONNECTED ****************");
                             Toast.makeText(MainActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
                             cancelCalibration = true;
+                            sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_CONNECTION_STATE,
+                                    "Disconnected");
                             finish();
                             break;
                         case BleProfileService.STATE_CONNECTED:
                             Log.v(TAG, "************ CONNECTED ****************");
                             Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
+                            sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_CONNECTION_STATE,
+                                    "Connected");
                             break;
                         case BleProfileService.STATE_CONNECTING:
                             Log.v(TAG, "************ CONNECTING ****************");
                             Toast.makeText(MainActivity.this, "Connecting to device", Toast.LENGTH_LONG).show();
+                            sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_CONNECTION_STATE,
+                                    "Connecting");
                             break;
                     }
                     break;
@@ -155,6 +163,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 getFragmentManager().popBackStack("Dashboard", 0);
                 Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
                 showFragment(fragment, "DashBoard", true);
+                sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_CONNECTION_STATE,
+                        "Disconnected_while_calibration");
             }
         }
     };
@@ -178,6 +188,9 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         public void onServiceConnected(final ComponentName name, final IBinder service) {
             mBleProfileServiceBinder = (BleProfileService.LocalBinder) service;
             mProfile = (UARTProfile) mBleProfileServiceBinder.getProfile();
+
+            sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_MAC_ADDRESS,
+                    FlicktekManager.getMacAddress());
         }
 
         @Override
@@ -255,6 +268,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         filterScreen.addAction(Intent.ACTION_SCREEN_OFF);
         filterScreen.addAction(Intent.ACTION_SCREEN_ON);
         LocalBroadcastManager.getInstance(this).registerReceiver(mScreenIsOn, filter);
+
+        sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.ANALYTICS_SCREEN, "MainActivity");
     }
 
     @Override
@@ -325,12 +340,18 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         Log.v(TAG, "onNotCalibrated");
         getFragmentManager().popBackStack("Dashboard", 0);
         newFragment("menus.calibration.CalibrationFragmentScroll");
+
+        sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_STATE,
+                "NotCalibrated");
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDeviceReady(FlicktekCommands.onDeviceReady ready) {
         Log.v(TAG, "onDeviceReady");
         FlicktekCommands.getInstance().onQueryForCalibration();
+
+        sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_STATE,
+                "DeviceReady");
     }
 
     @Override
@@ -478,6 +499,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     public void backFragment() {
         Log.d(TAG, "showFragment");
+        sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.ANALYTICS_SCREEN, "Back");
+
         runOnUiThread(new Runnable() {
 
             public void run() {
@@ -534,6 +557,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                     }
                     Log.i(TAG, "---------- END SHOW FRAGMENT --------");
 
+                    sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.ANALYTICS_SCREEN, _fragment_name);
                 } catch (Exception e) {
                     e.printStackTrace();
                     finish();
@@ -638,6 +662,9 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             res = R.drawable.ic_batt_full;
 
         battery_image.setImageResource(res);
+
+        sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.BATTERY,
+                Integer.toString(battery_level));
     }
 
     public void showToastMessage(final String message) {

@@ -299,6 +299,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
         broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_CONNECTING);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+        FlicktekManager.setMacAddress(device.getAddress());
         FlicktekManager.onConnecting();
     }
 
@@ -312,6 +313,7 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
         mBleManager.setBatteryNotifications(true);
+        FlicktekManager.setMacAddress(device.getAddress());
         FlicktekManager.onConnected();
     }
 

@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "1005772327370",
+    "project_id": "flicktek-clip"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1005772327370:android:d1c724685b2c5c42",
+        "android_client_info": {
+          "package_name": "com.flicktek.android.clip"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDtlDAPTOR5vTe0OTBdq2WVJRvUr7Vras"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-92216995-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

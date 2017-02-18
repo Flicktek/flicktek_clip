@@ -393,6 +393,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_CONNECTING);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		FlicktekManager.setMacAddress(device.getAddress());
 		FlicktekManager.onConnecting();
 	}
 
@@ -403,8 +404,8 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+		FlicktekManager.setMacAddress(device.getAddress());
 		FlicktekManager.onConnected();
-
 		mBleManager.setBatteryNotifications(true);
 	}
 

@@ -57,6 +57,11 @@ public final class Constants {
         public static final String LAUNCH_ACTIVITY = "/activity";
         public static final String LAUNCH_FRAGMENT = "/fragment";
         public static final String LAUNCH_INTENT = "/intent";
+        public static final String BATTERY = "/battery";
+        public static final String DEVICE_MAC_ADDRESS = "/mac_address";
+        public static final String DEVICE_CONNECTION_STATE = "/connection_state";
+        public static final String ANALYTICS_SCREEN = "/analytics";
+        public static final String DEVICE_STATE = "/device_state";
     }
 
     /**

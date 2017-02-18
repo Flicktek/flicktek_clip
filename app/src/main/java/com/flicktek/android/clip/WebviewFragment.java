@@ -13,6 +13,7 @@ import android.webkit.WebViewClient;
 
 import com.flicktek.android.clip.util.Helpers;
 import com.flicktek.android.clip.wearable.WearListenerService;
+import com.google.android.gms.analytics.HitBuilders;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -92,6 +93,10 @@ public class WebviewFragment extends Fragment {
             }
 
             webview.loadUrl("file:///android_asset/" + assets + "/index.html");
+
+            mainActivity.mTracker.setScreenName("WebFragment " + assets);
+            mainActivity.mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "Failed parsing JSON");

@@ -43,6 +43,8 @@ import android.widget.Toast;
 import com.flicktek.android.clip.dropbox.Dropbox;
 import com.flicktek.android.clip.wearable.WearListenerService;
 import com.flicktek.android.clip.wearable.common.Constants;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -116,9 +118,17 @@ public class LaunchActivity extends Activity implements
     private ScheduledExecutorService mGeneratorExecutor;
     private ScheduledFuture<?> mDataItemGeneratorFuture;
 
+    // Google Analytics
+    private Tracker mTracker;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
         LOGD(TAG, "onCreate");
         mCameraSupported = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
         setContentView(R.layout.main_activity);
@@ -160,6 +170,9 @@ public class LaunchActivity extends Activity implements
         WearListenerService.mApplicationActive = true;
         mDataItemGeneratorFuture = mGeneratorExecutor.scheduleWithFixedDelay(
                 new DataItemGenerator(), 1, 30, TimeUnit.SECONDS);
+
+        mTracker.setScreenName(TAG);
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override
@@ -302,6 +315,11 @@ public class LaunchActivity extends Activity implements
                 }
 
                 ClipIntents.openBroadcastIntent(this, ClipIntents.ACTION_URI_GESTURE, gesture);
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("WearGesture")
+                        .setAction(gesture)
+                        .build());
             }
 
             mDataItemListAdapter.add(new Event(path, Integer.toString(value)));
