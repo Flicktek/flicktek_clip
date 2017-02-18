@@ -23,6 +23,7 @@ import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.R;
+import com.flicktek.android.clip.wearable.common.Constants;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -146,6 +147,9 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
 
         rl_number_container = (RelativeLayout) rootView.findViewById(R.id.counter_container);
 
+        mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "CALIBRATE_GESTURE " + getString(title));
+
         return rootView;
     }
 
@@ -166,10 +170,18 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
 
         int value = 0;
         switch (gesture_number) {
-            case GESTURE_ENTER: value = FlicktekManager.GESTURE_ENTER; break;
-            case GESTURE_HOME: value = FlicktekManager.GESTURE_HOME; break;
-            case GESTURE_UP: value = FlicktekManager.GESTURE_UP; break;
-            case GESTURE_DOWN: value = FlicktekManager.GESTURE_DOWN; break;
+            case GESTURE_ENTER:
+                value = FlicktekManager.GESTURE_ENTER;
+                break;
+            case GESTURE_HOME:
+                value = FlicktekManager.GESTURE_HOME;
+                break;
+            case GESTURE_UP:
+                value = FlicktekManager.GESTURE_UP;
+                break;
+            case GESTURE_DOWN:
+                value = FlicktekManager.GESTURE_DOWN;
+                break;
         }
         FlicktekCommands.getInstance().onGestureChanged(value);
 
@@ -433,7 +445,7 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
                     transaction.commit();
 
                     Log.i(TAG, "-------- BEGIN ANIMATED FRAGMENT --------");
-                    for(int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++){
+                    for (int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++) {
                         FragmentManager.BackStackEntry backStackEntryAt = fragmentManager.getBackStackEntryAt(entry);
                         Log.i(TAG, "Fragment: " + backStackEntryAt.getId() + " " + backStackEntryAt.getName());
                     }
@@ -455,6 +467,9 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
                 } else {
                     showNextFragment();
                 }
+
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "STATUS_OK " + getString(title));
                 break;
             case FlicktekCommands.GESTURE_STATUS_RECORDING:
                 // FADEIN
@@ -463,24 +478,34 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
             case FlicktekCommands.GESTURE_STATUS_ERROR1:
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_ERROR1");
                 iteration = 2;
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "ERROR1 " + getString(title));
                 break;
             case FlicktekCommands.GESTURE_STATUS_ERROR2:
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_ERROR2");
                 iteration = 1;
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "ERROR 2 " + getString(title));
                 break;
             case FlicktekCommands.GESTURE_STATUS_OKREPETITION:
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_OKREPETITION");
                 iteration++;
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "OK_REPETITION" + getString(title));
                 break;
             case FlicktekCommands.GESTURE_STATUS_OKGESTURE:
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_OKGESTURE");
                 iteration = 1;
                 showNextFragment();
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "OK_GESTURE " + getString(title));
                 return;
             case FlicktekCommands.GESTURE_STATUS_OKCALIBRATION:
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_OKCALIBRATION");
                 bFinishedCalibration = true;
                 close();
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "OK_CALIBRATION " + getString(title));
                 return;
         }
 

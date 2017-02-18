@@ -52,16 +52,19 @@ public final class Constants {
         public static final String IMAGE_KEY = "photo";
         public static final String COUNT_KEY = "count";
 
-        public static final String START_MUSIC_PATH = "/music";
-
+        // The wearable wants to perform an action
         public static final String LAUNCH_ACTIVITY = "/activity";
         public static final String LAUNCH_FRAGMENT = "/fragment";
         public static final String LAUNCH_INTENT = "/intent";
+
+        // Reports for analytics and general usage
         public static final String BATTERY = "/battery";
         public static final String DEVICE_MAC_ADDRESS = "/mac_address";
         public static final String DEVICE_CONNECTION_STATE = "/connection_state";
-        public static final String ANALYTICS_SCREEN = "/analytics";
         public static final String DEVICE_STATE = "/device_state";
+
+        public static final String ANALYTICS_SCREEN = "/analytics";
+        public static final String ANALYTICS_CALIBRATION = "/analytics_device_calibration";
     }
 
     /**

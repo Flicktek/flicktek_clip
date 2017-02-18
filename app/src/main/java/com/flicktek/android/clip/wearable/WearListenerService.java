@@ -122,6 +122,15 @@ public class WearListenerService extends WearableListenerService {
                 return;
             }
 
+            if (path.equals(Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION)) {
+                tracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Calibration")
+                        .setAction(text)
+                        .setLabel(mMacDeviceConnected)
+                        .build());
+                return;
+            }
+
             if (path.equals(Constants.FLICKTEK_CLIP.BATTERY)) {
                 try {
                     int battery_level = Integer.valueOf(text);
@@ -219,16 +228,6 @@ public class WearListenerService extends WearableListenerService {
                 mLastFragment = "";
             }
 
-            if (path.equals(Constants.FLICKTEK_CLIP.START_MUSIC_PATH)) {
-                Intent intent = new Intent("android.intent.action.MUSIC_PLAYER");
-                startActivity(intent);
-
-                if (!text.equals("launch"))
-                    ClipIntents.openBroadcastIntent(this, "com.android.music.musicservicecommand",
-                            "command", text);
-                return;
-            }
-
             // Check to see if the message is to start an activity
             if (path.equals(Constants.FLICKTEK_CLIP.LAUNCH_ACTIVITY)) {
                 Intent res = new Intent();
@@ -286,17 +285,6 @@ public class WearListenerService extends WearableListenerService {
                 Intent startIntent = new Intent(this, LaunchActivity.class);
                 startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(startIntent);
-                return;
-            }
-
-            if (path.equals(Constants.FLICKTEK_CLIP.START_MUSIC_PATH)) {
-                Intent intent = new Intent("android.intent.action.MUSIC_PLAYER");
-                startActivity(intent);
-
-                if (!text.equals("launch"))
-                    ClipIntents.openBroadcastIntent(this,
-                            "com.android.music.musicservicecommand",
-                            "command", text);
                 return;
             }
 
