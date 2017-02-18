@@ -348,17 +348,6 @@ public class LaunchActivity extends Activity implements
         }
     }
 
-    /**
-     * Sends an RPC to start a fullscreen Activity on the wearable.
-     */
-    public void onStartWearableActivityClick(View view) {
-        LOGD(TAG, "Generating RPC");
-
-        // Trigger an AsyncTask that will query for a list of connected nodes and send a
-        // "start-activity" message to each connected node.
-        new StartWearableActivityTask().execute();
-    }
-
     private void sendStartActivityMessage(String node) {
         Wearable.MessageApi.sendMessage(
                 mGoogleApiClient, node, Constants.FLICKTEK_CLIP.START_ACTIVITY_PATH, new byte[0]).setResultCallback(
@@ -457,6 +446,25 @@ public class LaunchActivity extends Activity implements
     public void onSendIntentWakeupClick(View view) {
         ClipIntents.openBroadcastIntent(this, ClipIntents.ACTION_URI_WAKEUP,
                 ClipIntents.EXTRA_GESTURE_ENTER);
+    }
+
+    /**
+     * Sends an RPC to start a fullscreen Activity on the wearable.
+     */
+    public void onStartWearableActivityClick(View view) {
+        LOGD(TAG, "Generating RPC");
+
+        // Trigger an AsyncTask that will query for a list of connected nodes and send a
+        // "start-activity" message to each connected node.
+        new StartWearableActivityTask().execute();
+
+        Intent startIntent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+
+        bundle.putString("launch", "WebviewFragment");
+        startIntent.putExtras(bundle);
+        startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startIntent);
     }
 
     public void onStartVideoActivityClick(View view) {

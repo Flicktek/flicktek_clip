@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,7 +18,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.flicktek.android.clip.util.Helpers;
 import com.flicktek.android.clip.wearable.WearListenerService;
@@ -446,6 +444,7 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
                 break;
         }
 
+        /*
         mainActivity.runOnUiThread(new Runnable() {
             public void run() {
                 try {
@@ -461,5 +460,6 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
 
             ;
         });
+        */
     }
 }

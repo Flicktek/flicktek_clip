@@ -3,7 +3,6 @@ package com.flicktek.android.clip;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -251,10 +250,11 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
         exit_pressed = false;
 
-        Toast toast = Toast.makeText(mainActivity.getApplicationContext(),
+        /*Toast toast = Toast.makeText(mainActivity.getApplicationContext(),
                 FlicktekManager.getGestureString(gestureEvent.status),
                 Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
         toast.show();
+        */
     }
 }

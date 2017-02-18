@@ -112,6 +112,14 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
             config = Helpers.getJsonFromResources((MainActivity) getActivity(), configuration_json);
 
             try {
+                String fragment_name = config.getString("fragment");
+                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                        Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, fragment_name);
+            } catch (Exception e) {
+                Log.v(TAG, "No activity to be launched");
+            }
+
+            try {
                 String activity_name = config.getString("activity");
                 mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
                         Constants.FLICKTEK_CLIP.LAUNCH_INTENT, activity_name);

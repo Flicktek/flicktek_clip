@@ -1,0 +1,5 @@
+{
+  "title": "Invaders",
+  "background": "bkg_reaction",
+  "fragment": "WebviewFragment?assets=invaders"
+}

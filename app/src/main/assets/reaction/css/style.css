@@ -1,0 +1,115 @@
+html, body {
+  position: relative;
+  background: #41bdf0;
+}
+
+.boxcase {
+	height: 550px;
+	margin: 70px auto 0 auto;
+	width: 350px;
+	background: black url('../img/board.png') no-repeat bottom center;
+	background-size: 80%;
+	position: relative;
+	border-radius: 30px;
+	border: 4px solid grey;
+	box-shadow: 20px 30px 10px 6px rgba(0,0,0,0.2);
+	z-index: 1000;
+}
+
+#displayView {
+	background: black;
+	width: 250px;
+	height: 100px;
+	margin: 0 auto;
+	position: absolute;
+	bottom: 48px;
+	left: 46px;
+	border: 4px solid grey;
+	border-radius: 3px;
+	box-shadow: 4px 3px 6px 3px rgba(0,0,0,0.5);
+	z-index: 1002;
+}
+
+#displayView #display {
+	width: 210px;
+	height: 100px;
+	padding: 0 0 0 20px;
+}
+
+.glass {
+	width: 98%;
+	height: 99%;
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	border-radius: 24px;
+	background: -moz-linear-gradient(-45deg,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 100%);
+	background: -webkit-linear-gradient(-45deg,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.6) 100%);
+	background: linear-gradient(-45deg,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.6) 100%);
+
+	z-index: 1001;
+	border-top: solid 4px rgba(255,255,255,0.5);
+	border-left: solid 2px rgba(255,255,255,0.5);
+}
+
+.redbutton {
+	width: 400px;
+	height: 400px;
+	border-radius: 200px;
+	background: url('../img/red.png') center center no-repeat;
+	background-size: contain;
+	opacity: 0.95;
+	cursor: pointer;
+	z-index: 1003;
+	position: absolute;
+	left: -23px;
+	top: -10px;
+	box-shadow: 10px 20px 10px 6px rgba(0,0,0,0.2);
+	-webkit-transition: .1s;
+	-moz-transition: .1s;
+	transition: .1s;
+}
+
+.redbutton:active {
+	top: -8px;
+	left: -22px;
+}
+
+/* animation */
+#light {
+	display: none;
+	width: 400px;
+	height: 400px;
+	border-radius: 200px;
+	background: url('../img/on.png') center center no-repeat;
+	background-size: contain;
+	z-index: 1004;
+	cursor: pointer;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+.on {
+	display: block !important;
+}
+
+.blinking {
+	display: block !important;
+	animation: blink 0.05s alternate infinite;
+}
+
+.pulsing {
+	display: block !important;
+	animation: blink 1s alternate infinite;
+}
+
+@keyframes pulse {
+  0% {opacity: 0.1;}
+  100% {opacity: 1;}
+}
+
+@keyframes blink {
+  0% {opacity: 0.1;}
+  100% {opacity: 1;}
+}

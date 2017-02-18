@@ -32,7 +32,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -302,6 +301,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
             Fragment fragment = getFragment(launch);
             if (fragment != null) {
+                fragment.setArguments(getIntent().getExtras());
                 showFragment(fragment, false);
                 return;
             }
@@ -327,10 +327,10 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
-        String gesture = FlicktekManager.getGestureString(gestureEvent.status);
-        Toast toast = Toast.makeText(getApplicationContext(), gesture, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
-        toast.show();
+        //String gesture = FlicktekManager.getGestureString(gestureEvent.status);
+        //Toast toast = Toast.makeText(getApplicationContext(), gesture, Toast.LENGTH_SHORT);
+        //toast.setGravity(Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
+        //toast.show();
     }
 
     @Nullable

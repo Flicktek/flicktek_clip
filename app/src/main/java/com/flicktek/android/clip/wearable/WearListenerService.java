@@ -135,7 +135,24 @@ public class WearListenerService extends WearableListenerService {
                 // We don't want to relaunch the same fragment on and on
                 if (!mLastFragment.contentEquals(text)) {
                     Intent startIntent = new Intent(this, MainActivity.class);
-                    startIntent.putExtra("launch", text);
+
+                    Map<String, List<String>> params = new HashMap<String, List<String>>();
+                    String[] urlParts = text.split("\\?");
+
+                    startIntent.putExtra("launch", urlParts[0]);
+                    if (urlParts.length > 1) {
+                        String query = urlParts[1];
+                        for (String param : query.split("&")) {
+                            String pair[] = param.split("=");
+                            String key = URLDecoder.decode(pair[0], "UTF-8");
+                            String value = "";
+                            if (pair.length > 1) {
+                                value = URLDecoder.decode(pair[1], "UTF-8");
+                                startIntent.putExtra(key, value);
+                            }
+                        }
+                    }
+
                     startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(startIntent);
                     mLastFragment = text;
@@ -226,11 +243,17 @@ public class WearListenerService extends WearableListenerService {
                 return;
             }
 
-        } catch (Exception e) {
+        } catch (
+                Exception e
+                )
+
+        {
             Log.d(TAG, "onMessageReceived Failed [" + path + "] " + text + " " + e.toString());
         }
 
-        switch (messageEvent.getPath()) {
+        switch (messageEvent.getPath())
+
+        {
             case Constants.ACTION_DISCONNECT: {
                 // A disconnect message was sent. The information which profile should be disconnected is in the data.
                 final String profile = new String(messageEvent.getData());
