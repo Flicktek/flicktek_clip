@@ -491,7 +491,7 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_OKREPETITION");
                 iteration++;
                 mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
-                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "OK_REPETITION" + getString(title));
+                        Constants.FLICKTEK_CLIP.ANALYTICS_CALIBRATION, "OK_REPETITION " + getString(title));
                 break;
             case FlicktekCommands.GESTURE_STATUS_OKGESTURE:
                 Log.d(TAG, "updateStatus: GESTURE_STATUS_OKGESTURE");
