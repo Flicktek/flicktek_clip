@@ -335,6 +335,8 @@ public class FlicktekCommands extends UARTProfile {
             // Fake calibration!
             Log.v(TAG, "-----------FAKE CALIBRATION ACTIVE -------------");
             writeSingleCommand(COMMAND_DEBUG, 2);
+        } else {
+            writeSingleCommand(COMMAND_DEBUG, 0);
         }
     }
 
