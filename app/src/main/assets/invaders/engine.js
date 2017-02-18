@@ -45,16 +45,16 @@ var Game = new function() {
 
     this.loop(); 
 
-    if(this.mobile) {
-      this.setBoard(4,new TouchControls());
-    }
+    //if(this.mobile) {
+    //  this.setBoard(4,new TouchControls());
+    //}
 
     SpriteSheet.load(sprite_data,callback);
   };
   
 
   // Handle Input
-  var KEY_CODES = { 37:'left', 39:'right', 32 :'fire' };
+  var KEY_CODES = { 37:'left', 39:'right', 13 :'fire' }; // Enter start and fire
   this.keys = {};
 
   this.setupInput = function() {
@@ -425,7 +425,7 @@ var TouchControls = function() {
   Game.canvas.addEventListener('dblclick',function(e) { e.preventDefault(); },true);
   Game.canvas.addEventListener('click',function(e) { e.preventDefault(); },true);
 
-  Game.playerOffset = unitWidth + 20;
+  //Game.playerOffset = unitWidth + 20;
 };
 
 

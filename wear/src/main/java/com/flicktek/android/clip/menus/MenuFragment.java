@@ -1,7 +1,9 @@
 package com.flicktek.android.clip.menus;
 
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,6 +98,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         // --- Battery layouts and display ---
 
         initList();
+
         mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
                 Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, "menus.AnimatedGestures");
         return rootView;
@@ -125,10 +128,11 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             return;
         }
 
-        if (menuAdapter.hasHeader)
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        menuIndex = prefs.getInt(menuName, 0);
+
+        if (menuAdapter.hasHeader && menuIndex == 0)
             menuIndex = 1;
-        else
-            menuIndex = 0;
 
         lvMenu.setAdapter(menuAdapter);
         lvMenu.setOnItemClickListener(this);
@@ -158,6 +162,9 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         if (menuSelectedModel != null) {
             menuSelectedModel.setSelected(false);
         }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        prefs.edit().putInt(menuName, menuIndex).apply();
 
         if (menuIndex >= 0) {
             menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);

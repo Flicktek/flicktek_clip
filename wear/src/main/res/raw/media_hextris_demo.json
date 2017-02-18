@@ -1,5 +1,5 @@
 {
-  "title": "Reaction Button",
-  "background": "bkg_reaction",
+  "title": "Hextris",
+  "background": "bkg_hextris",
   "fragment": "WebviewFragment?assets=hextris"
 }

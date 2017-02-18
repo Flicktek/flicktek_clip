@@ -76,6 +76,10 @@ public class WebviewFragment extends Fragment {
 
         try {
             String assets = getArguments().getString("assets");
+            if (assets == null) {
+                assets = "documentation";
+            }
+
             webview.loadUrl("file:///android_asset/" + assets + "/index.html");
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,11 +101,10 @@ public class WebviewFragment extends Fragment {
         WearListenerService.mApplicationActive = true;
         EventBus.getDefault().unregister(this);
         super.onPause();
-        webview.clearHistory();
-        webview.clearCache(true);
-
-        webview.destroy();
-        webview = null;
+        if (webview != null) {
+            webview.destroy();
+            webview = null;
+        }
     }
 
     public void close() {
@@ -132,17 +135,18 @@ public class WebviewFragment extends Fragment {
         }
     }
 
-    ;
-
     public void click_button(int gesture) {
         Log.v(TAG, "Evaluate javascript");
         //webview.evaluateJavascript("on_gesture(" + gesture + ");", null);
         switch (gesture) {
             case FlicktekManager.GESTURE_UP:
                 simulateKey(KeyEvent.KEYCODE_DPAD_LEFT, 150);
+                webview.pageUp(false);
                 break;
             case FlicktekManager.GESTURE_DOWN:
                 simulateKey(KeyEvent.KEYCODE_DPAD_RIGHT, 150);
+                webview.pageDown(false);
+                //webview.evaluateJavascript("window.scrollTo(0,500)", null);
                 break;
             case FlicktekManager.GESTURE_ENTER:
                 simulateKey(KeyEvent.KEYCODE_ENTER, 150);

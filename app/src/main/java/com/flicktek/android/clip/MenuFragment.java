@@ -1,7 +1,9 @@
 package com.flicktek.android.clip;
 
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +29,6 @@ import java.util.ArrayList;
  * Generic menu fragment inheritable
  */
 public class MenuFragment extends Fragment implements AdapterView.OnItemClickListener {
-
     protected static final String ARG_JSON_NAME = "jsonName";
     protected static final String ARG_MENU_NAME = "menuName";
 
@@ -119,7 +120,11 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
         lvMenu.setAdapter(menuAdapter);
         lvMenu.setOnItemClickListener(this);
-        changeCurrentMenuIndex(0);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        menuIndex = prefs.getInt(menuName, 0);
+
+        changeCurrentMenuIndex(menuIndex);
     }
 
     public void onStart() {
@@ -146,6 +151,9 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         if (menuSelectedModel != null) {
             menuSelectedModel.setSelected(false);
         }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        prefs.edit().putInt(menuName, menuIndex).apply();
 
         if (menuIndex >= 0) {
             menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);

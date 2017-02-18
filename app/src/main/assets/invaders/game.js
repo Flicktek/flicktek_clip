@@ -53,7 +53,8 @@ var level1 = [
   [ 18200,  20000, 500, 'straight', { x: 90 } ],
   [ 18200,  20000, 500, 'straight', { x: 10 } ],
   [ 22000,  25000, 400, 'wiggle', { x: 150 }],
-  [ 22000,  25000, 400, 'wiggle', { x: 100 }]
+  [ 22000,  25000, 400, 'wiggle', { x: 100 }],
+  [ 10000,  16000, 400, 'circle' ]
 ];
 
 
@@ -140,7 +141,7 @@ var Starfield = function(speed,opacity,numStars,clear) {
 };
 
 var PlayerShip = function() { 
-  this.setup('ship', { vx: 0, reloadTime: 0.25, maxVel: 200 });
+  this.setup('ship', { vx: 0, reloadTime: 0.25, maxVel: 300 });
 
   this.reload = this.reloadTime;
   this.x = Game.width/2 - this.w / 2;
@@ -229,7 +230,7 @@ Enemy.prototype.step = function(dt) {
     this.board.remove(this);
   }
 
-  if(Math.random() < 0.01 && this.reload <= 0) {
+  if(Math.random() < 0.0001 && this.reload <= 0) {
     this.reload = this.reloadTime;
     if(this.missiles == 2) {
       this.board.add(new EnemyMissile(this.x+this.w-2,this.y+this.h));
@@ -260,7 +261,7 @@ Enemy.prototype.hit = function(damage) {
 };
 
 var EnemyMissile = function(x,y) {
-  this.setup('enemy_missile',{ vy: 200, damage: 10 });
+  this.setup('enemy_missile',{ vy: 100, damage: 5 });
   this.x = x - this.w/2;
   this.y = y;
 };
