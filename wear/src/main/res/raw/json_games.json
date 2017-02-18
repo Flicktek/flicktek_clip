@@ -20,6 +20,12 @@
       "configuration": "media_reaction_demo"
     },
     {
+      "text": "Tetris",
+      "drawable": "i_game",
+      "target": "media_controller",
+      "configuration": "media_tetris_demo"
+    },
+    {
       "text": "Piano",
       "drawable": "dash_music"
     }

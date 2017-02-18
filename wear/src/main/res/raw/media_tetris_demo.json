@@ -1,0 +1,5 @@
+{
+  "title": "Tetris",
+  "background": "bkg_hextris",
+  "fragment": "WebviewFragment?assets=tetris"
+}
