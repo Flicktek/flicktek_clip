@@ -164,7 +164,10 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        prefs.edit().putInt(menuName, menuIndex).apply();
+        if (menuIndex == menuAdapter.getCount() - 1)
+            prefs.edit().putInt(menuName, min_value).apply();
+        else
+            prefs.edit().putInt(menuName, menuIndex).apply();
 
         if (menuIndex >= 0) {
             menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);
@@ -204,19 +207,20 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, batteryEvent.value);
     }
 
+    int min_value = 0;
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
         Log.d(TAG, "onGesturePerformed: " + gestureEvent.status.toString() + " index " + Integer.toString(menuIndex));
         int gesture = gestureEvent.status;
-        int minValue = 0;
 
         if (menuAdapter.hasHeader) {
-            minValue = 1;
+            min_value = 1;
         }
 
         switch (gesture) {
             case (FlicktekManager.GESTURE_UP):
-                if (menuIndex > minValue) {
+                if (menuIndex > min_value) {
                     changeCurrentMenuIndex(menuIndex - 1);
                 } else {
                     menuAdapter.disable_header();
@@ -228,7 +232,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
                     changeCurrentMenuIndex(menuIndex + 1);
                 } else {
                     menuAdapter.disable_header();
-                    changeCurrentMenuIndex(minValue);
+                    changeCurrentMenuIndex(min_value);
                 }
                 break;
             case (FlicktekManager.GESTURE_ENTER):

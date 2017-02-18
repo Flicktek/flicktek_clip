@@ -153,7 +153,10 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        prefs.edit().putInt(menuName, menuIndex).apply();
+        if (menuIndex == menuAdapter.getCount() - 1)
+            prefs.edit().putInt(menuName, 0).apply();
+        else
+            prefs.edit().putInt(menuName, menuIndex).apply();
 
         if (menuIndex >= 0) {
             menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);

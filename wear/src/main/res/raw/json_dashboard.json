@@ -19,6 +19,12 @@
       "json": "json_games"
     },
     {
+      "text": "Info",
+      "drawable": "i_learn",
+      "target": "media_controller",
+      "configuration": "media_documentation"
+    },
+    {
       "text": "Music",
       "drawable": "ic_music_note_black_48dp",
       "target": "media_controller",

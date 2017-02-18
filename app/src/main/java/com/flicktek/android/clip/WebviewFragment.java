@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.flicktek.android.clip.util.Helpers;
 import com.flicktek.android.clip.wearable.WearListenerService;
@@ -68,6 +69,16 @@ public class WebviewFragment extends Fragment {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
+
+        // Disable opening new windows! We don't want to leave our application
+        webview.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                //view.loadUrl(url);
+                return true;
+            }
+        });
 
         if (getArguments() == null) {
             webview.loadUrl("file:///android_asset/reaction/index.html");
