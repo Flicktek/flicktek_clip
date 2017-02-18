@@ -122,5 +122,8 @@ public class VideoActivity extends Activity implements SurfaceHolder.Callback, M
         Intent startIntent = new Intent(this, LaunchActivity.class);
         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startIntent);
+
+        mTracker.setScreenName("VideoActivity Completion");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 }

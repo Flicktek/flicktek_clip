@@ -9,8 +9,8 @@ android {
         applicationId "com.flicktek.android.clip"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 56
-        versionName "2.2.1"
+        versionCode 10
+        versionName "0.1.0 Demo"
     }
     buildTypes {
         release {
@@ -22,7 +22,7 @@ android {
         fastBuild {
             // Switching the flavor to fastBuild accelerates te build speed (works only with Android 5+ devices)
             minSdkVersion 21
-            versionName "Instant Run"
+            versionName "0.1.0 Demo"
         }
         releaseBuild {
             minSdkVersion 18

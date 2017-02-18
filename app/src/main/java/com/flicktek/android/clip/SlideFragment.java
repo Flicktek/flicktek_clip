@@ -110,6 +110,9 @@ public class SlideFragment extends Fragment implements View.OnClickListener {
     public void load_pictures_folder() {
         File CameraDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString());
         File[] files = CameraDirectory.listFiles();
+        if (files == null)
+            return;
+
         Arrays.sort(files);
         for (File CurFile : files) {
             if (CurFile.isDirectory()) {

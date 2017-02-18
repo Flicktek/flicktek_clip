@@ -94,9 +94,10 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (getArguments() == null)
             return;
+
+        mainActivity = (MainActivity) getActivity();
 
         try {
             String configuration_json = getArguments().getString(ARG_JSON);
@@ -112,8 +113,6 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
-        mainActivity = (MainActivity) getActivity();
         View rootView = inflater.inflate(R.layout.fragment_feature_uart_control, container, false);
 
         mainActivity.mConnectButton = (Button) rootView.findViewById(R.id.action_connect);
