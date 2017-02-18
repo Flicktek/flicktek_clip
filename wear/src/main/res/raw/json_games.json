@@ -3,25 +3,25 @@
   "menu_items": [
     {
       "text": "Hextris",
-      "drawable": "ic_slideshow_black_48dp",
+      "drawable": "ic_videogame_asset_black_48dp",
       "target": "media_controller",
       "configuration": "media_hextris_demo"
     },
     {
       "text": "Alien Invasion",
-      "drawable": "ic_slideshow_black_48dp",
+      "drawable": "i_game",
       "target": "media_controller",
       "configuration": "media_invaders_demo"
     },
     {
       "text": "Reaction Time",
-      "drawable": "ic_slideshow_black_48dp",
+      "drawable": "ic_timer_black_48dp",
       "target": "media_controller",
       "configuration": "media_reaction_demo"
     },
     {
       "text": "Piano",
-      "drawable": "ic_slideshow_black_48dp"
+      "drawable": "dash_music"
     }
   ]
 }
