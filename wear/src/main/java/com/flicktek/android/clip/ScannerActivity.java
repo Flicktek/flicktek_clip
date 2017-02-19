@@ -144,6 +144,8 @@ public class ScannerActivity extends Activity {
 			Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 			intent.putExtra(BleProfileService.EXTRA_DEVICE_ADDRESS, "Relaunch");
 			startActivity(intent);
+            Log.v(TAG, "Finish and remove activity");
+            finishAndRemoveTask();
 			return;
 		}
 

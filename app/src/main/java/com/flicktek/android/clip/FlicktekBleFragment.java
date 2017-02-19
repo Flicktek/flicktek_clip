@@ -68,6 +68,9 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     private int MIN_Y_MANUAL = 4000;
     private int MAX_Y_MANUAL = 10000;
 
+    private boolean mTriggerMode = true;
+    private boolean mTriggerCapturing = false;
+
     private JSONObject config;
 
     private final Handler mHandler = new Handler();
@@ -219,6 +222,12 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             samples_captured++;
             long unixTime = (System.currentTimeMillis() - captureUnixTime);
             int gesture = mGestureDetected + 1;
+
+            if (gesture != 0 && mTriggerCapturing) {
+                Log.v(TAG, "+++++++++++ STOP CAPTURING +++++++++");
+                mTriggerCapturing = false;
+            }
+
             StringBuilder sb = new StringBuilder();
             Formatter formatter = new Formatter(sb, US);
             formatter.format(format, samples_captured, unixTime, sampleData[0], sampleData[1], sampleData[2], sampleData[3], gesture);
@@ -227,7 +236,23 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             writeToFile(string);
         }
 
-        mFifoSampleData.add(sampleData);
+        boolean capture = !mTriggerMode;
+
+        if (mTriggerMode && !mTriggerCapturing) {
+            for (int t = 0; t < 4; t++) {
+                if (sampleData[t] > 6000 || sampleData[t] < 4000) {
+                    Log.v(TAG, "+++++++++++ Trigger capturing ++++++++++");
+                    mTriggerCapturing = true;
+                }
+            }
+            ;
+        }
+
+        if (mTriggerCapturing)
+            capture = true;
+
+        if (capture)
+            mFifoSampleData.add(sampleData);
     }
 
     @Nullable
@@ -242,9 +267,14 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     }
 
     int mGestureDetected = -1;
-
+ 
     public void onGesture(int gesture) {
         mGestureDetected = gesture;
+
+        if (mTriggerCapturing) {
+            Log.v(TAG, "+++++++++++ STOP CAPTURING +++++++++");
+            mTriggerCapturing = false;
+        }
     }
 
     public static boolean isStreaming = false;
@@ -557,9 +587,15 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
-        Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gestureEvent.status, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
-        toast.show();
+
+        if (mTriggerCapturing) {
+            Log.v(TAG, "+++++++++++ GESTURE STOP CAPTURING +++++++++");
+            mTriggerCapturing = false;
+        }
+
+        //Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gestureEvent.status, Toast.LENGTH_SHORT);
+        //toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
+        //toast.show();
     }
 
     @Override
