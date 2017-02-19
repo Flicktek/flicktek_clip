@@ -19,6 +19,7 @@ public class FlicktekManager {
     // Debug levels
     public static int mDebugLevel = DEBUG_DISABLED;
 
+    public final static int GESTURE_NONE = 0;
     public final static int GESTURE_ENTER = 1;
     public final static int GESTURE_HOME = 2;
     public final static int GESTURE_UP = 3;

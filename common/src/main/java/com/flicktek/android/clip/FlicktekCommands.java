@@ -21,7 +21,7 @@ import static android.os.Debug.isDebuggerConnected;
 public class FlicktekCommands extends UARTProfile {
 
     // Time for the device to go to sleep after it gets out of focus
-    private static final long ALARM_SLEEP_TIME = 60000;
+    private static final long ALARM_SLEEP_TIME = 15000;
 
     private final String TAG = "FlicktekCommands";
 
@@ -113,12 +113,13 @@ public class FlicktekCommands extends UARTProfile {
     // we have a detected gesture and we are not on focus.
 
     public void setApplicationPaused(Context context, boolean applicationPaused) {
-        mIsApplicationPaused = applicationPaused;
 
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        if (mIsApplicationPaused) {
+
+        if (applicationPaused) {
             if (mAlarmPendingIntent != null) {
                 Log.v(TAG, "+ There is an alarm to sleep already!");
+                mIsApplicationPaused = applicationPaused;
                 return;
             }
 
@@ -146,6 +147,8 @@ public class FlicktekCommands extends UARTProfile {
             }
             writeStatus_Exec();
         }
+
+        mIsApplicationPaused = applicationPaused;
     }
 
     @Override
@@ -183,7 +186,7 @@ public class FlicktekCommands extends UARTProfile {
     public void onGestureChanged(int value) {
         Log.d(TAG, "onGestureChanged: " + value );
 
-        if (mIsApplicationPaused) {
+        if (mIsApplicationPaused && value != FlicktekManager.GESTURE_NONE) {
             if (mContext!=null) {
                 Intent LaunchIntent = mContext.getPackageManager().getLaunchIntentForPackage(mContext.getPackageName());
                 mContext.startActivity(LaunchIntent);
@@ -196,7 +199,10 @@ public class FlicktekCommands extends UARTProfile {
             */
         }
 
-        EventBus.getDefault().post(new onGestureEvent(value));
+        if (value == FlicktekManager.GESTURE_NONE)
+            EventBus.getDefault().post(new onGestureNotClassified());
+        else
+            EventBus.getDefault().post(new onGestureEvent(value));
     }
 
     @Override
@@ -589,6 +595,14 @@ public class FlicktekCommands extends UARTProfile {
         }
     }
 
+    // We have a gesture which is not classified by the algorithm
+    public class onGestureNotClassified {
+        public onGestureNotClassified() {
+
+        };
+    }
+
+    // Gestures classified. the could be FlicktekManager.GESTURE_XXXX
     public class onGestureEvent {
         public Integer status;
         public Integer quality;
