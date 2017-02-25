@@ -313,8 +313,8 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
         mBleManager.setBatteryNotifications(true);
-        FlicktekManager.setMacAddress(device.getAddress());
-        FlicktekManager.onConnected();
+
+        FlicktekManager.onConnected(device.getName(), device.getAddress());
     }
 
     @Override

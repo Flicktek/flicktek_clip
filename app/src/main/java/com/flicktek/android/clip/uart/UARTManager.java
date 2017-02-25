@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.profile.BleManager;
 
 import java.io.UnsupportedEncodingException;
@@ -159,20 +160,29 @@ public class UARTManager extends BleManager<UARTManagerCallbacks> {
 		// An outgoing buffer may not be null if there is already another packet being sent. We do nothing in this case.
 		if (!TextUtils.isEmpty(text) && mOutgoingBuffer == null) {
 			final byte[] buffer = mOutgoingBuffer = text.getBytes();
-			mBufferOffset = 0;
+			send(buffer);
+		}
+	}
 
-			// Depending on whether the characteristic has the WRITE REQUEST property or not, we will either send it as it is (hoping the long write is implemented),
-			// or divide it into up to 20 bytes chunks and send them one by one.
-			final boolean writeRequest = (mRXCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
+	/**
+	 * Sends the given text to RX characteristic.
+	 *
+	 * @param text the text to be sent
+	 */
+	public void send(final byte[] buffer) {
+		mBufferOffset = 0;
 
-			if (!writeRequest) { // no WRITE REQUEST property
-				final int length = Math.min(buffer.length, MAX_PACKET_SIZE);
-				mBufferOffset += length;
-				enqueue(Request.newWriteRequest(mRXCharacteristic, buffer, 0, length));
-			} else { // there is WRITE REQUEST property, let's try Long Write
-				mBufferOffset = buffer.length;
-				enqueue(Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
-			}
+		// Depending on whether the characteristic has the WRITE REQUEST property or not, we will either send it as it is (hoping the long write is implemented),
+		// or divide it into up to 20 bytes chunks and send them one by one.
+		final boolean writeRequest = (mRXCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0;
+
+		if (!writeRequest) { // no WRITE REQUEST property
+			final int length = Math.min(buffer.length, MAX_PACKET_SIZE);
+			mBufferOffset += length;
+			enqueue(Request.newWriteRequest(mRXCharacteristic, buffer, 0, length));
+		} else { // there is WRITE REQUEST property, let's try Long Write
+			mBufferOffset = buffer.length;
+			enqueue(Request.newWriteRequest(mRXCharacteristic, buffer, 0, buffer.length));
 		}
 	}
 }

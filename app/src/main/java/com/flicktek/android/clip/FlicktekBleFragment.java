@@ -19,9 +19,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.android.ConnectionEvents.ConnectedEvent;
+import com.flicktek.android.ConnectionEvents.ConnectingEvent;
+import com.flicktek.android.ConnectionEvents.DisconnectedEvent;
 import com.flicktek.android.clip.dropbox.UploadData;
 import com.flicktek.android.clip.util.Helpers;
 import com.flicktek.android.clip.wearable.WearListenerService;
@@ -53,6 +58,16 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     private static final String ARG_EXTRA = "EXTRA";
     private static final String JSON_CONFIGURATION = "configuration";
 
+    private static final boolean REPORT_MESSAGES = false;
+
+    private TextView tv_battery;
+    private ImageView iv_battery;
+    private LinearLayout ll_battery;
+
+    private TextView tv_device_status;
+    private TextView tv_device_name;
+    private TextView tv_device_address;
+
     private final int STATUS_PLAY = 0;
     private final int STATUS_NEXT = 1;
     private final int STATUS_PREV = 2;
@@ -62,13 +77,20 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
     private Button mStartCapture;
     private Button mUploadCapture;
+    private Button mStreamingMode;
     private TextView mCaptureText;
 
     private int TIME_WINDOW_SIZE = 100;
     private int MIN_Y_MANUAL = 4000;
     private int MAX_Y_MANUAL = 10000;
 
-    private boolean mTriggerMode = true;
+    private int CHECK_MIN_SENSOR_THRESHOLD = 3000;
+    private int CHECK_MAX_SENSOR_THRESHOLD = 7000;
+
+    public boolean mCheckMinSensor[] = new boolean[4];
+    public boolean mCheckMaxSensor[] = new boolean[4];
+
+    private boolean mTriggerMode = false;
     private boolean mTriggerCapturing = false;
 
     private JSONObject config;
@@ -114,14 +136,92 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         mainActivity.mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
+    ImageView check_connect;
+    ImageView check_button;
+    ImageView check_sensor[] = new ImageView[4];
+    ImageView check_led_1;
+    ImageView check_led_2;
+    ImageView check_charging;
+    ImageView check_battery;
+
+    Button mCheck_led_1;
+    Button mCheck_led_2;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View rootView = inflater.inflate(R.layout.fragment_feature_uart_control, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_sensor_testing, container, false);
+
+        // --- Battery layouts and display ---
+        ll_battery = (LinearLayout) rootView.findViewById(R.id.ll_battery);
+        tv_battery = (TextView) rootView.findViewById(R.id.tv_battery_level);
+        iv_battery = (ImageView) rootView.findViewById(R.id.iv_battery);
+
+        check_connect = (ImageView) rootView.findViewById(R.id.check_connectivity);
+
+        check_button = (ImageView) rootView.findViewById(R.id.check_button);
+        check_sensor[0] = (ImageView) rootView.findViewById(R.id.check_sensor1);
+        check_sensor[1] = (ImageView) rootView.findViewById(R.id.check_sensor2);
+        check_sensor[2] = (ImageView) rootView.findViewById(R.id.check_sensor3);
+        check_sensor[3] = (ImageView) rootView.findViewById(R.id.check_sensor4);
+
+        check_led_1 = (ImageView) rootView.findViewById(R.id.check_led_1);
+        check_led_2 = (ImageView) rootView.findViewById(R.id.check_led_2);
+
+        check_charging = (ImageView) rootView.findViewById(R.id.check_charging);
+        check_battery = (ImageView) rootView.findViewById(R.id.check_battery);
+
+        ll_battery.setVisibility(View.INVISIBLE);
+        // --- Battery layouts and display ---
+
+        tv_device_status = (TextView) rootView.findViewById(R.id.tv_current_menu);
+
+        tv_device_name = (TextView) rootView.findViewById(R.id.tv_device_name);
+        tv_device_address = (TextView) rootView.findViewById(R.id.tv_device_mac);
 
         mainActivity.mConnectButton = (Button) rootView.findViewById(R.id.action_connect);
         mStartCapture = (Button) rootView.findViewById(R.id.start_capture);
         mUploadCapture = (Button) rootView.findViewById(R.id.upload_capture);
+
+        if (!mainActivity.mDropboxLinked) {
+            mUploadCapture.setVisibility(View.GONE);
+            mStartCapture.setVisibility(View.GONE);
+        }
+
         mCaptureText = (TextView) rootView.findViewById(R.id.capture_text);
+        mCaptureText.setVisibility(View.GONE);
+
+        mStreamingMode = (Button) rootView.findViewById(R.id.streaming_mode);
+
+        mCheck_led_1 = (Button) rootView.findViewById(R.id.button_check_led_1);
+        mCheck_led_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                check_led_1.setVisibility(View.INVISIBLE);
+                mCheck_led_1.setActivated(false);
+            }
+        });
+
+        mCheck_led_2 = (Button) rootView.findViewById(R.id.button_check_led_2);
+        mCheck_led_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                check_led_2.setVisibility(View.INVISIBLE);
+                mCheck_led_2.setActivated(false);
+            }
+        });
+
+        mStreamingMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                if (mTriggerMode) {
+                    mStreamingMode.setText("CONTINOUS STREAMING");
+                } else {
+                    mStreamingMode.setText("GESTURE CAPTURE");
+                }
+
+                mTriggerMode = !mTriggerMode;
+            }
+        });
 
         mStartCapture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -232,15 +332,31 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             Formatter formatter = new Formatter(sb, US);
             formatter.format(format, samples_captured, unixTime, sampleData[0], sampleData[1], sampleData[2], sampleData[3], gesture);
             String string = sb.toString();
-            //Log.v(TAG, "CAPTURE: " + string);
+
+            if (REPORT_MESSAGES)
+                Log.v(TAG, "CAPTURE: " + string);
+
             writeToFile(string);
         }
 
         boolean capture = !mTriggerMode;
 
+        for (int t = 0; t < 4; t++)
+            if (sampleData[t] > 1) {
+
+                if (sampleData[t] > CHECK_MAX_SENSOR_THRESHOLD)
+                    mCheckMaxSensor[t] = true;
+
+                if (sampleData[t] < CHECK_MIN_SENSOR_THRESHOLD)
+                    mCheckMinSensor[t] = true;
+
+                if (mCheckMaxSensor[t] && mCheckMinSensor[t])
+                    check_sensor[t].setVisibility(View.INVISIBLE);
+            }
+
         if (mTriggerMode && !mTriggerCapturing) {
             for (int t = 0; t < 4; t++) {
-                if (sampleData[t] > 6000 || sampleData[t] < 4000) {
+                if (sampleData[t] > 1 && (sampleData[t] > 5600 || sampleData[t] < 5400)) {
                     Log.v(TAG, "+++++++++++ Trigger capturing ++++++++++");
                     mTriggerCapturing = true;
                 }
@@ -260,14 +376,16 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         if (mFifoSampleData.isEmpty())
             return null;
 
-        //if (mFifoSampleData.size() > 1) {
-        //    Log.v(TAG, " Samples left " + mFifoSampleData.size());
-        //}
+        if (REPORT_MESSAGES)
+            if (mFifoSampleData.size() > 1) {
+                Log.v(TAG, " Samples left " + mFifoSampleData.size());
+            }
+
         return mFifoSampleData.removeFirst();
     }
 
     int mGestureDetected = -1;
- 
+
     public void onGesture(int gesture) {
         mGestureDetected = gesture;
 
@@ -474,7 +592,6 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     String currentCaptureFile;
 
     private void createFile() {
-
         Date date = new Date();
 
         DateFormat df = new SimpleDateFormat("yyyy_MM_dd", US);
@@ -498,6 +615,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
         samples_captured = 0;
         captureUnixTime = System.currentTimeMillis();
+        mCaptureText.setVisibility(View.VISIBLE);
     }
 
     private void writeToFile(String data) {
@@ -593,9 +711,11 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             mTriggerCapturing = false;
         }
 
-        //Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gestureEvent.status, Toast.LENGTH_SHORT);
-        //toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
-        //toast.show();
+        if (REPORT_MESSAGES) {
+            Toast toast = Toast.makeText(mainActivity.getApplicationContext(), gestureEvent.status, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.TOP | Gravity.RIGHT, 0, 0);
+            toast.show();
+        }
     }
 
     @Override
@@ -603,4 +723,72 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBatteryLevel(FlicktekCommands.onBatteryEvent batteryEvent) {
+
+        check_battery.setVisibility(View.INVISIBLE);
+        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, batteryEvent.value);
+    }
+
+    int min_value = 0;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeviceButtonPressed(FlicktekCommands.onButtonPressed event) {
+        check_button.setVisibility(View.INVISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onVersion(FlicktekCommands.onVersionRequested event) {
+        check_connect.setVisibility(View.INVISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeviceConnected(ConnectedEvent event) {
+        tv_device_name.setVisibility(View.VISIBLE);
+        tv_device_name.setText("[" + event.name + "]");
+
+        tv_device_name.setVisibility(View.VISIBLE);
+        tv_device_address.setText("[" + event.mac_address + "]");
+
+        tv_device_status.setText("Connected");
+
+        if (event.name.startsWith("FlickTek")) {
+
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeviceConnecting(ConnectingEvent event) {
+        tv_device_status.setVisibility(View.VISIBLE);
+        tv_device_status.setText("Connecting");
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeviceDisconnected(DisconnectedEvent event) {
+        tv_device_name.setVisibility(View.GONE);
+        tv_device_address.setVisibility(View.GONE);
+
+        tv_device_status.setText("Disconnected");
+
+        check_button.setVisibility(View.VISIBLE);
+        check_led_1.setVisibility(View.VISIBLE);
+        check_led_2.setVisibility(View.VISIBLE);
+        check_charging.setVisibility(View.VISIBLE);
+        check_battery.setVisibility(View.VISIBLE);
+        check_connect.setVisibility(View.VISIBLE);
+        mCheck_led_1.setActivated(true);
+        mCheck_led_2.setActivated(false);
+
+        for (int t = 0; t < 4; t++) {
+            mCheckMinSensor[t] = false;
+            mCheckMaxSensor[t] = false;
+            check_sensor[t].setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeviceReady(FlicktekCommands.onDeviceReady event) {
+        FlicktekCommands.getInstance().writeStartSensorCapturing();
+    }
 }

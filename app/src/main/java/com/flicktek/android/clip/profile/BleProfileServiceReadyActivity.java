@@ -45,6 +45,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.android.clip.FlicktekCommands;
+import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.R;
 import com.flicktek.android.clip.scanner.ScannerFragment;
 import com.flicktek.android.clip.uart.UARTService;
@@ -53,6 +55,8 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.UUID;
 
@@ -400,7 +404,6 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 		mConnectButton = (Button) findViewById(R.id.action_connect);
 		//mDeviceNameView = (TextView) findViewById(R.id.device_name);
 		//mBatteryLevelView = (TextView) findViewById(R.id.battery);
-
 	}
 
 	@Override
@@ -522,6 +525,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	public void onDeviceConnected(final BluetoothDevice device) {
 		Log.v(TAG, "onDeviceConnected " + mDeviceName);
 		//mDeviceNameView.setText(mDeviceName);
+		FlicktekManager.onConnected(device.getName(), device.getAddress());
 		if (mConnectButton != null)
 			mConnectButton.setText(R.string.action_disconnect);
 	}
@@ -529,12 +533,15 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	@Override
 	public void onDeviceDisconnecting(final BluetoothDevice device) {
 		Log.v(TAG, "onDeviceDisconnecting " + mDeviceName);
+		FlicktekManager.onConnecting();
 		// empty default implementation
 	}
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
 		Log.v(TAG, "onDeviceDisconnected " + getDefaultDeviceName());
+		FlicktekManager.onDisconnected();
+
 		if (mConnectButton != null)
 			mConnectButton.setText(R.string.action_connect);
 		//mDeviceNameView.setText(getDefaultDeviceName());
@@ -558,6 +565,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	@Override
 	public void onLinklossOccur(final BluetoothDevice device) {
+		FlicktekManager.onLinkloss();
 		//if (mBatteryLevelView != null)
 		//    mBatteryLevelView.setText(R.string.not_available);
 	}
@@ -591,9 +599,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	@Override
 	public void onBatteryValueReceived(final BluetoothDevice device, final int value) {
-		//if (mBatteryLevelView != null)
-		//    mBatteryLevelView.setText(getString(R.string.battery, value));
-
+		FlicktekCommands.getInstance().onBatteryValueReceived(value);
 		Log.v(TAG, "onBatteryValueReceived " + getString(R.string.battery, value));
 	}
 

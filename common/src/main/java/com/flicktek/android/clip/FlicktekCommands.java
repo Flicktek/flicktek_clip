@@ -3,7 +3,6 @@ package com.flicktek.android.clip;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,16 +11,35 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.flicktek.android.clip.common.R;
-import com.flicktek.android.clip.uart.UARTProfile;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static android.os.Debug.isDebuggerConnected;
 
-public class FlicktekCommands extends UARTProfile {
+// extends UARTProfile
+public class FlicktekCommands {
+
+    // Abstract interface to send data into the UART
+    // So we can use different BLE profiles to send data
+    // and share the code between the application and the wearable.
+
+    public interface UARTInterface {
+        public void sendString(final String data);
+
+        public void sendDataBuffer(final byte[] data);
+    }
+
+    private UARTInterface mDataChannel = null;
+
+    public void registerDataChannel(UARTInterface data_channel) {
+        mDataChannel = data_channel;
+    }
 
     // Time for the device to go to sleep after it gets out of focus
-    private static final long ALARM_SLEEP_TIME = 15000;
+    private static final long ALARM_SLEEP_TIME = 10000;
 
     private final String TAG = "FlicktekCommands";
 
@@ -72,6 +90,9 @@ public class FlicktekCommands extends UARTProfile {
     public final static char COMMAND_START = '{';
     public final static char COMMAND_END = '}';
 
+    public final static char REPORT_START = '[';
+    public final static char REPORT_END = ']';
+
     public final static char COMMAND_GESTURE = 'G';
     public final static char COMMAND_CAS_GESTURE_STATUS = 'S';
     public final static char COMMAND_CAS_ERROR = 'E';
@@ -86,6 +107,7 @@ public class FlicktekCommands extends UARTProfile {
     public final static char COMMAND_PING = 'P';
     public final static char COMMAND_DEBUG = 'd';
     public final static char COMMAND_VERSION = 'V';
+    public final static char COMMAND_SENSOR_STREAMING = 's';
 
     public final static int VERSION_COMPILATION = 0;
     public final static int VERSION_REVISION = 1;
@@ -112,9 +134,16 @@ public class FlicktekCommands extends UARTProfile {
     // This will make the service to try to launch the MainActivity intent in case
     // we have a detected gesture and we are not on focus.
 
+    private BroadcastReceiver sleep_receiver = null;
+
     public void setApplicationPaused(Context context, boolean applicationPaused) {
 
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+
+        if (applicationPaused)
+            Log.v(TAG, "++++++++++++ APPLICATION PAUSED! ++++++++++++++");
+        else
+            Log.v(TAG, "++++++++++++ APPLICATION WAKEUP! ++++++++++++++");
 
         if (applicationPaused) {
             if (mAlarmPendingIntent != null) {
@@ -123,20 +152,23 @@ public class FlicktekCommands extends UARTProfile {
                 return;
             }
 
-            BroadcastReceiver br = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context c, Intent i) {
-                    Log.v(TAG, "+ Sleep receiver!");
-                    if (mIsApplicationPaused) {
-                        Log.v(TAG, "+ We are still sleeping, lets turn Clip off");
-                        writeStatus_Sleep();
+            if (sleep_receiver == null) {
+                sleep_receiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context c, Intent i) {
+                        Log.v(TAG, "+ Sleep receiver!");
+                        if (mIsApplicationPaused) {
+                            Log.v(TAG, "+ We are still sleeping, lets turn Clip off");
+                            writeStatus_Sleep();
+                        }
+                        mAlarmPendingIntent = null;
                     }
-                    mAlarmPendingIntent = null;
-                }
-            };
+                };
+
+                mContext.registerReceiver(sleep_receiver, new IntentFilter("com.flicktek.sleep"));
+            }
 
             Log.v(TAG, "+++++++++++ GO TO SLEEP IN " + ALARM_SLEEP_TIME + "+++++++++++");
-            mContext.registerReceiver(br, new IntentFilter("com.flicktek.sleep"));
 
             mAlarmPendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent("com.flicktek.sleep"), 0);
 
@@ -144,6 +176,7 @@ public class FlicktekCommands extends UARTProfile {
         } else {
             if (mAlarmPendingIntent != null) {
                 alarmManager.cancel(mAlarmPendingIntent);
+                mAlarmPendingIntent = null;
             }
             writeStatus_Exec();
         }
@@ -151,8 +184,7 @@ public class FlicktekCommands extends UARTProfile {
         mIsApplicationPaused = applicationPaused;
     }
 
-    @Override
-    protected void onBatteryValueReceived(final BluetoothGatt gatt, final int value) {
+    public void onBatteryValueReceived(final int value) {
         Log.v(TAG, "onBatteryValueReceived " + value);
         FlicktekManager.setBatteryLevel(value);
         EventBus.getDefault().post(new onBatteryEvent(value));
@@ -170,7 +202,6 @@ public class FlicktekCommands extends UARTProfile {
         writeSingleCommand(COMMAND_CAS_IS_CALIBRATED, 0);
     }
 
-    @Override
     public void onReadyToSendData(boolean ready) {
         Log.v(TAG, "onReadyToSendData " + ready);
         Log.v(TAG, "---------- LETS REPORT WE ARE ALIVE-------------");
@@ -184,12 +215,16 @@ public class FlicktekCommands extends UARTProfile {
     }
 
     public void onGestureChanged(int value) {
-        Log.d(TAG, "onGestureChanged: " + value );
+        Log.d(TAG, "onGestureChanged: " + value);
 
-        if (mIsApplicationPaused && value != FlicktekManager.GESTURE_NONE) {
-            if (mContext!=null) {
+        if (mIsApplicationPaused &&
+                (value == FlicktekManager.GESTURE_ENTER || value == FlicktekManager.GESTURE_PHYSICAL_BUTTON)) {
+            Log.v(TAG, "########## RELAUNCH ##########");
+            if (mContext != null) {
                 Intent LaunchIntent = mContext.getPackageManager().getLaunchIntentForPackage(mContext.getPackageName());
                 mContext.startActivity(LaunchIntent);
+            } else {
+                Log.v(TAG, "!!!!!!!!! NO CONTEXT !!!!!!!!!");
             }
 
             /*
@@ -205,13 +240,6 @@ public class FlicktekCommands extends UARTProfile {
             EventBus.getDefault().post(new onGestureEvent(value));
     }
 
-    @Override
-    protected void onDataArrived(byte[] buf_str) {
-        String str = new String(buf_str);
-        Log.v(TAG, "RX: " + str + "");
-        onCommandArrived(buf_str);
-    }
-
     //---------- Write commands -----------------------------------------------------
 
     public void writeSingleCommand(char command, int value) {
@@ -224,7 +252,9 @@ public class FlicktekCommands extends UARTProfile {
 
         buf[2] = (byte) value;
         buf[3] = COMMAND_END;
-        send(buf);
+
+        if (mDataChannel != null)
+            mDataChannel.sendDataBuffer(buf);
     }
 
     public void writeStatus_Ping() {
@@ -288,6 +318,11 @@ public class FlicktekCommands extends UARTProfile {
     public void writeStatus_Pre_Sim() {
         Log.v(TAG, "writeStatus_Pre_Sim");
         writeSingleCommand(COMMAND_CAS_WRITE, STATUS_PRECALIB_SIM);
+    }
+
+    public void writeStartSensorCapturing() {
+        Log.v(TAG, "writeStartSensorCapturing");
+        writeSingleCommand(COMMAND_SENSOR_STREAMING, 1);
     }
 
     //----------------------------------------------------------------------------
@@ -448,7 +483,80 @@ public class FlicktekCommands extends UARTProfile {
         }
     }
 
+    // A valid response for a command is [ACK:CV] Being C the command and V the data value sent
+
+    public void responseACK(byte cmd, byte number) {
+        int value = number - '0';
+
+        switch (cmd) {
+            case COMMAND_CAS_IS_CALIBRATED:
+                if (value == 0) {
+                    Log.v(TAG, "Aria is not calibrated!");
+                    FlicktekManager.setCalibration(false);
+                    EventBus.getDefault().post(new onNotCalibrated());
+                } else {
+                    FlicktekManager.setCalibration(true);
+                    writeStatus_Exec();
+                }
+                break;
+            case COMMAND_CAS_WRITE:
+                if (value == STATUS_CALIB) {
+                    onCalibrationModeWritten(value);
+                }
+                return;
+            case COMMAND_CAS_GESTURE_STATUS:
+                onGestureStatusFeedback(value);
+                onGestureStatusWritten(value);
+                return;
+            default:
+                break;
+        }
+    }
+
+    // Data packages always have the following format [CMD:DATA]
+    public void processReport(String cmd, String response) {
+        switch (cmd) {
+            case "ACK":
+                byte[] bytes = response.getBytes();
+                responseACK(bytes[0], bytes[1]);
+                break;
+            case "BT":
+                if (response.equals("1")) {
+                    Log.v(TAG, "Main Button pressed");
+                }
+
+                EventBus.getDefault().post(new onButtonPressed(response));
+                break;
+            case "GIT":
+                FlicktekManager.setFirmwareRevision(response);
+                EventBus.getDefault().post(new onRevisionRequested(response));
+                break;
+            case "VER":
+                FlicktekManager.setFirmwareVersion(response);
+                EventBus.getDefault().post(new onVersionRequested(response));
+                break;
+        }
+    }
+
+    private static final String REPORT_PATTERN = "\\[(\\w+):(\\w+)\\]";
+
     public void onCommandArrived(byte[] buf_str) {
+        try {
+            String report = new String(buf_str, "UTF-8");
+            Pattern pattern = Pattern.compile(REPORT_PATTERN);
+            Matcher matcher = pattern.matcher(report);
+            if (matcher.matches()) {
+                Log.v(TAG, "GROUPS " + matcher.groupCount());
+                for (int t = 0; t < matcher.groupCount() + 1; t++) {
+                    Log.v(TAG, matcher.group(t));
+                }
+                if (matcher.groupCount() == 2) {
+                    processReport(matcher.group(1), matcher.group(2));
+                }
+            }
+        } catch (Exception ex) {
+        }
+
         // Found single value command
         if (buf_str[0] == COMMAND_START && buf_str[3] == COMMAND_END) {
             int cmd = buf_str[1];
@@ -483,48 +591,7 @@ public class FlicktekCommands extends UARTProfile {
             return;
         }
 
-        // Data packages always have the following format [CMD:DATA]
-        // A valid response for a command is [ACK:CV] Being C the command and V the data value sent
-
-        // Value written correctly
-        if (buf_str[0] == '[' && buf_str[1] == 'A' && buf_str[2] == 'C' && buf_str[3] == 'K') {
-            int cmd = buf_str[5];
-            int value = buf_str[6] - '0';
-
-            switch (cmd) {
-                case COMMAND_CAS_IS_CALIBRATED:
-                    if (value == 0) {
-                        Log.v(TAG, "Aria is not calibrated!");
-                        FlicktekManager.setCalibration(false);
-                        EventBus.getDefault().post(new onNotCalibrated());
-                    } else {
-                        FlicktekManager.setCalibration(true);
-                        writeStatus_Exec();
-                    }
-                    break;
-                case COMMAND_CAS_WRITE:
-                    if (value == STATUS_CALIB) {
-                        onCalibrationModeWritten(value);
-                    }
-                    return;
-                case COMMAND_CAS_GESTURE_STATUS:
-                    onGestureStatusFeedback(value);
-                    onGestureStatusWritten(value);
-                    return;
-                default:
-                    break;
-            }
-
-            return;
-        }
-
         //EventBus.getDefault().post(new CharacterEvent(_value));
-    }
-
-    @Override
-    protected void release() {
-        super.release();
-        FlicktekManager.onRelease();
     }
 
     //------------------------------------------------------------------------------
@@ -599,7 +666,31 @@ public class FlicktekCommands extends UARTProfile {
     public class onGestureNotClassified {
         public onGestureNotClassified() {
 
-        };
+        }
+    }
+
+    public class onButtonPressed {
+        public String value;
+
+        public onButtonPressed(String value) {
+            this.value = value;
+        }
+    }
+
+    public class onVersionRequested {
+        public String value;
+
+        public onVersionRequested(String version) {
+            value = version;
+        }
+    }
+
+    public class onRevisionRequested {
+        public String value;
+
+        public onRevisionRequested(String revision) {
+            value = revision;
+        }
     }
 
     // Gestures classified. the could be FlicktekManager.GESTURE_XXXX

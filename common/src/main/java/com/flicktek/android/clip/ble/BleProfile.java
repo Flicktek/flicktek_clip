@@ -27,6 +27,8 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Context;
 
+import com.flicktek.android.clip.FlicktekCommands;
+
 import java.util.Deque;
 
 public abstract class BleProfile {
@@ -77,7 +79,7 @@ public abstract class BleProfile {
 	 * @param value the battery value in percent
 	 */
 	protected void onBatteryValueReceived(final BluetoothGatt gatt, final int value) {
-		// do nothing
+		FlicktekCommands.getInstance().onBatteryValueReceived(value);
 	}
 
 	/**

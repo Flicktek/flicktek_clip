@@ -287,19 +287,20 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     @Override
     public void onEnterAmbient(Bundle ambientDetails) {
         super.onEnterAmbient(ambientDetails);
-        //Log.d(TAG, "onEnterAmbient: ");
+        Log.d(TAG, "******************** onEnterAmbient ******************");
     }
 
     @Override
     public void onExitAmbient() {
         super.onExitAmbient();
-        Log.d(TAG, "onExitAmbient");
+        Log.d(TAG, "******************** onExitAmbient ********************");
     }
 
     @Override
     public void onUpdateAmbient() {
         super.onUpdateAmbient();
         Log.d(TAG, "onUpdateAmbient");
+        Log.d(TAG, "******************** onUpdateAmbient ********************");
     }
 
     @Override

@@ -66,7 +66,7 @@ import java.util.UUID;
  * to the paired wearable.
  */
 public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UARTBinder>
-        implements UARTInterface {
+        implements UARTInterface, FlicktekCommands.UARTInterface {
     private static final String TAG = "MainActivity";
 
     ///////////////////////////////////////////////////////////////////////////
@@ -99,6 +99,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     private final String UPLOAD_DIR = "/FlickTekCaptures/";
     private String mCaptureFileName;
     public Tracker mTracker;
+    public static boolean mDropboxLinked = false;
 
     private void loadAuth(AndroidAuthSession session) {
         SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
@@ -158,10 +159,17 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                     AndroidAuthSession session = buildSession();
                     mApi = new DropboxAPI<AndroidAuthSession>(session);
                     if (!mApi.getSession().isLinked()) {
+                        mDropboxLinked = false;
+                        /*
                         Intent startIntent = new Intent(this, Dropbox.class);
                         Bundle bundle = new Bundle();
                         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(startIntent);
+                        */
+                        Toast.makeText(getApplicationContext(),
+                                "No dropbox", Toast.LENGTH_LONG).show();
+                    } else {
+                        mDropboxLinked = true;
                     }
                     ;
 
@@ -216,6 +224,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     @Override
     protected void onServiceBinded(final UARTService.UARTBinder binder) {
         mServiceBinder = binder;
+        FlicktekCommands.getInstance().registerDataChannel(this);
     }
 
     @Override
@@ -279,9 +288,9 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     }
 
     @Override
-    protected void onNewIntent(Intent intent){
+    protected void onNewIntent(Intent intent) {
         setIntent(intent);
-        if(intent != null) {
+        if (intent != null) {
             config = getIntent().getExtras();
             if (config != null)
                 setupViews();
@@ -388,11 +397,19 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     static int battery_level = 0;
     static LinearLayout old_battery_layout = null;
 
-    public void updateBattery(LinearLayout battery_layout, TextView battery_text, ImageView battery_image) {
-        if (battery_level == 0)
+    public void updateBattery(LinearLayout battery_layout, TextView battery_text, ImageView battery_image, int value) {
+        if (value == 0) {
+            battery_layout.setVisibility(View.INVISIBLE);
+            battery_image.setVisibility(View.INVISIBLE);
             return;
+        }
 
-        // If we are in a different menu we have to populate the values
+        battery_layout.setVisibility(View.VISIBLE);
+        battery_image.setVisibility(View.VISIBLE);
+
+        battery_level = value;
+
+        // If we are in a different menu we have to po pulate the values
         if (old_battery_layout != battery_layout)
             old_battery = 0;
 
@@ -545,5 +562,18 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         } else {
             Log.v(TAG, "Process text " + data);
         }
+    }
+
+    @Override
+    public void sendString(String data) {
+        if (mServiceBinder != null)
+            mServiceBinder.send(data);
+    }
+
+    @Override
+    public void sendDataBuffer(byte[] data) {
+        // This is temporal, add the byte[] interface
+        if (mServiceBinder != null)
+            mServiceBinder.send(new String(data));
     }
 }

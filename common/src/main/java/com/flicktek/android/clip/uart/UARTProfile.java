@@ -31,6 +31,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.flicktek.android.clip.FlicktekCommands;
+import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.ble.BleManager;
 import com.flicktek.android.clip.ble.BleProfile;
 import com.flicktek.android.clip.ble.BleProfileApi;
@@ -39,8 +41,13 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.UUID;
 
-public class UARTProfile extends BleProfile {
+public class UARTProfile extends BleProfile implements FlicktekCommands.UARTInterface {
     private static final String TAG = "UARTProfile";
+
+    public UARTProfile() {
+        super();
+        FlicktekCommands.getInstance().registerDataChannel(this);
+    }
 
     /**
      * Broadcast sent when a UART message is received.
@@ -79,8 +86,8 @@ public class UARTProfile extends BleProfile {
         return service != null && service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID) != null && service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID) != null;
     }
 
-    private BluetoothGattCharacteristic mTXCharacteristic;
-    private BluetoothGattCharacteristic mRXCharacteristic;
+    public BluetoothGattCharacteristic mTXCharacteristic;
+    public BluetoothGattCharacteristic mRXCharacteristic;
     private byte[] mOutgoingBuffer;
     private int mBufferOffset;
 
@@ -109,10 +116,11 @@ public class UARTProfile extends BleProfile {
     protected void release() {
         mTXCharacteristic = null;
         mRXCharacteristic = null;
+        FlicktekManager.onRelease();
     }
 
     protected void onDataArrived(byte[] buffer) {
-        Log.v(TAG, "NOT PROCESSED DATA " + new String(buffer));
+        FlicktekCommands.getInstance().onCommandArrived(buffer);
     }
 
     @Override
@@ -176,10 +184,6 @@ public class UARTProfile extends BleProfile {
         }
     }
 
-    public void onReadyToSendData(boolean ready) {
-        Log.v(TAG, "onReadyToSendData " + ready);
-    }
-
     @Override
     public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor) {
         super.onDescriptorWrite(gatt, descriptor);
@@ -191,12 +195,12 @@ public class UARTProfile extends BleProfile {
         if (uuid.equals(BleManager.CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID)) {
             if (value.equals(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) {
                 Log.v(TAG, "onDescriptorWrite " + BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                onReadyToSendData(true);
+                FlicktekCommands.getInstance().onReadyToSendData(true);
                 return;
             }
             if (value.equals(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)) {
                 Log.v(TAG, "onDescriptorWrite " + BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-                onReadyToSendData(false);
+                FlicktekCommands.getInstance().onReadyToSendData(false);
                 return;
             }
         }
@@ -212,5 +216,15 @@ public class UARTProfile extends BleProfile {
         if (!TextUtils.isEmpty(text)) {
             send(text.getBytes());
         }
+    }
+
+    @Override
+    public void sendString(String data) {
+        send(data);
+    }
+
+    @Override
+    public void sendDataBuffer(byte[] data) {
+        send(data);
     }
 }

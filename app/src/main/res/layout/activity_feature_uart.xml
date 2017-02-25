@@ -52,7 +52,7 @@
 				android:name="com.flicktek.android.clip.uart.UARTControlFragment"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				tools:layout="@layout/fragment_feature_uart_control"/>
+				tools:layout="@layout/fragment_sensor_testing"/>
 
 		</android.support.v4.widget.SlidingPaneLayout>
 

@@ -1,11 +1,13 @@
 package com.flicktek.android.clip;
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.flicktek.android.ConnectionEvents.ConnectedEvent;
 import com.flicktek.android.ConnectionEvents.ConnectingEvent;
 import com.flicktek.android.ConnectionEvents.DisconnectedEvent;
 import com.flicktek.android.ConnectionEvents.DisconnectingEvent;
+import com.flicktek.android.ConnectionEvents.LinkLossEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -25,6 +27,7 @@ public class FlicktekManager {
     public final static int GESTURE_UP = 3;
     public final static int GESTURE_DOWN = 4;
     public final static int GESTURE_BACK = 5;
+    public final static int GESTURE_PHYSICAL_BUTTON = 10;
 
     public final static int STATUS_NONE = 1;
     public final static int STATUS_CONNECTING = 4;
@@ -35,6 +38,7 @@ public class FlicktekManager {
 
     //---------------- DEVICE -------------------------
 
+    private static String mDeviceName = "";
     private static String mMacAddress = "";
     private static String mFirmwareVersion = "";
     private static String mFirmwareRevision = "";
@@ -76,11 +80,20 @@ public class FlicktekManager {
         EventBus.getDefault().post(new ConnectingEvent());
     }
 
-    public static void onConnected() {
+    public static void setName(String name) {
+        mDeviceName = name;
+    }
+
+    public static void onConnected(String name, String macAddress) {
         mStatus = STATUS_CONNECTED;
+        setFirmwareRevision("");
+        setFirmwareVersion("");
+
         mIsConnected = true;
         mIsCalibrating = false;
-        EventBus.getDefault().post(new ConnectedEvent());
+        setMacAddress(macAddress);
+        setName(name);
+        EventBus.getDefault().post(new ConnectedEvent(name, macAddress));
     }
 
     public static void onDisconnected() {
@@ -92,6 +105,7 @@ public class FlicktekManager {
     }
 
     public static void onLinkloss() {
+        EventBus.getDefault().post(new LinkLossEvent());
         onDisconnected();
     }
 

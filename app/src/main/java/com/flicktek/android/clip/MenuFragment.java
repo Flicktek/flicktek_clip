@@ -171,7 +171,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         menuAdapter.notifyDataSetChanged();
         lvMenu.smoothScrollToPosition(menuIndex);
 
-        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery);
+        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, FlicktekManager.getBatteryLevel());
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

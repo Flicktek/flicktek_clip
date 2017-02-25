@@ -77,7 +77,7 @@ public class UARTControlFragment extends Fragment implements GridView.OnItemClic
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-		final View view = inflater.inflate(R.layout.fragment_feature_uart_control, container, false);
+		final View view = inflater.inflate(R.layout.fragment_sensor_testing, container, false);
 
 		final GridView grid = (GridView) view.findViewById(R.id.grid);
 		grid.setAdapter(mAdapter = new UARTButtonAdapter(mConfiguration));

@@ -404,8 +404,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
-		FlicktekManager.setMacAddress(device.getAddress());
-		FlicktekManager.onConnected();
+		FlicktekManager.onConnected(device.getName(), device.getAddress());
 		mBleManager.setBatteryNotifications(true);
 	}
 
