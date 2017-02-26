@@ -36,7 +36,9 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.StringRes;
+import android.util.Log;
 
+import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.error.GattError;
 import com.flicktek.android.clip.utility.DebugLogger;
 import com.flicktek.android.clip.utility.ParserUtils;
@@ -1211,6 +1213,22 @@ public abstract class BleManager<E extends BleManagerCallbacks> implements ILogg
 			if (status == BluetoothGatt.GATT_SUCCESS) {
 				Logger.i(mLogSession, "Data written to descr. " + descriptor.getUuid() + ", value: " + ParserUtils.parse(descriptor));
 
+				Log.v(TAG, "onDescriptorWrite");
+
+				UUID uuid = descriptor.getUuid();
+				byte[] valuet = descriptor.getValue();
+				if (uuid.equals(com.flicktek.android.clip.ble.BleManager.CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID)) {
+					if (valuet.equals(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) {
+						Log.v(TAG, "onDescriptorWrite " + BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+						FlicktekCommands.getInstance().writeStartSensorCapturing();
+						FlicktekCommands.getInstance().onReadyToSendData(true);
+					}
+					if (valuet.equals(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)) {
+						Log.v(TAG, "onDescriptorWrite " + BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+						FlicktekCommands.getInstance().onReadyToSendData(false);
+					}
+				}
+
 				if (isServiceChangedCCCD(descriptor)) {
 					Logger.a(mLogSession, "Service Changed notifications enabled");
 				} else if (isBatteryLevelCCCD(descriptor)) {
@@ -1233,9 +1251,11 @@ public abstract class BleManager<E extends BleManagerCallbacks> implements ILogg
 								break;
 							case 0x01:
 								Logger.a(mLogSession, "Notifications enabled");
+								//FlicktekCommands.getInstance().onReadyToSendData(true);
 								break;
 							case 0x02:
 								Logger.a(mLogSession, "Indications enabled");
+								//FlicktekCommands.getInstance().onReadyToSendData(false);
 								break;
 						}
 					} else {

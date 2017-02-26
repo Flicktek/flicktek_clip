@@ -78,6 +78,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     private Button mStartCapture;
     private Button mUploadCapture;
     private Button mStreamingMode;
+    private Button mShutdown;
     private TextView mCaptureText;
 
     private int TIME_WINDOW_SIZE = 100;
@@ -132,8 +133,10 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             Log.e(TAG, "Failed parsing JSON");
         }
 
-        mainActivity.mTracker.setScreenName("R&D Sensors ");
-        mainActivity.mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        if (mainActivity.mTracker != null) {
+            mainActivity.mTracker.setScreenName("R&D Sensors ");
+            mainActivity.mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        }
     }
 
     ImageView check_connect;
@@ -181,6 +184,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         mainActivity.mConnectButton = (Button) rootView.findViewById(R.id.action_connect);
         mStartCapture = (Button) rootView.findViewById(R.id.start_capture);
         mUploadCapture = (Button) rootView.findViewById(R.id.upload_capture);
+        mShutdown =  (Button) rootView.findViewById(R.id.shutdown);
 
         if (!mainActivity.mDropboxLinked) {
             mUploadCapture.setVisibility(View.GONE);
@@ -222,6 +226,14 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
                 mTriggerMode = !mTriggerMode;
             }
         });
+
+        mShutdown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                FlicktekCommands.getInstance().writeShutdown();
+            }
+        });
+
 
         mStartCapture.setOnClickListener(new View.OnClickListener() {
             @Override

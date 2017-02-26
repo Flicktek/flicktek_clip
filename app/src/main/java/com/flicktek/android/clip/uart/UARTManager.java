@@ -27,6 +27,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.profile.BleManager;
@@ -55,6 +56,7 @@ public class UARTManager extends BleManager<UARTManagerCallbacks> {
 	 * The maximum packet size is 20 bytes.
 	 */
 	private static final int MAX_PACKET_SIZE = 20;
+	private static final String TAG = "UARTManager";
 
 	private BluetoothGattCharacteristic mRXCharacteristic, mTXCharacteristic;
 	private byte[] mOutgoingBuffer;
@@ -118,6 +120,7 @@ public class UARTManager extends BleManager<UARTManagerCallbacks> {
 			if (mBufferOffset == buffer.length) {
 				try {
 					final String data = new String(buffer, "UTF-8");
+					Log.v(TAG, "++++++++++ Sent! " + data + " ++++++++++");
 					Logger.a(mLogSession, "\"" + data + "\" sent");
 					mCallbacks.onDataSent(gatt.getDevice(), data);
 				} catch (final UnsupportedEncodingException e) {
@@ -125,6 +128,7 @@ public class UARTManager extends BleManager<UARTManagerCallbacks> {
 				}
 				mOutgoingBuffer = null;
 			} else { // Otherwise...
+				Log.v(TAG, "Send! " + mBufferOffset);
 				final int length = Math.min(buffer.length - mBufferOffset, MAX_PACKET_SIZE);
 				enqueue(Request.newWriteRequest(mRXCharacteristic, buffer, mBufferOffset, length));
 				mBufferOffset += length;

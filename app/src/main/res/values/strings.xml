@@ -88,6 +88,7 @@
 	<string name="empty"/>
 	<string name="perform_gesture">Perform a gesture</string>
 	<string name="streaming_mode">Stream mode</string>
+	<string name="shutdown">Shutdown</string>
 
 
 </resources>

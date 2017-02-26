@@ -240,6 +240,8 @@ public class UARTService extends BleProfileService implements UARTManagerCallbac
             broadcast.putExtra(EXTRA_RAW_DATA_SAMPLE, mSampleNumber++);
             LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
         } else {
+            Log.v(TAG, "-----------------"+ output + "---------------------");
+
             FlicktekCommands.getInstance().onCommandArrived(data);
 
             // send the data received to other apps, e.g. the Tasker
@@ -248,12 +250,6 @@ public class UARTService extends BleProfileService implements UARTManagerCallbac
             broadcast.putExtra(EXTRA_DATA_TYPE, TYPE_TEXT_OUTPUT);
             broadcast.putExtra(EXTRA_TEXT_DATA, output);
             LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
-
-            if (output.equals("{OK}")) {
-                Log.v(TAG, "----------------- OK ---------------------");
-
-                // Start streaming!
-            }
         }
     }
 

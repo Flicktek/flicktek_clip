@@ -106,6 +106,7 @@ public class FlicktekCommands {
     public final static char COMMAND_SETTING_DATA = 'D';
     public final static char COMMAND_PING = 'P';
     public final static char COMMAND_DEBUG = 'd';
+    public final static char COMMAND_HALT = 'H';
     public final static char COMMAND_VERSION = 'V';
     public final static char COMMAND_SENSOR_STREAMING = 's';
 
@@ -202,6 +203,11 @@ public class FlicktekCommands {
         writeSingleCommand(COMMAND_CAS_IS_CALIBRATED, 0);
     }
 
+    public void writeShutdown() {
+        Log.v(TAG, "---------- SHUTDOWN -------------");
+        writeSingleCommand(COMMAND_HALT, 1);
+    }
+
     public void onReadyToSendData(boolean ready) {
         Log.v(TAG, "onReadyToSendData " + ready);
         Log.v(TAG, "---------- LETS REPORT WE ARE ALIVE-------------");
@@ -252,6 +258,8 @@ public class FlicktekCommands {
 
         buf[2] = (byte) value;
         buf[3] = COMMAND_END;
+
+        Log.v(TAG,"++++++++++ COMMAND " + new String(buf)+ "++++++++++");
 
         if (mDataChannel != null)
             mDataChannel.sendDataBuffer(buf);
