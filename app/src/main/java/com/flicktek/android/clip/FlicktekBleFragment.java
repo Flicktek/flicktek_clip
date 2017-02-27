@@ -800,6 +800,12 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeviceACK(FlicktekCommands.onDeviceACK event) {
+        check_connect.setVisibility(View.INVISIBLE);
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDeviceReady(FlicktekCommands.onDeviceReady event) {
         FlicktekCommands.getInstance().writeStartSensorCapturing();
     }

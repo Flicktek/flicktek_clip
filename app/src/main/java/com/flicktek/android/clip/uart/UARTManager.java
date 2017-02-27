@@ -148,7 +148,7 @@ public class UARTManager extends BleManager<UARTManagerCallbacks> {
 	@Override
 	protected boolean shouldAutoConnect() {
 		// We want the connection to be kept
-		return true;
+		return false;
 	}
 
 	/**

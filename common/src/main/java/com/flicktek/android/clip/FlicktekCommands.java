@@ -519,6 +519,14 @@ public class FlicktekCommands {
             default:
                 break;
         }
+
+        EventBus.getDefault().post(new onDeviceACK(true, cmd, value));
+    }
+
+
+    public void responseNAK(byte cmd, byte number) {
+        int value = number - '0';
+        EventBus.getDefault().post(new onDeviceACK(false, cmd, value));
     }
 
     // Data packages always have the following format [CMD:DATA]
@@ -527,6 +535,10 @@ public class FlicktekCommands {
             case "ACK":
                 byte[] bytes = response.getBytes();
                 responseACK(bytes[0], bytes[1]);
+                break;
+            case "NAK":
+                byte[] bytesNAK = response.getBytes();
+                responseNAK(bytesNAK[0], bytesNAK[1]);
                 break;
             case "BT":
                 if (response.equals("1")) {
@@ -538,7 +550,7 @@ public class FlicktekCommands {
             case "GIT":
                 FlicktekManager.setFirmwareRevision(response);
                 EventBus.getDefault().post(new onRevisionRequested(response));
-                break;
+            break;
             case "VER":
                 FlicktekManager.setFirmwareVersion(response);
                 EventBus.getDefault().post(new onVersionRequested(response));
@@ -698,6 +710,18 @@ public class FlicktekCommands {
 
         public onRevisionRequested(String revision) {
             value = revision;
+        }
+    }
+
+    public class onDeviceACK {
+        public boolean ACK;  // ACK or NAK
+        public byte command;
+        public int value;
+
+        public onDeviceACK(boolean isOK, byte command, int value) {
+            this.ACK = isOK;
+            this.command = command;
+            this.value = value;
         }
     }
 

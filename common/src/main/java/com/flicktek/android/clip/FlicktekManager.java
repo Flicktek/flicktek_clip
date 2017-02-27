@@ -91,6 +91,7 @@ public class FlicktekManager {
 
         mIsConnected = true;
         mIsCalibrating = false;
+        mBatteryLevel = 0;
         setMacAddress(macAddress);
         setName(name);
         EventBus.getDefault().post(new ConnectedEvent(name, macAddress));
