@@ -100,6 +100,7 @@ public class FlicktekCommands {
     public final static char COMMAND_CAS_GESTURE_FEEDBACK = 'F';
     public final static char COMMAND_CAS_IS_CALIBRATED = 'C';
     public final static char COMMAND_OK = 'O';
+    public final static char COMMAND_CHARGING_STATE = 't';
 
     public final static char COMMAND_CAS_WRITE = 'W';
     public final static char COMMAND_SETTING = 'T';
@@ -259,7 +260,7 @@ public class FlicktekCommands {
         buf[2] = (byte) value;
         buf[3] = COMMAND_END;
 
-        Log.v(TAG,"++++++++++ COMMAND " + new String(buf)+ "++++++++++");
+        Log.v(TAG, "++++++++++ COMMAND " + new String(buf) + "++++++++++");
 
         if (mDataChannel != null)
             mDataChannel.sendDataBuffer(buf);
@@ -550,7 +551,7 @@ public class FlicktekCommands {
             case "GIT":
                 FlicktekManager.setFirmwareRevision(response);
                 EventBus.getDefault().post(new onRevisionRequested(response));
-            break;
+                break;
             case "VER":
                 FlicktekManager.setFirmwareVersion(response);
                 EventBus.getDefault().post(new onVersionRequested(response));
@@ -588,6 +589,17 @@ public class FlicktekCommands {
             }
 
             switch (cmd) {
+                case COMMAND_CHARGING_STATE:
+                    boolean charging;
+                    if (value == 1) {
+                        Log.v(TAG, "------------------ CHARGING REPORT! -------------------");
+                        charging = true;
+                    } else {
+                        charging = false;
+                        Log.v(TAG, "------------------ DISCHARGING REPORT!-----------------");
+                    }
+                    EventBus.getDefault().post(new onChargingState(charging));
+                    break;
                 case COMMAND_GESTURE:
                     onGestureChanged(value);
                     return;
@@ -660,6 +672,15 @@ public class FlicktekCommands {
     public class onDeviceReady {
 
     }
+
+    public class onChargingState {
+        public Boolean isCharging;
+
+        public onChargingState(boolean isCharging) {
+            this.isCharging = isCharging;
+        }
+    }
+
 
     public class onCalibrationAttributeEvent {
         public Integer quality;

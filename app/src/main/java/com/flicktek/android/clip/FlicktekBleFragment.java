@@ -775,6 +775,10 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         tv_device_status.setText("Connecting");
     }
 
+
+    boolean mSeenChargeState = false;
+    boolean mSeenDischargeState = false;
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDeviceDisconnected(DisconnectedEvent event) {
         tv_device_name.setVisibility(View.GONE);
@@ -791,6 +795,9 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         mCheck_led_1.setActivated(true);
         mCheck_led_2.setActivated(false);
 
+        mSeenChargeState = false;
+        mSeenDischargeState = false;
+
         for (int t = 0; t < 4; t++) {
             mCheckMinSensor[t] = false;
             mCheckMaxSensor[t] = false;
@@ -804,6 +811,19 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         check_connect.setVisibility(View.INVISIBLE);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChargingState(FlicktekCommands.onChargingState event) {
+
+        if (event.isCharging)
+            mSeenChargeState = true;
+
+        if (!event.isCharging)
+            mSeenDischargeState = true;
+
+        if (mSeenDischargeState && mSeenChargeState)
+            check_charging.setVisibility(View.INVISIBLE);
+
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDeviceReady(FlicktekCommands.onDeviceReady event) {
