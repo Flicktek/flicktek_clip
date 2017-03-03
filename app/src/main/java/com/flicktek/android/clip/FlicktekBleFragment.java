@@ -67,6 +67,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     private TextView tv_device_status;
     private TextView tv_device_name;
     private TextView tv_device_address;
+    private TextView tv_device_charging;
 
     private final int STATUS_PLAY = 0;
     private final int STATUS_NEXT = 1;
@@ -181,10 +182,13 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         tv_device_name = (TextView) rootView.findViewById(R.id.tv_device_name);
         tv_device_address = (TextView) rootView.findViewById(R.id.tv_device_mac);
 
+        tv_device_charging = (TextView) rootView.findViewById(R.id.tv_charging);
+        tv_device_charging.setText("");
+
         mainActivity.mConnectButton = (Button) rootView.findViewById(R.id.action_connect);
         mStartCapture = (Button) rootView.findViewById(R.id.start_capture);
         mUploadCapture = (Button) rootView.findViewById(R.id.upload_capture);
-        mShutdown =  (Button) rootView.findViewById(R.id.shutdown);
+        mShutdown = (Button) rootView.findViewById(R.id.shutdown);
 
         if (!mainActivity.mDropboxLinked) {
             mUploadCapture.setVisibility(View.GONE);
@@ -202,6 +206,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             public void onClick(final View v) {
                 check_led_1.setVisibility(View.INVISIBLE);
                 mCheck_led_1.setActivated(false);
+                check_device_successful();
             }
         });
 
@@ -211,6 +216,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             public void onClick(final View v) {
                 check_led_2.setVisibility(View.INVISIBLE);
                 mCheck_led_2.setActivated(false);
+                check_device_successful();
             }
         });
 
@@ -352,18 +358,25 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         }
 
         boolean capture = !mTriggerMode;
+        boolean test = false;
 
         for (int t = 0; t < 4; t++)
             if (sampleData[t] > 1) {
 
-                if (sampleData[t] > CHECK_MAX_SENSOR_THRESHOLD)
+                if (mCheckMaxSensor[t] == false && sampleData[t] > CHECK_MAX_SENSOR_THRESHOLD) {
                     mCheckMaxSensor[t] = true;
+                    test = true;
+                }
 
-                if (sampleData[t] < CHECK_MIN_SENSOR_THRESHOLD)
+                if (mCheckMinSensor[t] == false && sampleData[t] < CHECK_MIN_SENSOR_THRESHOLD) {
                     mCheckMinSensor[t] = true;
+                    test = true;
+                }
 
-                if (mCheckMaxSensor[t] && mCheckMinSensor[t])
+                if (test && mCheckMaxSensor[t] && mCheckMinSensor[t]) {
                     check_sensor[t].setVisibility(View.INVISIBLE);
+                    check_device_successful();
+                }
             }
 
         if (mTriggerMode && !mTriggerCapturing) {
@@ -764,6 +777,9 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
         tv_device_status.setText("Connected");
 
+        tv_battery.setVisibility(View.VISIBLE);
+        ll_battery.setVisibility(View.VISIBLE);
+
         if (event.name.startsWith("FlickTek")) {
 
         }
@@ -775,6 +791,50 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         tv_device_status.setText("Connecting");
     }
 
+    void check_device_successful() {
+
+        if (check_connect.getVisibility() == View.VISIBLE)
+            return;
+
+        if (check_button.getVisibility() == View.VISIBLE)
+            return;
+
+        for (int t = 0; t < 4; t++) {
+            if (check_sensor[t].getVisibility() == View.VISIBLE)
+                return;
+        }
+
+        if (check_led_1.getVisibility() == View.VISIBLE)
+            return;
+
+        if (check_led_2.getVisibility() == View.VISIBLE)
+            return;
+
+        if (check_charging.getVisibility() == View.VISIBLE)
+            return;
+
+        if (check_battery.getVisibility() == View.VISIBLE)
+            return;
+
+        if (mainActivity.mTracker != null) {
+            mainActivity.mTracker.setScreenName("R&D Sensors ");
+            mainActivity.mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        }
+
+        mainActivity.runOnUiThread(new Runnable() {
+
+            public void run() {
+                try {
+                    Toast.makeText(mainActivity.getApplicationContext(),
+                            "TEST COMPLETED", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+    }
 
     boolean mSeenChargeState = false;
     boolean mSeenDischargeState = false;
@@ -786,12 +846,13 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
         tv_device_status.setText("Disconnected");
 
+        check_connect.setVisibility(View.VISIBLE);
         check_button.setVisibility(View.VISIBLE);
         check_led_1.setVisibility(View.VISIBLE);
         check_led_2.setVisibility(View.VISIBLE);
         check_charging.setVisibility(View.VISIBLE);
         check_battery.setVisibility(View.VISIBLE);
-        check_connect.setVisibility(View.VISIBLE);
+
         mCheck_led_1.setActivated(true);
         mCheck_led_2.setActivated(false);
 
@@ -804,6 +865,9 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
             check_sensor[t].setVisibility(View.VISIBLE);
         }
 
+        tv_device_charging.setText("");
+        tv_battery.setVisibility(View.INVISIBLE);
+        ll_battery.setVisibility(View.INVISIBLE);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -814,15 +878,20 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onChargingState(FlicktekCommands.onChargingState event) {
 
-        if (event.isCharging)
+        if (event.isCharging) {
             mSeenChargeState = true;
+            tv_device_charging.setText("   [Charging]");
+        }
 
-        if (!event.isCharging)
+        if (!event.isCharging) {
             mSeenDischargeState = true;
+            tv_device_charging.setText("[Discharging]");
+        }
 
         if (mSeenDischargeState && mSeenChargeState)
             check_charging.setVisibility(View.INVISIBLE);
 
+        check_device_successful();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

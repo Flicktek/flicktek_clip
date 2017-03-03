@@ -107,9 +107,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                android:layout_marginRight="5dp"
+                android:layout_marginRight="15dp"
 
-                android:text="Not charging"
+                android:text="[Unknown state]"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textColor="@color/dashTextColor"
                 android:textSize="22dp" />
