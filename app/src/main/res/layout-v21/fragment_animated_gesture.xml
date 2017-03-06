@@ -2,7 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_margin="5dp"
+
                 android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/imageCover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="0dp"
+        android:alpha="0.5"
+        android:scaleType="centerCrop"
+        android:src="@drawable/gestures_background"/>
 
     <ImageView
         android:id="@+id/logo_flicktek"
@@ -16,7 +27,7 @@
         android:scaleType="centerInside"
         android:src="@drawable/logo_flicktek"
         android:tint="@color/white"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tv_title"

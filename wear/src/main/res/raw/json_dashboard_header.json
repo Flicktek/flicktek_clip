@@ -1,0 +1,63 @@
+{
+  "back_button": false,
+  "menu_items": [
+    {
+      "header": true,
+      "text": "Flicktek",
+      "drawable": "logo_flicktek_white"
+    },
+    {
+      "text": "Setup",
+      "drawable": "ic_settings_black_48dp",
+      "target": "menu_list",
+      "json": "json_setup"
+    },
+    {
+      "text": "Games",
+      "drawable": "ic_games_black_48dp",
+      "target": "menu_list",
+      "json": "json_games"
+    },
+    {
+      "text": "Info",
+      "drawable": "i_learn",
+      "target": "media_controller",
+      "configuration": "media_documentation"
+    },
+    {
+      "text": "Music",
+      "drawable": "ic_music_note_black_48dp",
+      "target": "media_controller",
+      "configuration": "media_music"
+    },
+    {
+      "text": "Remote Control",
+      "drawable": "ic_cast_black_48dp",
+      "target": "menu_list",
+      "json": "json_remote_control"
+    },
+    {
+      "text": "Stop Watch",
+      "drawable": "ic_timer_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.stopwatch.stopwatchFragment"
+    },
+    {
+      "text": "Apps",
+      "drawable": "ic_apps_black_48dp",
+      "target": "fragment_class",
+      "class": "AppsSystem"
+    },
+    {
+      "text": "Others",
+      "drawable": "ic_devices_other_black_48dp",
+      "target": "fragment_class",
+      "json": "PlaceHolder"
+    },
+    {
+      "text": "Disconnect",
+      "drawable": "ic_close_black_48dp",
+      "target": "close"
+    }
+  ]
+}

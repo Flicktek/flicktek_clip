@@ -194,7 +194,8 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             Log.e(TAG, "openCurrentItem: Missing model!");
     }
 
-    boolean exit_pressed = false;
+    // TODO Read this from settings
+    boolean exit_pressed = true;
 
     public void back() {
         mainActivity.onBackPressed();

@@ -396,6 +396,8 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     private void doGesture() {
         switch (status) {
             case (STATUS_EXIT):
+                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(
                             new Runnable() {

@@ -240,6 +240,8 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
                 break;
 
             case (FlicktekManager.GESTURE_HOME):
+                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(
                             new Runnable() {

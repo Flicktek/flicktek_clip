@@ -19,21 +19,113 @@
                 android:background="@color/black"
     >
 
+
     <ImageView
         android:id="@+id/imageCover"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="0dp"
         android:alpha="1.0"
-        android:scaleType="centerInside"
-        android:src="@drawable/flicktek_background"/>
+        android:scaleType="centerCrop"
+        android:src="@drawable/launch_background"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/start_video_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:onClick="onStartVideoActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_play_arrow_black_48dp"
+            />
+
+        <ImageButton
+            android:id="@+id/start_wearable_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:layout_marginLeft="15dp"
+            android:onClick="onStartWearableActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_apps_black_48dp"/>
+
+        <ImageButton
+            android:id="@+id/start_slides_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:layout_marginLeft="10dp"
+            android:onClick="onStartSlidesActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_slideshow_black_48dp"/>
+
+        <ImageButton
+            android:id="@+id/start_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:enabled="true"
+            android:onClick="onVersionClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_settings_black_48dp"/>
+
+        <ImageButton
+            android:id="@+id/start_connectivity_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:layout_marginLeft="15dp"
+            android:onClick="onStartBluetoothScanActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_cast_black_48dp"/>
+
+        <ImageButton
+            android:id="@+id/start_dropbox_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:layout_marginLeft="15dp"
+            android:onClick="onStartDropboxActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_dropbox_black_48dp"/>
+
+        <ImageButton
+            android:id="@+id/start_gestures_activity"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:enabled="true"
+            android:layout_marginLeft="15dp"
+            android:onClick="onStartGesturesActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_done_white"/>
+
+        <ImageButton
+            android:id="@+id/start_dfu_activity"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:enabled="true"
+            android:layout_marginLeft="15dp"
+            android:onClick="onStartDfuActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_dfu_feature"/>
+
+
+    </LinearLayout>
+
 
     <RelativeLayout
         android:id="@+id/top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp">
+        android:visibility="gone"
+        android:layout_margin="25dp">
 
         <Button
             android:id="@+id/takePhoto"
@@ -118,90 +210,6 @@
             android:transcriptMode="alwaysScroll"
             android:visibility="invisible"
             />
-
-        <ImageButton
-            android:id="@+id/start_video_activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/imageView"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:enabled="true"
-            android:onClick="onStartVideoActivityClick"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_play_arrow_black_48dp"
-            />
-
-        <ImageButton
-            android:id="@+id/start_wearable_activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/start_video_activity"
-            android:layout_marginTop="10dp"
-            android:enabled="true"
-            android:onClick="onStartWearableActivityClick"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_apps_black_48dp"/>
-
-        <ImageButton
-            android:id="@+id/start_slides_activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/start_wearable_activity"
-            android:layout_marginTop="10dp"
-            android:enabled="true"
-            android:onClick="onStartSlidesActivityClick"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_slideshow_black_48dp"/>
-
-        <ImageButton
-            android:id="@+id/start_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/start_slides_activity"
-            android:layout_marginTop="10dp"
-            android:enabled="true"
-            android:onClick="onVersionClick"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_settings_black_48dp"/>
-
-        <ImageButton
-            android:id="@+id/start_connectivity_activity"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:enabled="true"
-            android:onClick="onStartBluetoothScanActivityClick"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_cast_black_48dp"/>
-
-        <ImageButton
-            android:id="@+id/start_dropbox_activity"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/start_connectivity_activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:enabled="true"
-            android:onClick="onStartDropboxActivityClick"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_dropbox_black_48dp"/>
-
-        <ImageButton
-            android:id="@+id/start_gestures_activity"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/start_dropbox_activity"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="10dp"
-            android:enabled="true"
-            android:onClick="onStartGesturesActivityClick"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_done_white"/>
-
-
     </RelativeLayout>
 
-</RelativeLayout>
+    </RelativeLayout>

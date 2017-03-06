@@ -212,6 +212,8 @@ public class stopwatchFragment extends Fragment implements View.OnClickListener 
                 break;
 
             case (FlicktekManager.GESTURE_HOME):
+                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(
                             new Runnable() {

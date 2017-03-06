@@ -42,7 +42,6 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
-import com.flicktek.android.clip.dropbox.Dropbox;
 import com.flicktek.android.clip.profile.BleProfileService;
 import com.flicktek.android.clip.profile.BleProfileServiceReadyActivity;
 import com.flicktek.android.clip.uart.UARTInterface;
@@ -124,6 +123,30 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         return session;
     }
 
+    private View mDecorView;
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
+
+    // This snippet hides the system bars.
+    private void hideSystemUI() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        mDecorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     //                      End app-specific settings.                       //
     ///////////////////////////////////////////////////////////////////////////
@@ -150,6 +173,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
         AnalyticsApplication application = (AnalyticsApplication) getApplication();
         mTracker = application.getDefaultTracker();
+        mDecorView = getWindow().getDecorView();
 
         config = getIntent().getExtras();
         try {

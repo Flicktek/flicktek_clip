@@ -2,11 +2,6 @@
   "back_button": false,
   "menu_items": [
     {
-      "header": true,
-      "text": "Flicktek",
-      "drawable": "logo_flicktek_white"
-    },
-    {
       "text": "Setup",
       "drawable": "ic_settings_black_48dp",
       "target": "menu_list",

@@ -1,7 +1,6 @@
 package com.flicktek.android.clip;
 
 import android.util.Log;
-import android.util.Pair;
 
 import com.flicktek.android.ConnectionEvents.ConnectedEvent;
 import com.flicktek.android.ConnectionEvents.ConnectingEvent;
@@ -56,6 +55,10 @@ public class FlicktekManager {
 
     private static boolean mIsConnected = false;
     private static int mStatus = STATUS_NONE;
+
+    // Configures if the menu will go back if you click home
+    // Or requires a double input to exit
+    public static boolean mIsDoubleGestureHomeExit = false;
 
     public static boolean isConnected() {
         return mIsConnected;
