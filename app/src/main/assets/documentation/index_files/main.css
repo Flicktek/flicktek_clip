@@ -5945,6 +5945,7 @@ color: #3c4a4a;
         }
         #index_intro_title{
             padding-top: 0%;
+			color : black;
         }
 }
 
@@ -6428,7 +6429,7 @@ color: #3c4a4a;
                 width: 736px;
             }
         #clip6_video_landing, #clip7_video_landing {
-            background:url(../../assets/videos/clip_black.gif);
+            background:url(assets/videos/clip_black.gif);
             background-size: cover;
             background-attachment:  ;
             background-position: center top;
@@ -6725,8 +6726,8 @@ color: #3c4a4a;
 		/* Header */
         
         #video-landing {
-/*            background: url("images/overlay.png"),url("../../assets/videos/intro_mobile.png");*/
-            background: url("../../assets/videos/video_1.gif");
+/*            background: url("images/overlay.png"),url("assets/videos/intro_mobile.png");*/
+            background: url("assets/videos/video_1.gif");
             background-size:cover;
             background-attachment: fixed;
             background-position: top right;

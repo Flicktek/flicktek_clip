@@ -6,7 +6,7 @@
       "text": "Previous",
       "package": "android",
       "drawable": "ic_media_previous",
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:previous/destination:$(SERVER)",
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:previous/destination:SERGIO-HOME",
       "onGesture": "up",
       "target": "phone"
     },
@@ -14,7 +14,7 @@
       "text": "Next",
       "package": "android",
       "drawable": "ic_media_next",
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:next/destination:$(SERVER)",
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:next/destination:SERGIO-HOME",
       "onGesture": "down",
       "target": "phone"
     },
@@ -22,7 +22,7 @@
       "text": "Start show",
       "package": "android",
       "drawable": "ic_media_play",
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:start_show/destination:$(SERVER)",
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:start_show/destination:SERGIO-HOME",
       "onGesture": "enter",
       "target": "phone"
     },
@@ -31,7 +31,7 @@
       "package": "android",
       "drawable": "ic_media_pause",
 
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:show_end/destination:$(SERVER)",
+      "action": "ur://intent/remote:Unified.GooglePresentation/action:show_end/destination:SERGIO-HOME",
       "onGesture": "home",
       "target": "phone"
     }
