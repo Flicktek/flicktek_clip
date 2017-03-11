@@ -8,6 +8,12 @@
       "json": "json_setup"
     },
     {
+      "text": "PhoneBook",
+      "drawable": "ic_contact_phone_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.addressbook.ContactsListFragment"
+    },
+    {
       "text": "Games",
       "drawable": "ic_games_black_48dp",
       "target": "menu_list",

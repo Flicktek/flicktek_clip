@@ -23,4 +23,6 @@
 
     <color name="dark_grey">#1d1d1d</color>
     <color name="light_grey">#6d6d6d</color>
+
+    <color name="holo_blue">#FF33B5E5</color>
 </resources>

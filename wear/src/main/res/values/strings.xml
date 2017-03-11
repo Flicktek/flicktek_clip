@@ -77,4 +77,10 @@
 
     <string name="action_disconnect">Disconnect</string>
     <string name="notif_uart_device_connected">UART device connected</string>
+
+    <string name="no_contacts">No Contacts Found</string>
+    
+    <!-- Used for the AlphabetIndexer in ContactsListFragment to provide quick navigation by
+         alphabet using ListView fast scroll. -->
+    <string name="alphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
 </resources>

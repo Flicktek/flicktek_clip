@@ -24,4 +24,7 @@
 <resources>
 	<dimen name="big_circle_radius">22dp</dimen>
 	<dimen name="small_circle_radius">18dp</dimen>
+
+	<dimen name="padding">16dp</dimen>
+	<dimen name="listview_item_padding">16dp</dimen>
 </resources>

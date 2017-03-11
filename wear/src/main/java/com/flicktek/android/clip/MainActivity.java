@@ -34,7 +34,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -54,6 +56,7 @@ import com.flicktek.android.clip.ble.BleProfileService;
 import com.flicktek.android.clip.menus.AppModel;
 import com.flicktek.android.clip.menus.MediaFragment;
 import com.flicktek.android.clip.menus.MenuFragment;
+import com.flicktek.android.clip.menus.addressbook.ContactsListFragment;
 import com.flicktek.android.clip.uart.UARTCommandsAdapter;
 import com.flicktek.android.clip.uart.UARTProfile;
 import com.flicktek.android.clip.uart.domain.Command;
@@ -80,7 +83,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class MainActivity extends WearableActivity implements UARTCommandsAdapter.OnCommandSelectedListener, GoogleApiClient.ConnectionCallbacks,
-        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, FlicktekManager.BackMenu {
+        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, FlicktekManager.BackMenu,
+        ContactsListFragment.OnContactsInteractionListener {
     private static final String TAG = "MainActivity";
 
     public static boolean isRound;
@@ -364,11 +368,15 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNotCalibrated(FlicktekCommands.onNotCalibrated notCalibrated) {
         Log.v(TAG, "onNotCalibrated");
-        getFragmentManager().popBackStack("Dashboard", 0);
-        newFragment("menus.calibration.CalibrationFragmentScroll");
+        if (!Debug.isDebuggerConnected()) {
+            getFragmentManager().popBackStack("Dashboard", 0);
+            newFragment("menus.calibration.CalibrationFragmentScroll");
 
-        sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_STATE,
-                "NotCalibrated");
+            sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_STATE,
+                    "NotCalibrated");
+        } else {
+            Log.v(TAG, "Ignoring not calibration");
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -651,6 +659,12 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     public void updateBattery(LinearLayout battery_layout, TextView battery_text,
                               ImageView battery_image, int battery_level) {
+
+        if (battery_text == null || battery_layout == null || battery_image == null) {
+            Log.v(TAG, "Battery UI interface is not defined");
+            return;
+        }
+
         if (battery_level == 0)
             battery_level = FlicktekManager.getBatteryLevel();
 
@@ -712,5 +726,15 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         FlicktekManager.onDisconnected();
         if (mBleProfileServiceBinder != null)
             mBleProfileServiceBinder.disconnect();
+    }
+
+    @Override
+    public void onContactSelected(Uri contactUri) {
+        Log.v(TAG, "Contact selected! Dial ? ");
+    }
+
+    @Override
+    public void onSelectionCleared() {
+        Log.v(TAG, "Selection cleared ");
     }
 }

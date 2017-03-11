@@ -154,6 +154,11 @@ public class ScannerActivity extends Activity {
 				requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_LOCATION);
 				return;
 			}
+
+			if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[] { Manifest.permission.READ_CONTACTS}, PERMISSION_REQUEST_LOCATION);
+				return;
+			}
 		}
 		mDeviceAdapter.startLeScan();
 	}
