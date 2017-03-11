@@ -65,6 +65,9 @@ public final class Constants {
 
         public static final String ANALYTICS_SCREEN = "/analytics";
         public static final String ANALYTICS_CALIBRATION = "/analytics_device_calibration";
+
+        // Phone interface, are we calling?, reject, answer, call!
+        public static final String PHONE_CALL_NUMBER  = "/phone_call";
     }
 
     /**

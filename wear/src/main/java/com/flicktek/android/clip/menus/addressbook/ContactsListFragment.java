@@ -18,8 +18,12 @@ package com.flicktek.android.clip.menus.addressbook;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ListFragment;
+import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -32,11 +36,6 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Contacts.Photo;
-import android.app.ListFragment;
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.widget.CursorAdapter;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -49,6 +48,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AlphabetIndexer;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -61,10 +61,9 @@ import com.flicktek.android.clip.FlicktekCommands;
 import com.flicktek.android.clip.FlicktekManager;
 import com.flicktek.android.clip.MainActivity;
 import com.flicktek.android.clip.R;
-import com.flicktek.android.clip.menus.AppModel;
-import com.flicktek.android.clip.menus.MenuAdapter;
 import com.flicktek.android.clip.util.ImageLoader;
 import com.flicktek.android.clip.util.Utils;
+import com.flicktek.android.clip.wearable.common.Constants;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -98,8 +97,8 @@ public class ContactsListFragment extends ListFragment implements
 
     private MainActivity mainActivity;
 
-
     private int menuIndex;
+
     private TextView tv_current_menu;
 
     private TextView tv_battery;
@@ -117,12 +116,10 @@ public class ContactsListFragment extends ListFragment implements
             "com.example.android.contactslist.ui.SELECTED_ITEM";
 
     private ContactsAdapter mAdapter; // The main query adapter
+    private ContactsAdapter.ViewHolder menuSelectedHolder = null;
+
     private ImageLoader mImageLoader; // Handles loading the contact image in a background thread
     private String mSearchTerm; // Stores the current search query term
-
-    // Contact selected listener that allows the activity holding this fragment to be notified of
-    // a contact being selected
-    private OnContactsInteractionListener mOnContactSelectedListener;
 
     // Stores the previously selected search item so that on a configuration change the same item
     // can be reselected again
@@ -285,18 +282,6 @@ public class ContactsListFragment extends ListFragment implements
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
-        try {
-            // Assign callback listener which the holding activity must implement. This is used
-            // so that when a contact item is interacted with (selected by the user) the holding
-            // activity will be notified and can take further action such as populating the contact
-            // detail pane (if in multi-pane layout) or starting a new activity with the contact
-            // details (single pane layout).
-            mOnContactSelectedListener = (OnContactsInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnContactsInteractionListener");
-        }
     }
 
     @Override
@@ -313,6 +298,8 @@ public class ContactsListFragment extends ListFragment implements
         // Gets the Cursor object currently bound to the ListView
         final Cursor cursor = mAdapter.getCursor();
 
+        changeCurrentMenuIndex(position);
+
         // Moves to the Cursor row corresponding to the ListView item that was clicked
         cursor.moveToPosition(position);
 
@@ -325,7 +312,8 @@ public class ContactsListFragment extends ListFragment implements
         // parent activity loads a ContactDetailFragment that displays the details for the selected
         // contact. In a single-pane layout, the parent activity starts a new activity that
         // displays contact details in its own Fragment.
-        mOnContactSelectedListener.onContactSelected(uri);
+        onContactSelected(uri);
+        openCurrentItem();
 
         // If two-pane layout sets the selected item to checked so it remains highlighted. In a
         // single-pane layout a new activity is started so this is not needed.
@@ -341,7 +329,7 @@ public class ContactsListFragment extends ListFragment implements
      */
     private void onSelectionCleared() {
         // Uses callback to notify activity this contains this fragment
-        mOnContactSelectedListener.onSelectionCleared();
+        //onSelectionCleared();
 
         // Clears currently checked item
         lvMenu.clearChoices();
@@ -419,7 +407,7 @@ public class ContactsListFragment extends ListFragment implements
                     // contact's ID to the Contacts table content Uri
                     final Uri uri = Uri.withAppendedPath(
                             Contacts.CONTENT_URI, String.valueOf(data.getLong(ContactsQuery.ID)));
-                    mOnContactSelectedListener.onContactSelected(uri);
+                    onContactSelected(uri);
                     getListView().setItemChecked(mPreviouslySelectedSearchItem, true);
                 } else {
                     // No results, clear selection.
@@ -440,7 +428,6 @@ public class ContactsListFragment extends ListFragment implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
         Log.v(TAG, "onLoaderReset");
         if (loader.getId() == ContactsQuery.QUERY_ID) {
             // When the loader is being reset, clear the cursor from the adapter. This allows the
@@ -657,6 +644,7 @@ public class ContactsListFragment extends ListFragment implements
                 view.setSelected(false);
 
             if (view.isSelected()) {
+                menuSelectedHolder = holder;
                 view.setBackgroundResource(R.drawable.bg_light);
                 holder.text1.setTextColor(Color.BLACK);
                 holder.text2.setTextColor(Color.BLACK);
@@ -666,7 +654,7 @@ public class ContactsListFragment extends ListFragment implements
                 holder.text2.setTextColor(Color.WHITE);
             }
             return view;
-        };
+        }
 
         /**
          * Binds data from the Cursor to the provided view.
@@ -950,17 +938,48 @@ public class ContactsListFragment extends ListFragment implements
         mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, 0);
     }
 
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
+    }
+
     //actions
     private void changeCurrentMenuIndex(int _newMenuIndex) {
         menuIndex = _newMenuIndex;
+
+        View view = getViewByPosition(menuIndex, lvMenu);
+        menuSelectedHolder = (ContactsAdapter.ViewHolder) view.getTag();
         updateUi();
     }
 
     private void openCurrentItem() {
-        Log.d(TAG, "openCurrentItem:");
+        Log.d(TAG, "openCurrentItem: " + menuIndex);
 
         Object openItem = mAdapter.getItem(menuIndex);
-        Log.d(TAG, " openItem " + openItem.toString());
+        if (openItem != null)
+            Log.d(TAG, " openItem " + openItem.toString());
+
+        if (menuSelectedHolder != null) {
+            String name = menuSelectedHolder.text1.getText().toString();
+            String number = menuSelectedHolder.text2.getText().toString();
+
+            Toast.makeText(mainActivity, "Calling " + name, Toast.LENGTH_LONG).show();
+            mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                    Constants.FLICKTEK_CLIP.PHONE_CALL_NUMBER, number);
+
+            //FlicktekManager.backMenu(mainActivity);
+        }
+    }
+
+    public void onContactSelected(Uri contactUri) {
+        Log.v(TAG, "Contact selected! Dial ? ");
     }
 
     boolean exit_pressed = false;
@@ -969,6 +988,12 @@ public class ContactsListFragment extends ListFragment implements
     public void onResume() {
         EventBus.getDefault().register(this);
         super.onResume();
+    }
+
+    @Override
+    public void onDestroyView() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroyView();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

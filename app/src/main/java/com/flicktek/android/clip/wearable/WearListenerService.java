@@ -22,9 +22,12 @@
 
 package com.flicktek.android.clip.wearable;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.flicktek.android.clip.AnalyticsApplication;
@@ -87,7 +90,6 @@ public class WearListenerService extends WearableListenerService {
     @Override
     public void onMessageReceived(final MessageEvent messageEvent) {
         final String message = new String(messageEvent.getData());
-        Log.v(TAG, "WearListenerService " + message);
 
         String path = "PATH";
         String text = "TEXT";
@@ -96,8 +98,24 @@ public class WearListenerService extends WearableListenerService {
             path = messageEvent.getPath();
             text = new String(messageEvent.getData());
 
+            Log.v(TAG, "WearListenerService " + path + " " + text);
+
             AnalyticsApplication application = (AnalyticsApplication) getApplication();
             Tracker tracker = application.getDefaultTracker();
+
+            if (path.equals(Constants.FLICKTEK_CLIP.PHONE_CALL_NUMBER)) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    Log.v(TAG, "Missing CALL NUMBER permission");
+                    return;
+                }
+
+                String number = text.replaceAll("\\s+","");
+                Log.v(TAG, "Call phone number " + number);
+
+                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.fromParts("tel", number , null));
+                callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(callIntent);
+            }
 
             if (path.equals(Constants.FLICKTEK_CLIP.DEVICE_CONNECTION_STATE)) {
                 tracker.send(new HitBuilders.EventBuilder()
@@ -117,7 +135,7 @@ public class WearListenerService extends WearableListenerService {
                         .setValue(1)
                         .build());
 
-                tracker.setScreenName("MAC "+ mMacDeviceConnected);
+                tracker.setScreenName("MAC " + mMacDeviceConnected);
                 tracker.send(new HitBuilders.ScreenViewBuilder().build());
                 return;
             }
@@ -149,7 +167,7 @@ public class WearListenerService extends WearableListenerService {
             if (path.equals(Constants.FLICKTEK_CLIP.ANALYTICS_SCREEN)) {
                 String pack_name = getPackageName();
                 if (text.startsWith(pack_name)) {
-                    text = text.substring(pack_name.length() + 1,text.length());
+                    text = text.substring(pack_name.length() + 1, text.length());
                 }
                 tracker.setScreenName(text);
                 tracker.send(new HitBuilders.ScreenViewBuilder().build());

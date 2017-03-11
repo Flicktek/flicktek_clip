@@ -83,8 +83,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class MainActivity extends WearableActivity implements UARTCommandsAdapter.OnCommandSelectedListener, GoogleApiClient.ConnectionCallbacks,
-        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, FlicktekManager.BackMenu,
-        ContactsListFragment.OnContactsInteractionListener {
+        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, FlicktekManager.BackMenu
+         {
     private static final String TAG = "MainActivity";
 
     public static boolean isRound;
@@ -728,13 +728,4 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             mBleProfileServiceBinder.disconnect();
     }
 
-    @Override
-    public void onContactSelected(Uri contactUri) {
-        Log.v(TAG, "Contact selected! Dial ? ");
-    }
-
-    @Override
-    public void onSelectionCleared() {
-        Log.v(TAG, "Selection cleared ");
-    }
 }
