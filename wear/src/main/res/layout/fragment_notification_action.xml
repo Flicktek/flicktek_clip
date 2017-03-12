@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<android.support.wearable.view.BoxInsetLayout-->
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:background="#1d1d1d">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_box="all"
+        android:layout_marginLeft="-50dp"
+        android:layout_marginRight="-50dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:id="@+id/relativeLayout2"
+        android:background="#bbffffff">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="#55ffffff">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="85dp"
+                android:layout_marginRight="75dp">
+
+                <TextView
+                    android:id="@+id/tv_notification_title"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:textSize="16dp"
+                    android:text="test"
+                    android:textColor="#ff000000"
+                    android:textAlignment="viewStart"
+                    android:gravity="left"
+                    android:layout_marginTop="10dp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="75dp"
+            android:layout_marginLeft="85dp"
+            android:layout_marginTop="35dp">
+
+            <TextView
+                android:id="@+id/tv_notification_text"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:textSize="16dp"
+                android:text="test"
+                android:textColor="#000000"
+                android:textAlignment="textStart"
+                android:gravity="left"
+                android:layout_alignParentStart="true"
+                android:layout_above="@+id/b_clear_button"
+                android:layout_alignParentTop="true" />
+
+            <android.support.wearable.view.CircledImageView
+                android:id="@+id/b_clear_button"
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:src="@drawable/ic_close_black_48dp"
+                app:circle_radius="32dp"
+                app:circle_border_width="0dp"
+                android:background="@drawable/ic_close_black_48dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true" />
+
+            <android.support.wearable.view.CircledImageView
+                android:id="@+id/b_done_button"
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:src="@drawable/ic_done_white"
+                app:circle_radius="32dp"
+                app:circle_border_width="0dp"
+                android:layout_alignParentBottom="true"
+                android:layout_toEndOf="@+id/b_clear_button"
+                android:layout_marginStart="67dp" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/imageView2"
+        android:background="@drawable/ic_close_black_48dp"
+        android:maxWidth="10dp"
+        android:maxHeight="10dp"
+        android:layout_alignTop="@+id/relativeLayout2"
+        android:layout_alignEnd="@+id/relativeLayout2"
+        android:layout_marginRight="100dp"
+        android:layout_marginTop="-15dp" />
+</RelativeLayout>
+<!--</android.support.wearable.view.BoxInsetLayout>-->
+
+    <!--app:circle_color="@color/action_button_clear"-->
