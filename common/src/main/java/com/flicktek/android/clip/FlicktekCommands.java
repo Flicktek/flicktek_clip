@@ -131,6 +131,7 @@ public class FlicktekCommands {
 
     private boolean mIsApplicationPaused = false;
     private boolean mIsApplicationVisible = false;
+    private int mDevice_State = STATUS_IDLE;
 
     public FlicktekCommands() {
         Log.d(TAG, "FlicktekCommands");
@@ -189,8 +190,8 @@ public class FlicktekCommands {
             {10, 20, 30, 50}, // VIBRATION_UP
             {50, 40, 30, 10}, // VIBRATION_DOWN
             {10, 30, 40, 50}, // VIBRATION_BUTTON
-            {10, 100, 50, 30}, // VIBRATION_SLEEP
-            {10, 40, 50, 30}, // VIBRATION_EXECUTION
+            {10, 1,  50, 10}, // VIBRATION_SLEEP
+            {10, 20, 30, 40, 50, 60}, // VIBRATION_EXECUTION
             {10, 20, 50, 20}  // VIBRATION_ENTER
     };
 
@@ -219,17 +220,19 @@ public class FlicktekCommands {
         }).start();
     }
 
-    public void setApplicationPaused(Context context, boolean applicationPaused) {
-        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-
+    public void setApplicationPaused(boolean applicationPaused) {
+        AlarmManager alarmManager;
         if (applicationPaused)
-            Log.v(TAG, "++++++++++++ APPLICATION PAUSED! ++++++++++++++");
+            Log.v(TAG, "++++++++++++ APPLICATION PAUSED! ++++++++++++++ " + mDevice_State);
         else
-            Log.v(TAG, "++++++++++++ APPLICATION WAKEUP! ++++++++++++++");
+            Log.v(TAG, "++++++++++++ APPLICATION WAKEUP! ++++++++++++++ " + mDevice_State);
 
         if (applicationPaused) {
-            if (mAlarmPendingIntent != null) {
-                Log.v(TAG, "+ There is an alarm to sleep already!");
+            if (mDevice_State == STATUS_SLEEP || mAlarmPendingIntent != null) {
+                if (mAlarmPendingIntent!=null)
+                    Log.v(TAG, "+ Device is going to sleep in a few seconds!");
+                else
+                    Log.v(TAG, "+ Device is sleeping!");
                 mIsApplicationPaused = applicationPaused;
                 return;
             }
@@ -238,9 +241,9 @@ public class FlicktekCommands {
                 sleep_receiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context c, Intent i) {
-                        Log.v(TAG, "+ Sleep receiver!");
-                        if (mIsApplicationPaused) {
-                            Log.v(TAG, "+ We are still sleeping, lets turn Clip off");
+                        Log.v(TAG, "+++++++++++ Sleep receiver!   ++++++++++++");
+                        if (!mIsApplicationVisible) {
+                            Log.v(TAG, "+ Turn off device");
                             vibration_patterns(VIBRATION_SLEEP);
                             writeStatus_Sleep();
                         }
@@ -255,14 +258,21 @@ public class FlicktekCommands {
 
             mAlarmPendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent("com.flicktek.sleep"), 0);
 
+            alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
             alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + ALARM_SLEEP_TIME, mAlarmPendingIntent);
         } else {
-            if (mAlarmPendingIntent != null) {
+            if (mAlarmPendingIntent != null && mContext != null) {
+                alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(mAlarmPendingIntent);
-                mAlarmPendingIntent = null;
+            }
+            mAlarmPendingIntent = null;
+
+            if (mDevice_State == STATUS_EXEC) {
+                Log.v(TAG, "++++++++++++ ALREADY ON EXECUTION! ++++++++++++++");
+            } else {
+                vibration_patterns(VIBRATION_EXECUTION);
             }
             writeStatus_Exec();
-            vibration_patterns(VIBRATION_EXECUTION);
         }
 
         mIsApplicationPaused = applicationPaused;
@@ -298,6 +308,7 @@ public class FlicktekCommands {
     }
 
     public void onDeviceRespondedToConnection() {
+        mDevice_State = STATUS_IDLE;
         Log.v(TAG, "------------- REQUEST VERSION ------------------");
         writeSingleCommand(COMMAND_VERSION, VERSION_COMPILATION);
         writeSingleCommand(COMMAND_VERSION, VERSION_REVISION);
@@ -586,7 +597,7 @@ public class FlicktekCommands {
         switch (cmd) {
             case COMMAND_CAS_IS_CALIBRATED:
                 if (value == 0) {
-                    Log.v(TAG, "Aria is not calibrated!");
+                    Log.v(TAG, "Clip is not calibrated!");
                     FlicktekManager.setCalibration(false);
                     EventBus.getDefault().post(new onNotCalibrated());
                 } else {
@@ -595,9 +606,20 @@ public class FlicktekCommands {
                 }
                 break;
             case COMMAND_CAS_WRITE:
-                if (value == STATUS_CALIB) {
-                    onCalibrationModeWritten(value);
+                switch (value) {
+                    case STATUS_SLEEP:
+                        Log.v(TAG, "+ STATUS_SLEEP");
+                        break;
+                    case STATUS_EXEC:
+                        Log.v(TAG, "+ STATUS_EXEC");
+                        break;
+                    case STATUS_CALIB:
+                        Log.v(TAG, "+ STATUS_CALIB");
+                        onCalibrationModeWritten(value);
+                        break;
                 }
+
+                mDevice_State = value;
                 return;
             case COMMAND_CAS_GESTURE_STATUS:
                 onGestureStatusFeedback(value);
@@ -609,7 +631,6 @@ public class FlicktekCommands {
 
         EventBus.getDefault().post(new onDeviceACK(true, cmd, value));
     }
-
 
     public void responseNAK(byte cmd, byte number) {
         int value = number - '0';
@@ -629,7 +650,11 @@ public class FlicktekCommands {
                 break;
             case "BT":
                 if (response.equals("1")) {
-                    Log.v(TAG, "Main Button pressed");
+                    Log.v(TAG, "Main Button pressed " + mDevice_State);
+                }
+
+                if (mDevice_State == STATUS_SLEEP) {
+                    setApplicationPaused(false);
                 }
 
                 EventBus.getDefault().post(new onButtonPressed(response));
@@ -653,10 +678,11 @@ public class FlicktekCommands {
             Pattern pattern = Pattern.compile(REPORT_PATTERN);
             Matcher matcher = pattern.matcher(report);
             if (matcher.matches()) {
-                Log.v(TAG, "GROUPS " + matcher.groupCount());
+                //Log.v(TAG, "GROUPS " + matcher.groupCount());
                 for (int t = 0; t < matcher.groupCount() + 1; t++) {
                     Log.v(TAG, matcher.group(t));
                 }
+
                 if (matcher.groupCount() == 2) {
                     processReport(matcher.group(1), matcher.group(2));
                 }

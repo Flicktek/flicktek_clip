@@ -177,10 +177,10 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         public void onReceive(final Context context, final Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 Log.v(TAG, "---------- Screen is off --------");
-                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), true);
+                FlicktekCommands.getInstance().setApplicationPaused(true);
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 Log.v(TAG, "---------- Screen is on --------");
-                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), false);
+                FlicktekCommands.getInstance().setApplicationPaused(false);
             }
         }
     };
@@ -392,7 +392,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         Log.v(TAG, "onResume");
         EventBus.getDefault().register(this);
         FlicktekCommands.getInstance().setApplicationFocus(true);
-        FlicktekCommands.getInstance().setApplicationPaused(this, false);
+        FlicktekCommands.getInstance().setApplicationPaused(false);
         super.onResume();
     }
 
@@ -401,7 +401,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         Log.v(TAG, "onPause");
         super.onPause();
         FlicktekCommands.getInstance().setApplicationFocus(false);
-        FlicktekCommands.getInstance().setApplicationPaused(this, true);
+        FlicktekCommands.getInstance().setApplicationPaused(true);
         EventBus.getDefault().unregister(this);
     }
 

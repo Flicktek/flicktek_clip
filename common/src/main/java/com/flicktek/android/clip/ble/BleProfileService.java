@@ -85,10 +85,10 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
         public void onReceive(final Context context, final Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 Log.v(TAG, "---------- Screen is off --------");
-                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), true);
+                FlicktekCommands.getInstance().setApplicationPaused(true);
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 Log.v(TAG, "---------- Screen is on --------");
-                FlicktekCommands.getInstance().setApplicationPaused(getApplicationContext(), false);
+                FlicktekCommands.getInstance().setApplicationPaused(false);
             }
         }
     };
