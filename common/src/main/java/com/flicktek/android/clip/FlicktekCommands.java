@@ -262,6 +262,7 @@ public class FlicktekCommands {
             alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + ALARM_SLEEP_TIME, mAlarmPendingIntent);
         } else {
             if (mAlarmPendingIntent != null && mContext != null) {
+                Log.v(TAG, "+ Cancel alarm, we don't want to sleep anymore");
                 alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(mAlarmPendingIntent);
             }
