@@ -184,15 +184,15 @@ public class FlicktekCommands {
     public static final int VIBRATION_LAST = VIBRATION_EXECUTION + 1;
 
     private long[][] vibrationPatterns = {
-            {10, 20, 50, 20}, // VIBRATION_DEFAULT
-            {20, 40, 50, 30}, // VIBRATION_ENTER
+            {10, 20, 50, 20},  // VIBRATION_DEFAULT
+            {20, 40, 50, 30},  // VIBRATION_ENTER
             {30, 50, 105, 20}, // VIBRATION_HOME
-            {10, 20, 30, 50}, // VIBRATION_UP
-            {50, 40, 30, 10}, // VIBRATION_DOWN
-            {10, 30, 40, 50}, // VIBRATION_BUTTON
-            {10, 1,  50, 10}, // VIBRATION_SLEEP
-            {10, 20, 30, 40, 50, 60}, // VIBRATION_EXECUTION
-            {10, 20, 50, 20}  // VIBRATION_ENTER
+            {10, 20, 30, 50},  // VIBRATION_UP
+            {50, 40, 30, 10},  // VIBRATION_DOWN
+            {10, 30, 40, 50},  // VIBRATION_BUTTON
+            {10, 1,  50, 10},  // VIBRATION_SLEEP
+            {10, 50, 10},      // VIBRATION_EXECUTION
+            {10, 20, 50, 20}
     };
 
     public void vibration_patterns(final int pattern) {
@@ -304,15 +304,16 @@ public class FlicktekCommands {
 
     public void onReadyToSendData(boolean ready) {
         Log.v(TAG, "onReadyToSendData " + ready);
-        Log.v(TAG, "---------- LETS REPORT WE ARE ALIVE-------------");
+        Log.v(TAG, "---------- LETS REPORT WE ARE ALIVE------------");
         writeSingleCommand(COMMAND_OK, 1);
     }
 
     public void onDeviceRespondedToConnection() {
         mDevice_State = STATUS_IDLE;
-        Log.v(TAG, "------------- REQUEST VERSION ------------------");
-        writeSingleCommand(COMMAND_VERSION, VERSION_COMPILATION);
+        Log.v(TAG, "------------- REQUEST REVISION ----------------");
         writeSingleCommand(COMMAND_VERSION, VERSION_REVISION);
+        Log.v(TAG, "----------- REQUEST COMPILATION ---------------");
+        writeSingleCommand(COMMAND_VERSION, VERSION_COMPILATION);
     }
 
     public void onGestureChanged(int value) {
@@ -358,10 +359,12 @@ public class FlicktekCommands {
         buf[2] = (byte) value;
         buf[3] = COMMAND_END;
 
-        Log.v(TAG, "++++++++++ COMMAND " + new String(buf) + "++++++++++");
-
-        if (mDataChannel != null)
+        if (mDataChannel != null) {
+            Log.v(TAG, "++++++++++++++++ COMMAND " + new String(buf) + "++++++++++++++++++");
             mDataChannel.sendDataBuffer(buf);
+        } else {
+            Log.v(TAG, "+++++++++++ COMMAND FAILED " + new String(buf) + "+++++++++++++++++");
+        }
     }
 
     public void writeStatus_Ping() {
@@ -661,19 +664,23 @@ public class FlicktekCommands {
                 EventBus.getDefault().post(new onButtonPressed(response));
                 break;
             case "GIT":
+                Log.v(TAG, "+ FIRMWARE REVISION " + response);
                 FlicktekManager.setFirmwareRevision(response);
                 EventBus.getDefault().post(new onRevisionRequested(response));
                 break;
             case "VER":
+                Log.v(TAG, "+ FIRMWARE VERSION " + response);
                 FlicktekManager.setFirmwareVersion(response);
                 EventBus.getDefault().post(new onVersionRequested(response));
                 break;
         }
     }
 
-    private static final String REPORT_PATTERN = "\\[(\\w+):(\\w+)\\]";
+    private static final String REPORT_PATTERN = "\\[(\\w+):(.*)\\]";
 
     public void onCommandArrived(byte[] buf_str) {
+        String data = new String(buf_str);
+        Log.v(TAG, "************************** " + data + " **************************");
         try {
             String report = new String(buf_str, "UTF-8");
             Pattern pattern = Pattern.compile(REPORT_PATTERN);
@@ -686,9 +693,12 @@ public class FlicktekCommands {
 
                 if (matcher.groupCount() == 2) {
                     processReport(matcher.group(1), matcher.group(2));
+                } else {
+                    Log.v(TAG, "+ Too many items on report " + data);
                 }
             }
         } catch (Exception ex) {
+            Log.v(TAG, "+ Exception parsing " + data + " " +ex.toString());
         }
 
         // Found single value command
