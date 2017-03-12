@@ -390,16 +390,18 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     @Override
     public void onResume() {
-        FlicktekCommands.getInstance().setApplicationPaused(this, false);
-        super.onResume();
         Log.v(TAG, "onResume");
         EventBus.getDefault().register(this);
+        FlicktekCommands.getInstance().setApplicationFocus(true);
+        FlicktekCommands.getInstance().setApplicationPaused(this, false);
+        super.onResume();
     }
 
     @Override
     public void onPause() {
         Log.v(TAG, "onPause");
         super.onPause();
+        FlicktekCommands.getInstance().setApplicationFocus(false);
         FlicktekCommands.getInstance().setApplicationPaused(this, true);
         EventBus.getDefault().unregister(this);
     }

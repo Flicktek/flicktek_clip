@@ -123,6 +123,7 @@ public class FlicktekCommands {
     private int currentGestureIteration;
 
     private boolean mIsApplicationPaused = false;
+    private boolean mIsApplicationVisible = false;
 
     public FlicktekCommands() {
         Log.d(TAG, "FlicktekCommands");
@@ -138,8 +139,13 @@ public class FlicktekCommands {
 
     private BroadcastReceiver sleep_receiver = null;
 
-    public void setApplicationPaused(Context context, boolean applicationPaused) {
+    // Is the application focused on the screen?
+    // otherwise we will launch the intent in case something tries to wake us up.
+    public void setApplicationFocus(boolean focused) {
+        mIsApplicationVisible = focused;
+    }
 
+    public void setApplicationPaused(Context context, boolean applicationPaused) {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 
         if (applicationPaused)
@@ -222,9 +228,11 @@ public class FlicktekCommands {
     }
 
     public void onGestureChanged(int value) {
-        Log.d(TAG, "onGestureChanged: " + value);
+        Log.d(TAG, "onGestureChanged: " + value +
+                " Paused " + mIsApplicationPaused +
+                " Visible " + mIsApplicationVisible);
 
-        if (mIsApplicationPaused &&
+        if (!mIsApplicationVisible &&
                 (value == FlicktekManager.GESTURE_ENTER || value == FlicktekManager.GESTURE_PHYSICAL_BUTTON)) {
             Log.v(TAG, "########## RELAUNCH ##########");
             if (mContext != null) {
