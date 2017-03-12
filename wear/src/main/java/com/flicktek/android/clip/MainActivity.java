@@ -34,7 +34,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.IBinder;
@@ -56,7 +55,6 @@ import com.flicktek.android.clip.ble.BleProfileService;
 import com.flicktek.android.clip.menus.AppModel;
 import com.flicktek.android.clip.menus.MediaFragment;
 import com.flicktek.android.clip.menus.MenuFragment;
-import com.flicktek.android.clip.menus.addressbook.ContactsListFragment;
 import com.flicktek.android.clip.uart.UARTCommandsAdapter;
 import com.flicktek.android.clip.uart.UARTProfile;
 import com.flicktek.android.clip.uart.domain.Command;
@@ -238,6 +236,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         mDecorView = getWindow().getDecorView();
 
         setContentView(R.layout.activity_main_stub);
+        FlicktekCommands.getInstance().vibration_long();
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub_main);
         stub.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
@@ -725,6 +724,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     }
 
     public void shutdown() {
+        FlicktekCommands.getInstance().vibration_long();
         FlicktekManager.onDisconnected();
         if (mBleProfileServiceBinder != null)
             mBleProfileServiceBinder.disconnect();

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.flicktek.android.clip.common.R;
@@ -17,7 +18,13 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static android.content.Context.VIBRATOR_SERVICE;
 import static android.os.Debug.isDebuggerConnected;
+import static com.flicktek.android.clip.FlicktekManager.GESTURE_DOWN;
+import static com.flicktek.android.clip.FlicktekManager.GESTURE_ENTER;
+import static com.flicktek.android.clip.FlicktekManager.GESTURE_HOME;
+import static com.flicktek.android.clip.FlicktekManager.GESTURE_PHYSICAL_BUTTON;
+import static com.flicktek.android.clip.FlicktekManager.GESTURE_UP;
 
 // extends UARTProfile
 public class FlicktekCommands {
@@ -145,6 +152,73 @@ public class FlicktekCommands {
         mIsApplicationVisible = focused;
     }
 
+    Vibrator vibrator;
+
+    public void vibration_long() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    vibrator = (Vibrator) mContext.getSystemService(VIBRATOR_SERVICE);
+
+                    long[] vibrationPattern = {50, 100, 50, 100, 50, 100, 0};
+                    //-1 - don't repeat
+                    final int indexInPatternToRepeat = -1;
+                    vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
+                } catch (Exception e) {
+
+                }
+            }
+        }).start();
+    }
+
+    public static final int VIBRATION_DEFAULT = 0;
+    public static final int VIBRATION_ENTER = GESTURE_ENTER;
+    public static final int VIBRATION_HOME = GESTURE_HOME;
+    public static final int VIBRATION_UP = GESTURE_UP;
+    public static final int VIBRATION_DOWN = GESTURE_DOWN;
+    public static final int VIBRATION_BUTTON = VIBRATION_DOWN + 1;
+    public static final int VIBRATION_SLEEP = VIBRATION_BUTTON + 1;
+    public static final int VIBRATION_EXECUTION = VIBRATION_SLEEP + 1;
+    public static final int VIBRATION_LAST = VIBRATION_EXECUTION + 1;
+
+    private long[][] vibrationPatterns = {
+            {10, 20, 50, 20}, // VIBRATION_DEFAULT
+            {20, 40, 50, 30}, // VIBRATION_ENTER
+            {30, 50, 105, 20}, // VIBRATION_HOME
+            {10, 20, 30, 50}, // VIBRATION_UP
+            {50, 40, 30, 10}, // VIBRATION_DOWN
+            {10, 30, 40, 50}, // VIBRATION_BUTTON
+            {10, 100, 50, 30}, // VIBRATION_SLEEP
+            {10, 40, 50, 30}, // VIBRATION_EXECUTION
+            {10, 20, 50, 20}  // VIBRATION_ENTER
+    };
+
+    public void vibration_patterns(final int pattern) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    vibrator = (Vibrator) mContext.getSystemService(VIBRATOR_SERVICE);
+
+                    int event = pattern;
+                    if (event == GESTURE_PHYSICAL_BUTTON) {
+                        event = VIBRATION_BUTTON;
+                    }
+
+                    if (event > VIBRATION_LAST)
+                        event = VIBRATION_DEFAULT;
+
+                    //-1 - don't repeat
+                    final int indexInPatternToRepeat = -1;
+                    vibrator.vibrate(vibrationPatterns[event], indexInPatternToRepeat);
+                } catch (Exception e) {
+
+                }
+            }
+        }).start();
+    }
+
     public void setApplicationPaused(Context context, boolean applicationPaused) {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 
@@ -167,6 +241,7 @@ public class FlicktekCommands {
                         Log.v(TAG, "+ Sleep receiver!");
                         if (mIsApplicationPaused) {
                             Log.v(TAG, "+ We are still sleeping, lets turn Clip off");
+                            vibration_patterns(VIBRATION_SLEEP);
                             writeStatus_Sleep();
                         }
                         mAlarmPendingIntent = null;
@@ -187,6 +262,7 @@ public class FlicktekCommands {
                 mAlarmPendingIntent = null;
             }
             writeStatus_Exec();
+            vibration_patterns(VIBRATION_EXECUTION);
         }
 
         mIsApplicationPaused = applicationPaused;
@@ -233,7 +309,7 @@ public class FlicktekCommands {
                 " Visible " + mIsApplicationVisible);
 
         if (!mIsApplicationVisible &&
-                (value == FlicktekManager.GESTURE_ENTER || value == FlicktekManager.GESTURE_PHYSICAL_BUTTON)) {
+                (value == GESTURE_ENTER || value == GESTURE_PHYSICAL_BUTTON)) {
             Log.v(TAG, "########## RELAUNCH ##########");
             if (mContext != null) {
                 Intent LaunchIntent = mContext.getPackageManager().getLaunchIntentForPackage(mContext.getPackageName());
@@ -249,10 +325,12 @@ public class FlicktekCommands {
             */
         }
 
-        if (value == FlicktekManager.GESTURE_NONE)
+        if (value == FlicktekManager.GESTURE_NONE) {
             EventBus.getDefault().post(new onGestureNotClassified());
-        else
+        } else {
+            vibration_patterns(value);
             EventBus.getDefault().post(new onGestureEvent(value));
+        }
     }
 
     //---------- Write commands -----------------------------------------------------
