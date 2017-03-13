@@ -7,10 +7,10 @@ android {
 
     defaultConfig {
         applicationId "com.flicktek.android.clip"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 10
-        versionName "0.1.0 Demo"
+        versionName "0.2.0 Demo"
     }
     buildTypes {
         release {
@@ -22,10 +22,10 @@ android {
         fastBuild {
             // Switching the flavor to fastBuild accelerates te build speed (works only with Android 5+ devices)
             minSdkVersion 21
-            versionName "0.1.0 Demo"
+            versionName "0.2.0 Demo"
         }
         releaseBuild {
-            minSdkVersion 18
+            minSdkVersion 19
         }
     }
 }
