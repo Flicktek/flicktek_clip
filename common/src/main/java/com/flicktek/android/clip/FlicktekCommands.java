@@ -184,15 +184,15 @@ public class FlicktekCommands {
     public static final int VIBRATION_LAST = VIBRATION_EXECUTION + 1;
 
     private long[][] vibrationPatterns = {
-            {10, 20, 50, 20},  // VIBRATION_DEFAULT
-            {20, 40, 50, 30},  // VIBRATION_ENTER
-            {30, 50, 105, 20}, // VIBRATION_HOME
-            {10, 20, 30, 50},  // VIBRATION_UP
-            {50, 40, 30, 10},  // VIBRATION_DOWN
-            {10, 30, 40, 50},  // VIBRATION_BUTTON
-            {10, 1,  50, 10},  // VIBRATION_SLEEP
-            {10, 50, 10},      // VIBRATION_EXECUTION
-            {10, 20, 50, 20}
+            {0, 20, 10, 50},  // VIBRATION_DEFAULT
+            {0, 50, 20, 10},  // VIBRATION_ENTER
+            {0, 50, 20, 50},  // VIBRATION_HOME
+            {0, 20, 15, 40},  // VIBRATION_UP
+            {0, 40, 15, 20},  // VIBRATION_DOWN
+            {0, 30, 10, 40},  // VIBRATION_BUTTON
+            {0, 20, 10, 50},  // VIBRATION_SLEEP
+            {0, 50, 10, 10},  // VIBRATION_EXECUTION
+            {0, 20, 10, 50}
     };
 
     public void vibration_patterns(final int pattern) {

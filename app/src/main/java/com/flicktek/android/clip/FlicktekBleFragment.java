@@ -822,7 +822,6 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         }
 
         mainActivity.runOnUiThread(new Runnable() {
-
             public void run() {
                 try {
                     Toast.makeText(mainActivity.getApplicationContext(),
@@ -832,8 +831,6 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
                 }
             }
         });
-
-
     }
 
     boolean mSeenChargeState = false;

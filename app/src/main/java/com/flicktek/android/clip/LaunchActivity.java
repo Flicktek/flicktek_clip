@@ -18,6 +18,7 @@ package com.flicktek.android.clip;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -31,6 +32,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +46,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flicktek.android.clip.dropbox.Dropbox;
+import com.flicktek.android.clip.notifications.NotificationService;
 import com.flicktek.android.clip.wearable.WearListenerService;
 import com.flicktek.android.clip.wearable.common.Constants;
 import com.google.android.gms.analytics.HitBuilders;
@@ -96,8 +100,10 @@ public class LaunchActivity extends Activity implements
 
     //Request code for launching the Intent to resolve Google Play services errors.
     private static final int REQUEST_RESOLVE_ERROR = 1000;
-
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    private static final int PERMISSION_CALL_PHONE = 2;
+    private static final int PERMISSION_BIND_NOTIFICATION = 3;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -157,6 +163,29 @@ public class LaunchActivity extends Activity implements
     }
 
     @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        switch (requestCode) {
+            case MainActivity.PERMISSION_REQUEST_WRITING_EXTERNAL:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    Toast.makeText(LaunchActivity.this, "Required permission to be able to call from the wearable", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+        }
+    }
+
+    public boolean hasNotificationAccess() {
+        ContentResolver contentResolver = this.getContentResolver();
+        String enabledNotificationListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners");
+        String packageName = this.getPackageName();
+
+        // check to see if the enabledNotificationListeners String contains our package name
+        return !(enabledNotificationListeners == null || !enabledNotificationListeners.contains(packageName));
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDecorView = getWindow().getDecorView();
@@ -164,7 +193,17 @@ public class LaunchActivity extends Activity implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{
-                        android.Manifest.permission.CALL_PHONE}, MainActivity.PERMISSION_REQUEST_WRITING_EXTERNAL);
+                        android.Manifest.permission.CALL_PHONE}, PERMISSION_CALL_PHONE);
+            }
+
+            if (hasNotificationAccess()) {
+                Log.i(TAG, "hasNotificationAccess YES");
+                Intent mServiceIntent = new Intent(this, NotificationService.class);
+                startService(mServiceIntent);
+            } else
+            if (checkSelfPermission(Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE) != PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                startActivity(intent);
             }
         }
 

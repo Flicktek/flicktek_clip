@@ -83,4 +83,6 @@
     <!-- Used for the AlphabetIndexer in ContactsListFragment to provide quick navigation by
          alphabet using ListView fast scroll. -->
     <string name="alphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+    <string name="service_name">NotificationService</string>
+    <string name="exit_text">Close map</string>
 </resources>

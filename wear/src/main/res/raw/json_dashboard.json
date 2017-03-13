@@ -44,6 +44,12 @@
       "class": "menus.stopwatch.stopwatchFragment"
     },
     {
+      "text": "Maps",
+      "drawable": "ic_satellite_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.maps.MapsFragment"
+    },
+    {
       "text": "Apps",
       "drawable": "ic_apps_black_48dp",
       "target": "fragment_class",

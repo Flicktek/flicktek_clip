@@ -73,6 +73,15 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -87,7 +96,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     public static boolean isRound;
 
-    private GoogleApiClient mGoogleApiClient;
+    public GoogleApiClient mGoogleApiClient;
     private UARTProfile mProfile;
 
     private AlarmManager mAmbientStateAlarmManager;
@@ -282,6 +291,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
                 .build();
 
         // Register the broadcast receiver that will listen for events from the device
