@@ -44,6 +44,10 @@
 
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.PROCESS_INCOMING_CALLS" />
+
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true"/>
@@ -228,6 +232,13 @@
             android:name="com.flicktek.android.clip.uart.UARTLocalLogContentProvider"
             android:authorities="com.flicktek.android.clip.uart.log"
             android:exported="true"/>
+
+        <receiver android:name=".IncomingCallReceiver">
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
