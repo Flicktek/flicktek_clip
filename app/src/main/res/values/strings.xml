@@ -21,7 +21,6 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 <resources>
-
 	<string name="app_name">FlickTek Clip</string>
 	<string name="font_path">fonts/trebucbd.ttf</string>
 	<string name="normal_font_path">fonts/trebuc.ttf</string>
@@ -90,5 +89,12 @@
 	<string name="streaming_mode">Stream mode</string>
 	<string name="shutdown">Shutdown</string>
 
+	<string name="hello_world">Hello world!</string>
 
+	<string name="active_notification_count_zero">No active notification</string>
+	<string name="notification_activity">Notifications</string>
+	<plurals name="active_notification_count_nonzero">
+		<item quantity="one">%d active notification</item>
+		<item quantity="other">%d active notifications</item>
+	</plurals>
 </resources>

@@ -46,7 +46,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flicktek.android.clip.dropbox.Dropbox;
-import com.flicktek.android.clip.notifications.NotificationService;
 import com.flicktek.android.clip.wearable.WearListenerService;
 import com.flicktek.android.clip.wearable.common.Constants;
 import com.google.android.gms.analytics.HitBuilders;
@@ -198,8 +197,8 @@ public class LaunchActivity extends Activity implements
 
             if (hasNotificationAccess()) {
                 Log.i(TAG, "hasNotificationAccess YES");
-                Intent mServiceIntent = new Intent(this, NotificationService.class);
-                startService(mServiceIntent);
+                //Intent mServiceIntent = new Intent(this, NotificationService.class);
+                //startService(mServiceIntent);
             } else
             if (checkSelfPermission(Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE) != PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
@@ -556,8 +555,8 @@ public class LaunchActivity extends Activity implements
 
         // Trigger an AsyncTask that will query for a list of connected nodes and send a
         // "start-activity" message to each connected node.
-        new StartWearableActivityTask().execute();
-
+//      new StartWearableActivityTask().execute();
+/*
         Intent startIntent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
 
@@ -565,6 +564,13 @@ public class LaunchActivity extends Activity implements
         startIntent.putExtras(bundle);
         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startIntent);
+*/
+//      startActivity(NotificationService.getIntentNotificationListenerSettings());
+
+        Intent startIntent = new Intent(this, NotificationsActivity.class);
+        startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startIntent);
+        Log.v(TAG, "Launch notification activity");
     }
 
     public void onStartVideoActivityClick(View view) {

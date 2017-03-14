@@ -106,6 +106,20 @@
         </activity>
 
         <activity
+            android:name=".NotificationsActivity"
+            android:label="@string/notification_activity"
+            android:configChanges="screenLayout|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="com.flicktek.android.clip.intent_notification" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
+        <activity
             android:name=".VideoActivity"
             android:label="@string/app_name"
             android:configChanges="screenLayout|screenSize"
@@ -220,7 +234,7 @@
             </intent-filter>
         </service>
 
-        <service android:name=".notifications.NotificationService"
+        <service android:name=".notifications.NotificationMonitor"
                  android:label="Flicktek Notification Service for wearables"
                  android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>

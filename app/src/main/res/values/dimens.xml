@@ -23,6 +23,7 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_vertical_margin_bottom">32dp</dimen>
     <dimen name="activity_vertical_margin_bottom_narrow">16dp</dimen>
     <dimen name="feature_horizontal_margin">50dp</dimen>
@@ -41,5 +42,4 @@
     <dimen name="alert_dialog_padding">24dp</dimen>
     <dimen name="alert_dialog_padding_top">18dp</dimen>
     <dimen name="alert_dialog_padding_bottom">0dp</dimen>
-
 </resources>
