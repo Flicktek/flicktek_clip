@@ -115,6 +115,15 @@
             android:backgroundTint="@color/white"
             android:background="@drawable/ic_dfu_feature"/>
 
+        <ImageButton
+            android:id="@+id/start_notifications_activity"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:enabled="true"
+            android:layout_marginLeft="15dp"
+            android:onClick="onStartNotificationsActivityClick"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_notifications_black_48dp"/>
 
     </LinearLayout>
 

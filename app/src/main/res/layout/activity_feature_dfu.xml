@@ -31,14 +31,14 @@
 		android:id="@+id/toolbar_actionbar"
 		layout="@layout/toolbar"/>
 
-	<com.flicktek.android.clip.widget.ForegroundRelativeLayout
+	<com.flicktek.clip.widget.ForegroundRelativeLayout
 		style="@style/HeaderShadow"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
 		<!-- The size of text below must be fixed, therefore dp are used instead of sp -->
 
-		<com.flicktek.android.clip.widget.TrebuchetBoldTextView
+		<com.flicktek.clip.widget.TrebuchetBoldTextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
@@ -49,7 +49,7 @@
 			android:textSize="32dp"
 			android:textStyle="bold"/>
 
-		<com.flicktek.android.clip.widget.TrebuchetTextView
+		<com.flicktek.clip.widget.TrebuchetTextView
 			android:id="@+id/device_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
 				android:layout_marginTop="@dimen/feature_vertical_margin_top"
 				android:orientation="vertical">
 
-				<com.flicktek.android.clip.widget.TrebuchetBoldTextView
+				<com.flicktek.clip.widget.TrebuchetBoldTextView
 					style="@style/Widget.ListTitle"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -94,12 +94,12 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content">
 
-						<com.flicktek.android.clip.widget.TrebuchetTextView
+						<com.flicktek.clip.widget.TrebuchetTextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:text="@string/dfu_file_name_label"/>
 
-						<com.flicktek.android.clip.widget.TrebuchetBoldTextView
+						<com.flicktek.clip.widget.TrebuchetBoldTextView
 							android:id="@+id/file_name"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
@@ -114,12 +114,12 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content">
 
-						<com.flicktek.android.clip.widget.TrebuchetTextView
+						<com.flicktek.clip.widget.TrebuchetTextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:text="@string/dfu_file_type_label"/>
 
-						<com.flicktek.android.clip.widget.TrebuchetBoldTextView
+						<com.flicktek.clip.widget.TrebuchetBoldTextView
 							android:id="@+id/file_type"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -131,12 +131,12 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content">
 
-						<com.flicktek.android.clip.widget.TrebuchetTextView
+						<com.flicktek.clip.widget.TrebuchetTextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:text="@string/dfu_file_size_label"/>
 
-						<com.flicktek.android.clip.widget.TrebuchetBoldTextView
+						<com.flicktek.clip.widget.TrebuchetBoldTextView
 							android:id="@+id/file_size"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -148,12 +148,12 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content">
 
-						<com.flicktek.android.clip.widget.TrebuchetTextView
+						<com.flicktek.clip.widget.TrebuchetTextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:text="@string/dfu_file_status_label"/>
 
-						<com.flicktek.android.clip.widget.TrebuchetBoldTextView
+						<com.flicktek.clip.widget.TrebuchetBoldTextView
 							android:id="@+id/file_status"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -201,7 +201,7 @@
 				android:layout_marginTop="15dp"
 				android:orientation="vertical">
 
-				<com.flicktek.android.clip.widget.TrebuchetBoldTextView
+				<com.flicktek.clip.widget.TrebuchetBoldTextView
 					style="@style/Widget.ListTitle"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -216,7 +216,7 @@
 					android:onClick="onUploadClicked"
 					android:text="@string/dfu_action_upload"/>
 
-				<com.flicktek.android.clip.widget.TrebuchetTextView
+				<com.flicktek.clip.widget.TrebuchetTextView
 					android:id="@+id/textviewUploading"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -233,7 +233,7 @@
 					android:max="100"
 					android:visibility="invisible"/>
 
-				<com.flicktek.android.clip.widget.TrebuchetTextView
+				<com.flicktek.clip.widget.TrebuchetTextView
 					android:id="@+id/textviewProgress"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -263,5 +263,5 @@
 			android:layout_marginBottom="6dp"
 			android:src="@drawable/background_title"/>
 
-	</com.flicktek.android.clip.widget.ForegroundRelativeLayout>
+	</com.flicktek.clip.widget.ForegroundRelativeLayout>
 </LinearLayout>

@@ -31,12 +31,12 @@
 		android:shortcutDisabledMessage="@string/shortcut_dfu_short">
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:targetPackage="com.flicktek.android.clip"
-			android:targetClass="com.flicktek.android.clip.FeaturesActivity" />
+			android:targetPackage="com.flicktek.clip"
+			android:targetClass="com.flicktek.clip.FeaturesActivity" />
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:targetPackage="com.flicktek.android.clip"
-			android:targetClass="com.flicktek.android.clip.dfu.DfuActivity" />
+			android:targetPackage="com.flicktek.clip"
+			android:targetClass="com.flicktek.clip.dfu.DfuActivity" />
 		<categories android:name="android.shortcut.conversation" />
 	</shortcut>
 	<shortcut
@@ -48,12 +48,12 @@
 		android:shortcutDisabledMessage="@string/shortcut_uart_short">
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:targetPackage="com.flicktek.android.clip"
-			android:targetClass="com.flicktek.android.clip.FeaturesActivity" />
+			android:targetPackage="com.flicktek.clip"
+			android:targetClass="com.flicktek.clip.FeaturesActivity" />
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:targetPackage="com.flicktek.android.clip"
-			android:targetClass="com.flicktek.android.clip.uart.UARTActivity" />
+			android:targetPackage="com.flicktek.clip"
+			android:targetClass="com.flicktek.clip.uart.UARTActivity" />
 		<categories android:name="android.shortcut.conversation" />
 	</shortcut>
 	<!-- Specify more shortcuts here. -->

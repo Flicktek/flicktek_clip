@@ -32,7 +32,7 @@
 	app:popupTheme="@style/ActionBarPopupThemeOverlay"
 	app:titleTextAppearance="@style/ActionBar.TitleText">
 
-	<com.flicktek.android.clip.widget.ClosableSpinner
+	<com.flicktek.clip.widget.ClosableSpinner
 		android:id="@+id/toolbar_spinner"
 		android:layout_width="wrap_content"
 		android:layout_height="48dp"
