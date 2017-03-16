@@ -7,25 +7,45 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Process;
+import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.flicktek.clip.wearable.common.Constants;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.CapabilityApi;
+import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NotificationMonitor extends NotificationListenerService {
+public class NotificationMonitor extends NotificationListenerService implements
+        MessageApi.MessageListener,
+        DataApi.DataListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, CapabilityApi.CapabilityListener {
     private static final String TAG = "NotificationMonitor";
     private static final String TAG_PRE = "[" + NotificationMonitor.class.getSimpleName() + "] ";
     private static final int EVENT_UPDATE_CURRENT_NOS = 0;
@@ -36,6 +56,8 @@ public class NotificationMonitor extends NotificationListenerService {
     public static StatusBarNotification mRemovedNotification;
     private CancelNotificationReceiver mReceiver = new CancelNotificationReceiver();
     // String a;
+
+    public GoogleApiClient mGoogleApiClient;
 
     private void toggleNotificationListenerService() {
         //Log.d(TAG, "toggleNotificationListenerService() called");
@@ -58,6 +80,40 @@ public class NotificationMonitor extends NotificationListenerService {
         }
     };
 
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Log.d(TAG, "Google API Client was connected");
+        Wearable.DataApi.addListener(mGoogleApiClient, this);
+        Wearable.MessageApi.addListener(mGoogleApiClient, this);
+        Wearable.CapabilityApi.addListener(
+                mGoogleApiClient, this, Uri.parse("wear://"), CapabilityApi.FILTER_REACHABLE);
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        Log.d(TAG, "Connection to Google API client was suspended");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEventBuffer) {
+
+    }
+
+    @Override
+    public void onMessageReceived(MessageEvent messageEvent) {
+
+    }
+
+    @Override
+    public void onCapabilityChanged(CapabilityInfo capabilityInfo) {
+
+    }
+
     class CancelNotificationReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -79,6 +135,105 @@ public class NotificationMonitor extends NotificationListenerService {
         }
     }
 
+    private static final String PREFERENCE_LAST_NOTIF_ID = "PREFERENCE_LAST_NOTIF_ID";
+
+    private static int getNextNotifId(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        int id = sharedPreferences.getInt(PREFERENCE_LAST_NOTIF_ID, 0) + 1;
+        if (id == Integer.MAX_VALUE) { id = 0; } // isn't this over kill ??? hahaha!!  ^_^
+        sharedPreferences.edit().putInt(PREFERENCE_LAST_NOTIF_ID, id).apply();
+        return id;
+    }
+
+    /**
+     * Builds a DataItem that on the wearable will be interpreted as a request to show a
+     * notification. The result will be a notification that only shows up on the wearable.
+     */
+    public void buildWearableNotification(StatusBarNotification sbn) {
+        String text = "";
+
+        if (mGoogleApiClient.isConnected()) {
+            String pack = sbn.getPackageName();
+            Bundle extras = sbn.getNotification().extras;
+            String notificationTitle = extras.getString(Notification.EXTRA_TITLE);
+            if (notificationTitle == null)
+                return;
+
+            String path = Constants.FLICKTEK_CLIP.NOTIFICATION_PATH;
+            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
+
+            Notification notification = sbn.getNotification().clone();
+
+            int id = getNextNotifId(this);
+            Log.i(TAG, "+ Notification ID " + id + " Key "+ sbn.getKey());
+
+            putDataMapRequest.getDataMap().putString(
+                    Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID,
+                    sbn.getKey());
+
+            putDataMapRequest.getDataMap().putString(
+                    Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_TITLE,
+                    notificationTitle);
+
+            CharSequence notificationText = extras.getCharSequence(Notification.EXTRA_TEXT);
+            if (notificationText != null)
+                text = notificationText.toString();
+
+            putDataMapRequest.getDataMap().putString(
+                    Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_CONTENT,
+                    text);
+
+            CharSequence notificationSubText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT);
+            if (notificationSubText != null)
+                text = notificationSubText.toString();
+
+            putDataMapRequest.getDataMap().putString(
+                    Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_CONTENT,
+                    text);
+
+            try {
+                Bitmap notificationLargeIcon = ((Bitmap) extras.getParcelable(Notification.EXTRA_LARGE_ICON));
+                Log.i(TAG, "notificationLargeIcon is null: " + (notificationLargeIcon == null));
+
+                int id_small_icon = extras.getInt(Notification.EXTRA_SMALL_ICON);
+                if (id_small_icon > 0) {
+                    Log.i(TAG, "notificationSmallIcon is " + id_small_icon);
+                    Context remotePackageContext = null;
+                    Bitmap bmp = null;
+                    try {
+                        remotePackageContext = getApplicationContext().createPackageContext(pack, 0);
+                        /*
+                        Drawable icon = remotePackageContext.getResources().getDrawable(id_small_icon);
+                        if (icon != null) {
+                            bmp = ((BitmapDrawable) icon).getBitmap();
+                        }
+                        */
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            PutDataRequest request = putDataMapRequest.asPutDataRequest();
+            request.setUrgent();
+            Wearable.DataApi.putDataItem(mGoogleApiClient, request)
+                    .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                        @Override
+                        public void onResult(DataApi.DataItemResult dataItemResult) {
+                            if (!dataItemResult.getStatus().isSuccess()) {
+                                Log.e(TAG, "buildWatchOnlyNotification(): Failed to set the data, "
+                                        + "status: " + dataItemResult.getStatus().getStatusCode());
+                            }
+                        }
+                    });
+        } else {
+            Log.e(TAG, "buildWearableOnlyNotification(): no Google API Client connection");
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -86,11 +241,26 @@ public class NotificationMonitor extends NotificationListenerService {
         //toggleNotificationListenerService();
 
         logNLS("onCreate...");
+
+        try {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(Wearable.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+
+            mGoogleApiClient.connect();
+        } catch (Exception e) {
+            Log.d(TAG, "No wearable support");
+        }
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        // TODO unbind from service on disconnection so we don't leak this.
         unregisterReceiver(mReceiver);
     }
 
@@ -152,8 +322,6 @@ public class NotificationMonitor extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         updateCurrentNotifications();
-        logNLS("------------ onNotificationPosted ----------");
-        logNLS("+ Have " + mCurrentNotificationsCounts + " active notifications");
         mPostedNotification = sbn;
 
         String pack = sbn.getPackageName();
@@ -165,40 +333,21 @@ public class NotificationMonitor extends NotificationListenerService {
         CharSequence notificationText = extras.getCharSequence(Notification.EXTRA_TEXT);
         CharSequence notificationSubText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT);
 
+        logNLS("------------ onNotificationPosted ----------");
+        //logNLS("+ Have " + mCurrentNotificationsCounts + " active notifications");
+
         Log.d(TAG, pack + " [" + notificationTitle + "] \"" + notificationText + "\"");
         if (notificationSubText != null)
             Log.i(TAG, "       " + notificationSubText);
 
-        try {
-            Bitmap notificationLargeIcon = ((Bitmap) extras.getParcelable(Notification.EXTRA_LARGE_ICON));
-            Log.i(TAG, "notificationLargeIcon is null: " + (notificationLargeIcon == null));
-
-            int id_small_icon = extras.getInt(Notification.EXTRA_SMALL_ICON);
-            if (id_small_icon > 0) {
-                Log.i(TAG, "notificationSmallIcon is " + id_small_icon);
-                Context remotePackageContext = null;
-                Bitmap bmp = null;
-                try {
-                    remotePackageContext = getApplicationContext().createPackageContext(pack, 0);
-                    Drawable icon = remotePackageContext.getResources().getDrawable(id_small_icon);
-                    if (icon != null) {
-                        bmp = ((BitmapDrawable) icon).getBitmap();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-        } catch (Exception e) {
-
-        }
+        buildWearableNotification(sbn);
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         updateCurrentNotifications();
-        logNLS("removed...");
-        logNLS("have " + mCurrentNotificationsCounts + " active notifications");
+        logNLS("+ Removed " + sbn.getKey());
+        logNLS("  have " + mCurrentNotificationsCounts + " active notifications");
         mRemovedNotification = sbn;
     }
 

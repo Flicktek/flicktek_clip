@@ -18,7 +18,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import com.flicktek.clip.R;
+
 import com.flicktek.clip.notifications.NotificationMonitor;
 
 public class NotificationsActivity extends Activity {
@@ -124,6 +124,7 @@ public class NotificationsActivity extends Activity {
         ncBuilder.setAutoCancel(true);
         manager.notify((int)System.currentTimeMillis(),ncBuilder.build());
     }
+
 
     private void cancelNotification(Context context, boolean isCancelAll) {
         Intent intent = new Intent();

@@ -68,6 +68,15 @@ public final class Constants {
 
         // Phone interface, are we calling?, reject, answer, call!
         public static final String PHONE_CALL_NUMBER  = "/phone_call";
+
+        // Notifications
+        public static final int NOTIFICATION_WATCH_ID = 1;
+        public static final String NOTIFICATION_PATH = "/notification_path";
+        public static final String NOTIFICATION_KEY_ID = "notification-id";
+        public static final String NOTIFICATION_KEY_TITLE = "title";
+        public static final String NOTIFICATION_KEY_CONTENT = "content";
+        public static final String NOTIFICATION_KEY_BITMAP_ASSET = "asset";
+        public static final String NOTIFICATION_ACTION_DISMISS = "com.flicktek.clip.notifications.DISMISS";
     }
 
     /**

@@ -12,6 +12,8 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import com.flicktek.clip.common.R;
+import com.flicktek.clip.wearable.common.Constants;
+import com.flicktek.clip.wearable.common.NotificationModel;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -190,8 +192,8 @@ public class FlicktekCommands {
             {0, 20, 15, 40},  // VIBRATION_UP
             {0, 40, 15, 20},  // VIBRATION_DOWN
             {0, 30, 10, 40},  // VIBRATION_BUTTON
-            {0, 20, 10, 50},  // VIBRATION_SLEEP
-            {0, 50, 10, 10},  // VIBRATION_EXECUTION
+            {0, 20, 10, 20},  // VIBRATION_SLEEP
+            {0, 40, 10, 10},  // VIBRATION_EXECUTION
             {0, 20, 10, 50}
     };
 
@@ -229,7 +231,7 @@ public class FlicktekCommands {
 
         if (applicationPaused) {
             if (mDevice_State == STATUS_SLEEP || mAlarmPendingIntent != null) {
-                if (mAlarmPendingIntent!=null)
+                if (mAlarmPendingIntent != null)
                     Log.v(TAG, "+ Device is going to sleep in a few seconds!");
                 else
                     Log.v(TAG, "+ Device is sleeping!");
@@ -244,7 +246,7 @@ public class FlicktekCommands {
                         Log.v(TAG, "+++++++++++ Sleep receiver!   ++++++++++++");
                         if (!mIsApplicationVisible) {
                             Log.v(TAG, "+ Turn off device");
-                            vibration_patterns(VIBRATION_SLEEP);
+                            //vibration_patterns(VIBRATION_SLEEP);
                             writeStatus_Sleep();
                         }
                         mAlarmPendingIntent = null;
@@ -271,7 +273,7 @@ public class FlicktekCommands {
             if (mDevice_State == STATUS_EXEC) {
                 Log.v(TAG, "++++++++++++ ALREADY ON EXECUTION! ++++++++++++++");
             } else {
-                vibration_patterns(VIBRATION_EXECUTION);
+
             }
             writeStatus_Exec();
         }
@@ -314,6 +316,30 @@ public class FlicktekCommands {
         writeSingleCommand(COMMAND_VERSION, VERSION_REVISION);
         Log.v(TAG, "----------- REQUEST COMPILATION ---------------");
         writeSingleCommand(COMMAND_VERSION, VERSION_COMPILATION);
+    }
+
+    public void onNotification(NotificationModel model) {
+        FlicktekManager.mNotifications.add(model);
+
+        // If application is not visible then we have to relaunch ourselves and notify that we want
+        // to show the notification.
+
+        if (!mIsApplicationVisible) {
+            Log.v(TAG, "########## LAUNCH NOTIFICATION ##########");
+            if (mContext != null) {
+                String packageName = mContext.getPackageName();
+                Intent launchIntent = mContext.getPackageManager().getLaunchIntentForPackage(packageName);
+                launchIntent.putExtra(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID, model.getKeyId());
+                mContext.startActivity(launchIntent);
+            } else {
+                Log.v(TAG, "!!!!!!!!! NO CONTEXT !!!!!!!!!");
+            }
+        } else {
+
+            // Otherwise we let the application to capture the notification and figure out what to do
+            // with it.
+            EventBus.getDefault().post(new onNotificationEvent(model));
+        }
     }
 
     public void onGestureChanged(int value) {
@@ -613,9 +639,11 @@ public class FlicktekCommands {
                 switch (value) {
                     case STATUS_SLEEP:
                         Log.v(TAG, "+ STATUS_SLEEP");
+                        vibration_patterns(VIBRATION_SLEEP);
                         break;
                     case STATUS_EXEC:
                         Log.v(TAG, "+ STATUS_EXEC");
+                        vibration_patterns(VIBRATION_EXECUTION);
                         break;
                     case STATUS_CALIB:
                         Log.v(TAG, "+ STATUS_CALIB");
@@ -698,7 +726,7 @@ public class FlicktekCommands {
                 }
             }
         } catch (Exception ex) {
-            Log.v(TAG, "+ Exception parsing " + data + " " +ex.toString());
+            Log.v(TAG, "+ Exception parsing " + data + " " + ex.toString());
         }
 
         // Found single value command
@@ -883,4 +911,13 @@ public class FlicktekCommands {
             this.quality = quality;
         }
     }
+
+    public class onNotificationEvent {
+        public NotificationModel model;
+
+        public onNotificationEvent(NotificationModel model) {
+            this.model = model;
+        }
+    }
+
 }

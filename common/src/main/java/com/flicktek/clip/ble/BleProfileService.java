@@ -115,12 +115,11 @@ public class BleProfileService extends Service implements BleManagerCallbacks {
          * Disconnects from the sensor.
          */
         public void disconnect() {
-            if (!mConnected) {
+            if (mConnected) {
                 mBleManager.close();
                 onDeviceDisconnected(mBluetoothDevice);
                 return;
             }
-
             mBleManager.disconnect();
         }
 

@@ -81,9 +81,6 @@
                 <action android:name="com.flicktek.clip.slides"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
 
         <activity

@@ -25,6 +25,9 @@ package com.flicktek.clip.uart.wearable;
 import android.content.Context;
 import android.net.Uri;
 
+import com.flicktek.clip.uart.domain.Command;
+import com.flicktek.clip.uart.domain.UartConfiguration;
+import com.flicktek.clip.wearable.common.Constants;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.wearable.DataApi;
@@ -34,10 +37,6 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.ArrayList;
-
-import com.flicktek.clip.wearable.common.Constants;
-import com.flicktek.clip.uart.domain.Command;
-import com.flicktek.clip.uart.domain.UartConfiguration;
 
 public class UARTConfigurationSynchronizer {
 	private static final String WEAR_URI_PREFIX = "wear:"; // no / at the end as the path already has it

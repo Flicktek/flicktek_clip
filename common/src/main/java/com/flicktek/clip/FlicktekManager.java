@@ -1,5 +1,6 @@
 package com.flicktek.clip;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.flicktek.clip.ConnectionEvents.ConnectedEvent;
@@ -7,8 +8,15 @@ import com.flicktek.clip.ConnectionEvents.ConnectingEvent;
 import com.flicktek.clip.ConnectionEvents.DisconnectedEvent;
 import com.flicktek.clip.ConnectionEvents.DisconnectingEvent;
 import com.flicktek.clip.ConnectionEvents.LinkLossEvent;
+import com.flicktek.clip.wearable.common.NotificationModel;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+// TODO Change this into a singleton
 
 public class FlicktekManager {
     private static final String TAG = "FlickTek";
@@ -225,4 +233,24 @@ public class FlicktekManager {
         return mMacAddress;
     }
 
+    //------------- Notification system -------------------------
+
+    public static List<NotificationModel> mNotifications = new LinkedList<NotificationModel>();
+
+    public static List<NotificationModel> getNotifications() {
+        Log.d(TAG, "getNotifications: ");
+        return mNotifications;
+    }
+
+    @Nullable
+    public static NotificationModel getNotificationModelByKey(String id) {
+        Iterator<NotificationModel> iterator = mNotifications.iterator();
+        while (iterator.hasNext()) {
+            NotificationModel notification = iterator.next();
+            if (notification.getKeyId().equals(id)) {
+                return notification;
+            }
+        }
+        return null;
+    }
 }

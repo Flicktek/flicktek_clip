@@ -29,11 +29,12 @@ import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.IBinder;
@@ -55,20 +56,20 @@ import com.flicktek.clip.ble.BleProfileService;
 import com.flicktek.clip.menus.AppModel;
 import com.flicktek.clip.menus.MediaFragment;
 import com.flicktek.clip.menus.MenuFragment;
+import com.flicktek.clip.menus.notification.NotificationFragment;
 import com.flicktek.clip.uart.UARTCommandsAdapter;
 import com.flicktek.clip.uart.UARTProfile;
 import com.flicktek.clip.uart.domain.Command;
 import com.flicktek.clip.wearable.common.Constants;
-import com.flicktek.clip.R;
+import com.flicktek.clip.wearable.common.NotificationModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
@@ -79,12 +80,13 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends WearableActivity implements UARTCommandsAdapter.OnCommandSelectedListener, GoogleApiClient.ConnectionCallbacks,
-        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, FlicktekManager.BackMenu
-         {
+        DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, FlicktekManager.BackMenu {
     private static final String TAG = "MainActivity";
 
     public static boolean isRound;
@@ -173,6 +175,12 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         }
     };
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        this.setIntent(intent);
+    }
+
     // Check if the screen is off and we get aria to sleep after a some time so we save energy
     private BroadcastReceiver mScreenIsOn = new BroadcastReceiver() {
         @Override
@@ -258,8 +266,30 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
-                showFragment(fragment, "Dashboard", true);
+                boolean displayDashboard = true;
+                try {
+                    Bundle extras = getIntent().getExtras();
+                    if (extras != null) {
+                        String notification_key = extras.getString(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID);
+                        if (notification_key != null) {
+                            NotificationModel notificationModel = FlicktekManager.getNotificationModelByKey(notification_key);
+                            if (notificationModel != null) {
+                                Log.v(TAG, "+ Resume notification [" + notification_key + "]");
+                                newNotificationFragment(notificationModel);
+                                displayDashboard = false;
+                            } else {
+                                Log.v(TAG, "+ Notification missing [" + notification_key + "]");
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (displayDashboard) {
+                    Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
+                    showFragment(fragment, "Dashboard", true);
+                }
 
                 FlicktekCommands.getInstance().onQueryForCalibration();
 
@@ -366,6 +396,22 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         Wearable.MessageApi.addListener(mGoogleApiClient, this);
     }
 
+    /**
+     * Creates a fragment based on a new notification that arrived
+     *
+     * @param notificationModel
+     */
+    public void newNotificationFragment(NotificationModel notificationModel) {
+        NotificationFragment notificationFragment = NotificationFragment.newInstance(notificationModel);
+        showFragment(notificationFragment, "Notification", false);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNotificationEvent(FlicktekCommands.onNotificationEvent notificationEvent) {
+        Log.v(TAG, "onNotificationEvent");
+        newNotificationFragment(notificationEvent.model);
+    }
+
     // We try to launch once the calibration if we are not calibrated
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNotCalibrated(FlicktekCommands.onNotCalibrated notCalibrated) {
@@ -422,42 +468,10 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     public void onDataChanged(final DataEventBuffer dataEventBuffer) {
         for (final DataEvent event : dataEventBuffer) {
             final DataItem item = event.getDataItem();
-
             String path = item.getUri().getEncodedPath();
-
             if (path.equals(Constants.FLICKTEK_CLIP.COUNT_PATH)) {
-                Log.v(TAG, "Count! " + path + " data " + item.toString());
+                Log.v(TAG, "Ping count from Smartphone");
                 return;
-            }
-
-            Log.v(TAG, "Uri " + path + " data " + new String(item.getData()));
-            try {
-                final long id = ContentUris.parseId(item.getUri());
-
-                // Configuration added or edited
-                if (event.getType() == DataEvent.TYPE_CHANGED) {
-                    final DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-
-                    // Update UI on UI thread
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "CREATED", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } else if (event.getType() == DataEvent.TYPE_DELETED) {
-                    // Configuration removed
-
-                    // Update UI on UI thread
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "DELETED", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                Log.v(TAG, "Data not a number");
             }
         }
     }
@@ -523,7 +537,6 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             }
         }).start();
     }
-
 
     /**
      * Sends the given command to the handheld.
@@ -733,4 +746,27 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             mBleProfileServiceBinder.disconnect();
     }
 
+    // Read bitmap assets from device
+
+    public Bitmap loadBitmapFromAsset(Asset asset) {
+        Log.d(TAG, "loadBitmapFromAsset: ");
+        if (asset == null) {
+            throw new IllegalArgumentException("Asset must be non-null");
+        }
+        ConnectionResult result =
+                mGoogleApiClient.blockingConnect(2000, TimeUnit.MILLISECONDS);
+        if (!result.isSuccess()) {
+            return null;
+        }
+        // convert asset into a file descriptor and block until it's ready
+        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
+                mGoogleApiClient, asset).await().getInputStream();
+
+        if (assetInputStream == null) {
+            Log.d(TAG, "Requested an unknown Asset from device.");
+            return null;
+        }
+        // decode the stream into a bitmap
+        return BitmapFactory.decodeStream(assetInputStream);
+    }
 }

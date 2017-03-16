@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.flicktek.clip.R;
+import com.flicktek.clip.wearable.common.NotificationModel;
 
 import java.util.List;
 

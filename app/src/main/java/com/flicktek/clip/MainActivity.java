@@ -16,21 +16,15 @@
 
 package com.flicktek.clip;
 
-import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -47,10 +41,8 @@ import com.flicktek.clip.profile.BleProfileServiceReadyActivity;
 import com.flicktek.clip.uart.UARTInterface;
 import com.flicktek.clip.uart.UARTService;
 import com.flicktek.clip.wearable.WearListenerService;
-import com.flicktek.clip.R;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -153,7 +145,6 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     ///////////////////////////////////////////////////////////////////////////
 
 
-    private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
     private boolean mCameraSupported = false;
 
@@ -198,13 +189,6 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                     }
                     ;
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            requestPermissions(new String[]{
-                                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_WRITING_EXTERNAL);
-                            return;
-                        }
-                    }
                     break;
             }
         } catch (Exception e) {
@@ -220,16 +204,6 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     @Override
     public void onResume() {
         super.onResume();
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
-            return;
-        }
-
         WearListenerService.mApplicationActive = true;
         EventBus.getDefault().register(this);
     }
@@ -340,6 +314,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         } catch (Exception e) {
             //e.printStackTrace();
         }
+
         try {
             String launch = config.getString("launch");
 
@@ -477,6 +452,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
             mFlickTekGraphs.onAddSamples(sensorValues);
     }
 
+    /*
     @Override
     public void onRequestPermissionsResult(final int requestCode, final @NonNull String[] permissions, final @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -484,6 +460,14 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
             case PERMISSION_REQUEST_WRITING_EXTERNAL:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Granted", Toast.LENGTH_SHORT).show();
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            requestPermissions(new String[]{
+                                    Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_WRITING_EXTERNAL);
+                            return;
+                        }
+                    }
                 } else {
                     Toast.makeText(MainActivity.this, "Writing to extorage permission required", Toast.LENGTH_SHORT).show();
                     finish();
@@ -491,6 +475,8 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
                 break;
         }
     }
+    */
+
 
     //------------------------------------------------------------------------------
 

@@ -40,7 +40,7 @@ import android.widget.Toast;
 
 import com.flicktek.clip.ble.BleProfileService;
 import com.flicktek.clip.ble.DevicesAdapter;
-import com.flicktek.clip.R;
+import com.flicktek.clip.wearable.common.Constants;
 
 
 public class ScannerActivity extends Activity {
@@ -125,6 +125,7 @@ public class ScannerActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        Log.v(TAG, "onRequestPermissionsResult " + requestCode);
         switch (requestCode) {
             case PERMISSION_REQUEST_LOCATION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -143,6 +144,8 @@ public class ScannerActivity extends Activity {
                 }
                 break;
         }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -154,6 +157,17 @@ public class ScannerActivity extends Activity {
         if (FlicktekManager.isConnected()) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.putExtra(BleProfileService.EXTRA_DEVICE_ADDRESS, "Relaunch");
+
+            // If we have a notification we just pass it on to the application!
+            try {
+                Bundle config = getIntent().getExtras();
+                String notification = config.getString(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID);
+                if (notification != null)
+                    intent.putExtra(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID, notification);
+            } catch (Exception e) {
+                //e.printStackTrace();
+            }
+
             startActivity(intent);
             Log.v(TAG, "Finish and remove activity");
             finishAndRemoveTask();

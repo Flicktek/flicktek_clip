@@ -39,6 +39,7 @@ import android.util.Log;
 
 import com.flicktek.clip.utility.DebugLogger;
 
+import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -222,6 +223,12 @@ public class BleManager implements BleProfileApi {
     public boolean disconnect() {
         mUserDisconnected = true;
 
+        try {
+            removeBond(mBluetoothGatt.getDevice());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (mConnected && mBluetoothGatt != null) {
             mConnectionState = BluetoothGatt.STATE_DISCONNECTING;
             mCallbacks.onDeviceDisconnecting(mBluetoothGatt.getDevice());
@@ -260,10 +267,37 @@ public class BleManager implements BleProfileApi {
         return mBatteryValue;
     }
 
+    public boolean createBond(BluetoothDevice btDevice)
+            throws Exception
+    {
+        Class class1 = Class.forName("android.bluetooth.BluetoothDevice");
+        Method createBondMethod = class1.getMethod("createBond");
+        Boolean returnValue = (Boolean) createBondMethod.invoke(btDevice);
+        return returnValue.booleanValue();
+    }
+
+    public boolean removeBond(BluetoothDevice btDevice)
+            throws Exception
+    {
+        Class btClass = Class.forName("android.bluetooth.BluetoothDevice");
+        Method removeBondMethod = btClass.getMethod("removeBond");
+        if (removeBondMethod == null)
+            return false;
+
+        Boolean returnValue = (Boolean) removeBondMethod.invoke(btDevice);
+        return returnValue.booleanValue();
+    }
+
     /**
      * Closes and releases resources. May be also used to unregister broadcast listeners.
      */
     public void close() {
+        try {
+            removeBond(mBluetoothDevice);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         try {
             mContext.unregisterReceiver(mBluetoothStateBroadcastReceiver);
             mContext.unregisterReceiver(mBondingBroadcastReceiver);
@@ -547,6 +581,11 @@ public class BleManager implements BleProfileApi {
                 mConnectionState = BluetoothGatt.STATE_CONNECTED;
                 mCallbacks.onDeviceConnected(gatt.getDevice());
 
+                try {
+                    createBond(gatt.getDevice());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 				/*
                  * The onConnectionStateChange event is triggered just after the Android connects to a device.
 				 * In case of bonded devices, the encryption is reestablished AFTER this callback is called.

@@ -30,8 +30,8 @@ import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import com.flicktek.clip.FlicktekClipApplication;
 import com.flicktek.clip.ClipIntents;
+import com.flicktek.clip.FlicktekClipApplication;
 import com.flicktek.clip.FlicktekCommands;
 import com.flicktek.clip.FlicktekManager;
 import com.flicktek.clip.LaunchActivity;
@@ -40,7 +40,6 @@ import com.flicktek.clip.uart.UARTService;
 import com.flicktek.clip.wearable.common.Constants;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
@@ -54,8 +53,6 @@ import java.util.Map;
  */
 public class WearListenerService extends WearableListenerService {
     private static final String TAG = "WEARABLE_SERVICE";
-
-    GoogleApiClient mGoogleApiClient;
 
     public static boolean mApplicationActive = false;
 
@@ -109,10 +106,10 @@ public class WearListenerService extends WearableListenerService {
                     return;
                 }
 
-                String number = text.replaceAll("\\s+","");
+                String number = text.replaceAll("\\s+", "");
                 Log.v(TAG, "Call phone number " + number);
 
-                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.fromParts("tel", number , null));
+                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.fromParts("tel", number, null));
                 callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(callIntent);
             }

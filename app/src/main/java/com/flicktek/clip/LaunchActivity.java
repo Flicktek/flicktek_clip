@@ -52,8 +52,6 @@ import com.flicktek.clip.dropbox.Dropbox;
 import com.flicktek.clip.notifications.NotificationMonitor;
 import com.flicktek.clip.wearable.WearListenerService;
 import com.flicktek.clip.wearable.common.Constants;
-import com.flicktek.clip.BuildConfig;
-import com.flicktek.clip.R;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
@@ -167,6 +165,32 @@ public class LaunchActivity extends Activity implements
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
+    // TODO sort this permission mess out
+    public void checkPermissions() {
+        Log.i(TAG, "+ Check permissions ");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        android.Manifest.permission.CALL_PHONE}, PERMISSION_CALL_PHONE);
+            } else if (hasNotificationAccess()) {
+                Log.i(TAG, "+ Notification Access - We launch the service");
+                launchNotificationService();
+            } else if (checkSelfPermission(Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE) != PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                startActivity(intent);
+            } else if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.PERMISSION_REQUEST_WRITING_EXTERNAL);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION}, MainActivity.PERMISSION_REQUEST_WRITING_EXTERNAL);
+                }
+            }
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         switch (requestCode) {
@@ -174,11 +198,13 @@ public class LaunchActivity extends Activity implements
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-                    Toast.makeText(LaunchActivity.this, "Required permission to be able to call from the wearable", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LaunchActivity.this, "Required permission to be run the application", Toast.LENGTH_LONG).show();
                     finish();
                 }
                 break;
         }
+
+        checkPermissions();
     }
 
     public boolean hasNotificationAccess() {
@@ -205,7 +231,7 @@ public class LaunchActivity extends Activity implements
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                Log.d("NotificationService",  "NLS Stopped");
+                Log.d("NotificationService", "NLS Stopped");
             }
         };
 
@@ -241,26 +267,11 @@ public class LaunchActivity extends Activity implements
         super.onCreate(savedInstanceState);
         mDecorView = getWindow().getDecorView();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                        android.Manifest.permission.CALL_PHONE}, PERMISSION_CALL_PHONE);
-            }
-
-            if (hasNotificationAccess()) {
-                Log.i(TAG, "+ Notification Access - We launch the service");
-                launchNotificationService();
-            } else if (checkSelfPermission(Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-                startActivity(intent);
-            }
-        }
-
         // Obtain the shared Tracker instance.
         FlicktekClipApplication application = (FlicktekClipApplication) getApplication();
         mTracker = application.getDefaultTracker();
 
-        LOGD(TAG, "onCreate");
+        LOGD(TAG, "--------------------- onCreate --------------------- ");
         mCameraSupported = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
         setContentView(R.layout.main_activity);
         setupViews();
@@ -277,9 +288,12 @@ public class LaunchActivity extends Activity implements
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
+
         } catch (Exception e) {
             LOGD(TAG, "No wearable support");
         }
+
+        checkPermissions();
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
@@ -300,7 +314,7 @@ public class LaunchActivity extends Activity implements
         super.onResume();
         WearListenerService.mApplicationActive = true;
         mDataItemGeneratorFuture = mGeneratorExecutor.scheduleWithFixedDelay(
-                new DataItemGenerator(), 1, 30, TimeUnit.SECONDS);
+                new DataItemGenerator(), 1, 300, TimeUnit.SECONDS);
 
         mTracker.setScreenName(TAG);
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
@@ -382,7 +396,6 @@ public class LaunchActivity extends Activity implements
                 Wearable.MessageApi.removeListener(mGoogleApiClient, this);
                 Wearable.CapabilityApi.removeListener(mGoogleApiClient, this);
 
-                onStartBluetoothScanActivityClick(null);
                 Toast.makeText(getApplicationContext(), "Update services", Toast.LENGTH_LONG);
             }
         }
@@ -794,7 +807,6 @@ public class LaunchActivity extends Activity implements
 
         @Override
         public void run() {
-
             PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.FLICKTEK_CLIP.COUNT_PATH);
             putDataMapRequest.getDataMap().putInt(Constants.FLICKTEK_CLIP.COUNT_KEY, count++);
             PutDataRequest request = putDataMapRequest.asPutDataRequest();
@@ -803,6 +815,7 @@ public class LaunchActivity extends Activity implements
             if (!mGoogleApiClient.isConnected()) {
                 return;
             }
+
             Wearable.DataApi.putDataItem(mGoogleApiClient, request)
                     .setResultCallback(new ResultCallback<DataItemResult>() {
                         @Override
