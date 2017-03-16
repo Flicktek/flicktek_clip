@@ -1,62 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.wearable.view.BoxInsetLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#1d1d1d">
 
-    <android.support.wearable.view.WearableListView
-        android:id="@+id/wearable_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </android.support.wearable.view.WearableListView>
 
-    <RelativeLayout
-        android:id="@+id/empty_notification_list_warning"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/dark_grey"
+    >
+
+    <android.support.wearable.view.BoxInsetLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:background="@color/dark_grey">
+        >
+
+    <RelativeLayout
+        android:id="@+id/media_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_54p">
+
+        <ImageView
+            android:id="@+id/imageCover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginTop="0dp"
+            android:alpha="1.0"
+            android:scaleType="fitCenter"/>
 
         <TextView
-            android:id="@+id/tv_empty_notification_title"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:id="@+id/tv_control"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/controller_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="10dp"
+            android:text="text"
+            android:textColor="@color/grey"/>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="0dp"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="Notifications"
+            android:layout_marginTop="32dp"
+            android:gravity="center_horizontal"
+            android:maxLines="2"
+            android:text="Media"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/text_button"
-            android:textStyle="bold"/>
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"/>
 
         <TextView
-            android:id="@+id/tv_empty_notification_status"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_content"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_empty_notification_title"
+            android:layout_below="@id/tv_title"
             android:layout_centerHorizontal="true"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="25dp"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="List is empty"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textSize="15sp"
-            android:textColor="@color/text_button"
-            />
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:maxLines="4"
+            android:text="CONTENT TEXT\n\test\n\test2\ntest3"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"/>
 
-        <Button
-            android:id="@+id/b_empty_notification_close"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+        <RelativeLayout
+            android:id="@+id/controller_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/ic_clear_white"/>
+            android:layout_marginBottom="5dp"
+            android:alpha="1.0"
+            android:background="@color/grey"
+            >
+
+            <ImageView
+                android:id="@+id/iClose"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_arrow_back_black_48dp"
+                android:tint="@color/white"/>
+
+            <ImageView
+                android:id="@+id/iN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_skip_next_black_48dp"
+                android:tint="@color/white"
+                android:visibility="invisible"
+                />
+
+            <ImageView
+                android:id="@+id/iV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_skip_previous_black_48dp"
+                android:tint="@color/white"
+                android:visibility="invisible"/>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
 </android.support.wearable.view.BoxInsetLayout>
-
+</RelativeLayout>

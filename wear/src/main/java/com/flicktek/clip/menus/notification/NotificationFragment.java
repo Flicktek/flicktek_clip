@@ -1,15 +1,16 @@
 package com.flicktek.clip.menus.notification;
 
 import android.app.Fragment;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -36,13 +37,10 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
     private final int STATUS_EXIT = 3;
 
     private MainActivity mainActivity;
-    private Button bClose;
-    private ImageView iconPrev;
-    private ImageView iconPP;
-    private ImageView iconNext;
-    private ImageView iCover;
+    private ImageView iClose;
     private RelativeLayout bg_background_image;
     private TextView tv_control;
+    private TextView tv_content;
     private int status;
 
     private NotificationModel model;
@@ -72,25 +70,59 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = null;
 
-        rootView = inflater.inflate(R.layout.fragment_media, container, false);
+        rootView = inflater.inflate(R.layout.fragment_notification, container, false);
 
         Typeface mainFont = Typeface.createFromAsset(mainActivity.getAssets(), getString(R.string.main_font));
 
-        bClose = (Button) rootView.findViewById(R.id.b_media_close);
-        bClose.setTypeface(mainFont);
-        bClose.setOnClickListener(this);
+        iClose = (ImageView) rootView.findViewById(R.id.iClose);
+        iClose.setVisibility(View.VISIBLE);
+        iClose.setOnClickListener(this);
 
-        bClose.setVisibility(View.VISIBLE);
+        iClose.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        ImageView view = (ImageView) v;
+                        //overlay is black with transparency of 0x77 (119)
+                        view.getDrawable().setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP);
+                        view.invalidate();
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL: {
+                        ImageView view = (ImageView) v;
+                        //clear the overlay
+                        view.getDrawable().clearColorFilter();
+                        view.invalidate();
+                        break;
+                    }
+                }
+
+                return false;
+            }
+        });
+
 
         try {
             String title = "Empty";
 
-            TextView tvTitle = (TextView) rootView.findViewById(R.id.tv_media_title);
+            TextView tvTitle = (TextView) rootView.findViewById(R.id.tv_title);
             tvTitle.setText(model.getTitle());
 
             tv_control = (TextView) rootView.findViewById(R.id.tv_control);
             tv_control.setTypeface(mainFont);
             tv_control.setVisibility(View.INVISIBLE);
+
+            tv_content = (TextView) rootView.findViewById(R.id.tv_content);
+            tv_content.setTypeface(mainFont);
+
+            if (model.getText() != null)
+                tv_content.setText(model.getText());
+            else
+                tv_content.setVisibility(View.INVISIBLE);
 
         } catch (Exception e) {
 
@@ -129,13 +161,13 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
 
                 switch (status) {
                     case STATUS_PLAY:
-                        iconPP.startAnimation(showColor);
+                        iClose.startAnimation(showColor);
                         break;
                     case STATUS_NEXT:
-                        iconNext.startAnimation(showColor);
+                        //iconNext.startAnimation(showColor);
                         break;
                     case STATUS_PREV:
-                        iconPrev.startAnimation(showColor);
+                        //iconPrev.startAnimation(showColor);
                         break;
                     case STATUS_EXIT:
                         break;
@@ -147,23 +179,10 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
     }
 
     public void onClick(View _view) {
-        if (_view == bClose) {
-            close();
+        if (_view == iClose) {
+            mainActivity.backFragment();
             return;
         }
-        if (_view == iconNext) {
-            status = STATUS_NEXT;
-            mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_DOWN);
-        }
-        if (_view == iconPP) {
-            status = STATUS_PLAY;
-            mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_ENTER);
-        }
-        if (_view == iconPrev) {
-            status = STATUS_PREV;
-            mainActivity.sendGestureToHandheld(FlicktekManager.GESTURE_UP);
-        }
-
         doGesture();
         updateUi();
     }
