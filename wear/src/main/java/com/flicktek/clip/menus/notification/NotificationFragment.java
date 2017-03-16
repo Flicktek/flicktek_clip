@@ -198,6 +198,7 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
         switch (gesture) {
             case (FlicktekManager.GESTURE_BACK):
                 status = STATUS_EXIT;
+                mainActivity.backFragment();
                 break;
             case (FlicktekManager.GESTURE_HOME):
                 status = STATUS_EXIT;

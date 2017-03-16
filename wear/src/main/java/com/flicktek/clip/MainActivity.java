@@ -403,6 +403,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
      */
     public void newNotificationFragment(NotificationModel notificationModel) {
         NotificationFragment notificationFragment = NotificationFragment.newInstance(notificationModel);
+        getFragmentManager().popBackStackImmediate("Notification", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         showFragment(notificationFragment, "Notification", false);
     }
 
