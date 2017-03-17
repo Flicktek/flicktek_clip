@@ -227,6 +227,9 @@ public class FlicktekCommands {
     }
 
     public void setApplicationPaused(boolean applicationPaused) {
+        if (mContext == null)
+            return;
+
         AlarmManager alarmManager;
         if (applicationPaused)
             Log.v(TAG, "++++++++++++ APPLICATION PAUSED! ++++++++++++++ " + mDevice_State);
@@ -323,6 +326,12 @@ public class FlicktekCommands {
     }
 
     public void onNotification(NotificationModel model) {
+        // The application hasn't been launched so we don't capture notifications
+        if (mContext == null) {
+            Log.v(TAG, "### NO CONTEXT FOR NOTIFICATION ###");
+            return;
+        }
+
         FlicktekManager.getInstance().addNotification(model);
 
         // If application is not visible then we have to relaunch ourselves and notify that we want
@@ -330,16 +339,11 @@ public class FlicktekCommands {
 
         if (!mIsApplicationVisible) {
             Log.v(TAG, "########## LAUNCH NOTIFICATION ##########");
-            if (mContext != null) {
-                String packageName = mContext.getPackageName();
-                Intent launchIntent = mContext.getPackageManager().getLaunchIntentForPackage(packageName);
-                launchIntent.putExtra(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID, model.getKeyId());
-                mContext.startActivity(launchIntent);
-            } else {
-                Log.v(TAG, "############ NO CONTEXT #############");
-            }
+            String packageName = mContext.getPackageName();
+            Intent launchIntent = mContext.getPackageManager().getLaunchIntentForPackage(packageName);
+            launchIntent.putExtra(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID, model.getKeyId());
+            mContext.startActivity(launchIntent);
         } else {
-
             // Otherwise we let the application to capture the notification and figure out what to do
             // with it.
             EventBus.getDefault().post(new onNotificationEvent(model));

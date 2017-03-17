@@ -12,6 +12,11 @@
       "data": "application_revision"
     },
     {
+      "text": "Mac address",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "mac_address_device"
+    },
+    {
       "text": "Firmware Version",
       "drawable": "ic_adjust_black_48dp",
       "data": "firmware_version"

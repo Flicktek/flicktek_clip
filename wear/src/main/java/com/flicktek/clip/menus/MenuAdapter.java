@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.flicktek.clip.FlicktekSettings;
 import com.flicktek.clip.MainActivity;
 import com.flicktek.clip.R;
 import com.flicktek.clip.util.Helpers;
@@ -144,6 +145,13 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
             holder.imageView.setImageDrawable(item.getIcon());
         } else {
             holder.imageView.setImageResource(android.R.color.transparent);
+        }
+
+        String data = item.getDataKey();
+        if (data != null) {
+            String info = FlicktekSettings.getInstance().getString(data, "Not Available");
+            holder.textViewSmall.setVisibility(View.VISIBLE);
+            holder.textViewSmall.setText(info);
         }
 
         ImageView imageIcon = (ImageView) _view.findViewById(R.id.iv_item_icon);
