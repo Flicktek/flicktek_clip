@@ -8,7 +8,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.flicktek.clip.FlicktekManager;
-import com.flicktek.clip.FlicktekSettings;
 import com.flicktek.clip.MainActivity;
 import com.flicktek.clip.wearable.common.Constants;
 
@@ -100,7 +99,6 @@ public class AppModel {
         try {
             return json.getString("data");
         } catch (JSONException e) {
-            Log.v(TAG, "No action on object");
             return null;
         }
     }
