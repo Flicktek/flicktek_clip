@@ -33,7 +33,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -249,6 +250,16 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
         setContentView(R.layout.activity_main_stub);
         FlicktekCommands.getInstance().vibration_long();
+        FlicktekSettings.getInstance().setPreferences(this);
+
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            FlicktekSettings.getInstance().putString(FlicktekSettings.APPLICATION_VERSION, packageInfo.versionName);
+            FlicktekSettings.getInstance().putInt(FlicktekSettings.APPLICATION_VERSION_CODE, packageInfo.versionCode);
+        } catch (PackageManager.NameNotFoundException e) {
+            //Handle exception
+        }
+
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub_main);
         stub.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
@@ -741,11 +752,14 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         sendMessageToHandheld(this.getApplicationContext(), Constants.FLICKTEK_CLIP.GESTURE, gesture);
     }
 
+    /**
+     * Terminate the application and disconnect the current bluetooth device
+     */
     public void shutdown() {
-        FlicktekCommands.getInstance().vibration_long();
-        FlicktekManager.getInstance().onDisconnected();
         if (mBleProfileServiceBinder != null)
             mBleProfileServiceBinder.disconnect();
+        FlicktekManager.getInstance().onShutdown();
+        finish();
     }
 
     // Read bitmap assets from device

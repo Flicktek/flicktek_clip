@@ -30,7 +30,6 @@ import static com.flicktek.clip.FlicktekManager.GESTURE_UP;
 
 // extends UARTProfile
 public class FlicktekCommands {
-
     // Abstract interface to send data into the UART
     // So we can use different BLE profiles to send data
     // and share the code between the application and the wearable.
@@ -59,6 +58,11 @@ public class FlicktekCommands {
         if (mInstance == null)
             mInstance = new FlicktekCommands();
         return mInstance;
+    }
+
+    // Clears the instance so we start fresh
+    public static void onDestroy() {
+        mInstance = null;
     }
 
     // Settings command values
@@ -332,7 +336,7 @@ public class FlicktekCommands {
                 launchIntent.putExtra(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID, model.getKeyId());
                 mContext.startActivity(launchIntent);
             } else {
-                Log.v(TAG, "!!!!!!!!! NO CONTEXT !!!!!!!!!");
+                Log.v(TAG, "############ NO CONTEXT #############");
             }
         } else {
 

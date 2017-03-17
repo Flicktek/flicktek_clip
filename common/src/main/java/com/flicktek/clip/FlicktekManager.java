@@ -176,6 +176,15 @@ public class FlicktekManager {
         mNotifications.add(model);
     }
 
+    public void onShutdown() {
+        // Disconnect device?
+        FlicktekSettings.getInstance().putString(FlicktekSettings.DEVICE_MAC_SELECTED, "");
+        FlicktekCommands.getInstance().vibration_long();
+
+        FlicktekCommands.onDestroy();
+        mInstance = null;
+    }
+
     public interface BackMenu {
         void backFragment();
     }
@@ -204,6 +213,7 @@ public class FlicktekManager {
     }
 
     public void setFirmwareVersion(String firmwareVersion) {
+        FlicktekSettings.getInstance().putString(FlicktekSettings.FIRMWARE_VERSION, firmwareVersion);
         this.mFirmwareVersion = firmwareVersion;
     }
 
@@ -211,8 +221,9 @@ public class FlicktekManager {
         return mFirmwareRevision;
     }
 
-    public void setFirmwareRevision(String mFirmwareRevision) {
-        this.mFirmwareRevision = mFirmwareRevision;
+    public void setFirmwareRevision(String firmwareRevision) {
+        FlicktekSettings.getInstance().putString(FlicktekSettings.FIRMWARE_REVISION, firmwareRevision);
+        this.mFirmwareRevision = firmwareRevision;
     }
 
     public boolean isHandshakeOk() {
@@ -240,6 +251,7 @@ public class FlicktekManager {
     }
 
     public void setMacAddress(String mac_address) {
+        FlicktekSettings.getInstance().putString(FlicktekSettings.DEVICE_MAC_SELECTED, mac_address);
         mMacAddress = mac_address;
     }
 

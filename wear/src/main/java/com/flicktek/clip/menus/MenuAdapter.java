@@ -128,6 +128,10 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
             holder.textView.setTypeface(mainFont);
             holder.textView.setTextColor(Color.WHITE);
 
+            holder.textViewSmall = (TextView) _view.findViewById(R.id.tv_item_label_small);
+            holder.textViewSmall.setTypeface(mainFont);
+            holder.textViewSmall.setTextColor(Color.WHITE);
+
             holder.imageView = (ImageView) _view.findViewById(R.id.iv_item_icon);
 
             _view.setTag(holder);
@@ -146,12 +150,14 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
         if (item.isSelected()) {
             _view.setBackgroundResource(R.drawable.bg_light);
             holder.textView.setTextColor(Color.BLACK);
+            holder.textViewSmall.setTextColor(Color.BLACK);
 
             int color = Color.parseColor("#000000");
             imageIcon.setColorFilter(color);
         } else {
             _view.setBackgroundResource(R.drawable.bg_dark);
             holder.textView.setTextColor(Color.WHITE);
+            holder.textViewSmall.setTextColor(Color.WHITE);
 
             int color = Color.parseColor("#AE6118");
             imageIcon.setColorFilter(color);
@@ -166,6 +172,7 @@ public class MenuAdapter extends ArrayAdapter<AppModel> {
 
     private static class ViewHolder {
         TextView textView;
+        TextView textViewSmall;
         ImageView imageView;
     }
 

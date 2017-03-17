@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.flicktek.clip.FlicktekCommands;
 import com.flicktek.clip.FlicktekManager;
+import com.flicktek.clip.FlicktekSettings;
 import com.flicktek.clip.MainActivity;
 import com.flicktek.clip.R;
 import com.flicktek.clip.wearable.common.Constants;
@@ -99,8 +100,9 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
         initList();
 
-        mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
-                Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, "menus.AnimatedGestures");
+        if (FlicktekSettings.getInstance().isDemo())
+            mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                    Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, "menus.AnimatedGestures");
         return rootView;
     }
 
