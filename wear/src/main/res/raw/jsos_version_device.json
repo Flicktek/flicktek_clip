@@ -1,0 +1,25 @@
+{
+  "back_button": true,
+  "menu_items": [
+    {
+      "text": "Application Revision",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "application_version"
+    },
+    {
+      "text": "Application Revision",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "application_revision"
+    },
+    {
+      "text": "Firmware Version",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "firmware_version"
+    },
+    {
+      "text": "Firmware Revision",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "firmware_revision"
+    }
+  ]
+}

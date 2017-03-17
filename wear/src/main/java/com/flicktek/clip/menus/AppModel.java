@@ -91,6 +91,19 @@ public class AppModel {
         return viewId;
     }
 
+    // Reads a value from the settings and displays that value
+    @Nullable
+    public String getDataKey() {
+        if (json == null)
+            return null;
+        try {
+            return json.getString("data");
+        } catch (JSONException e) {
+            Log.v(TAG, "No action on object");
+            return null;
+        }
+    }
+
     @Nullable
     public String getAction() {
         if (json == null)
@@ -141,7 +154,7 @@ public class AppModel {
 
         switch (viewId) {
             case AppModel.BACK_APPLICATION:
-                FlicktekManager.backMenu(mainActivity);
+                FlicktekManager.getInstance().backMenu(mainActivity);
                 return;
             case AppModel.RUN_PACKAGE:
                 String appToLaunch = getPackageName();

@@ -212,7 +212,7 @@ public class stopwatchFragment extends Fragment implements View.OnClickListener 
                 break;
 
             case (FlicktekManager.GESTURE_HOME):
-                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+                exit_pressed = !FlicktekManager.getInstance().mIsDoubleGestureHomeExit;
 
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(
@@ -224,7 +224,7 @@ public class stopwatchFragment extends Fragment implements View.OnClickListener 
                                 }
                             });
                 } else {
-                    FlicktekManager.backMenu(mainActivity);
+                    FlicktekManager.getInstance().backMenu(mainActivity);
                 }
                 exit_pressed = true;
                 return;

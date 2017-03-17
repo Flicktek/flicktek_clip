@@ -283,7 +283,7 @@ public class FlicktekCommands {
 
     public void onBatteryValueReceived(final int value) {
         Log.v(TAG, "onBatteryValueReceived " + value);
-        FlicktekManager.setBatteryLevel(value);
+        FlicktekManager.getInstance().setBatteryLevel(value);
         EventBus.getDefault().post(new onBatteryEvent(value));
     }
 
@@ -319,7 +319,7 @@ public class FlicktekCommands {
     }
 
     public void onNotification(NotificationModel model) {
-        FlicktekManager.mNotifications.add(model);
+        FlicktekManager.getInstance().addNotification(model);
 
         // If application is not visible then we have to relaunch ourselves and notify that we want
         // to show the notification.
@@ -628,10 +628,10 @@ public class FlicktekCommands {
             case COMMAND_CAS_IS_CALIBRATED:
                 if (value == 0) {
                     Log.v(TAG, "Clip is not calibrated!");
-                    FlicktekManager.setCalibration(false);
+                    FlicktekManager.getInstance().setCalibration(false);
                     EventBus.getDefault().post(new onNotCalibrated());
                 } else {
-                    FlicktekManager.setCalibration(true);
+                    FlicktekManager.getInstance().setCalibration(true);
                     writeStatus_Exec();
                 }
                 break;
@@ -693,12 +693,12 @@ public class FlicktekCommands {
                 break;
             case "GIT":
                 Log.v(TAG, "+ FIRMWARE REVISION " + response);
-                FlicktekManager.setFirmwareRevision(response);
+                FlicktekManager.getInstance().setFirmwareRevision(response);
                 EventBus.getDefault().post(new onRevisionRequested(response));
                 break;
             case "VER":
                 Log.v(TAG, "+ FIRMWARE VERSION " + response);
-                FlicktekManager.setFirmwareVersion(response);
+                FlicktekManager.getInstance().setFirmwareVersion(response);
                 EventBus.getDefault().post(new onVersionRequested(response));
                 break;
         }
@@ -763,8 +763,8 @@ public class FlicktekCommands {
                 case COMMAND_OK:
                     if (value == 'K') {
                         Log.v(TAG, "------------------ OK FOUND! -------------------");
-                        if (!FlicktekManager.isHandshakeOk()) {
-                            FlicktekManager.setHandshakeOk(true);
+                        if (!FlicktekManager.getInstance().isHandshakeOk()) {
+                            FlicktekManager.getInstance().setHandshakeOk(true);
                             onDeviceRespondedToConnection();
                             EventBus.getDefault().post(new onDeviceReady());
                         }

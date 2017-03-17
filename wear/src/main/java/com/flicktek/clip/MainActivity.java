@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -164,7 +165,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 }
             }
 
-            if (cancelCalibration && FlicktekManager.isCalibrating()) {
+            if (cancelCalibration && FlicktekManager.getInstance().isCalibrating()) {
                 Log.v(TAG, "######## DASHBOARD ########");
                 getFragmentManager().popBackStack("Dashboard", 0);
                 Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
@@ -202,14 +203,15 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             mProfile = (UARTProfile) mBleProfileServiceBinder.getProfile();
 
             sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_MAC_ADDRESS,
-                    FlicktekManager.getMacAddress());
+                    FlicktekManager.getInstance().getMacAddress());
         }
 
         @Override
         public void onServiceDisconnected(final ComponentName name) {
             mBleProfileServiceBinder = null;
             mProfile = null;
-            FlicktekManager.onDisconnected();
+            Log.v(TAG, "TODO Check this disconnection");
+            //FlicktekManager.getInstance().onDisconnected();
             finish();
         }
     };
@@ -272,7 +274,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                     if (extras != null) {
                         String notification_key = extras.getString(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID);
                         if (notification_key != null) {
-                            NotificationModel notificationModel = FlicktekManager.getNotificationModelByKey(notification_key);
+                            NotificationModel notificationModel = FlicktekManager.getInstance().getNotificationModelByKey(notification_key);
                             if (notificationModel != null) {
                                 Log.v(TAG, "+ Resume notification [" + notification_key + "]");
                                 newNotificationFragment(notificationModel);
@@ -323,7 +325,6 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         filter.addAction(BleProfileService.BROADCAST_ERROR);
         filter.addAction(UARTProfile.BROADCAST_DATA_RECEIVED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mServiceBroadcastReceiver, filter);
-
 
         final IntentFilter filterScreen = new IntentFilter();
         filterScreen.addAction(Intent.ACTION_SCREEN_OFF);
@@ -684,7 +685,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         }
 
         if (battery_level == 0)
-            battery_level = FlicktekManager.getBatteryLevel();
+            battery_level = FlicktekManager.getInstance().getBatteryLevel();
 
         if (battery_level == 0)
             return;
@@ -742,7 +743,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
     public void shutdown() {
         FlicktekCommands.getInstance().vibration_long();
-        FlicktekManager.onDisconnected();
+        FlicktekManager.getInstance().onDisconnected();
         if (mBleProfileServiceBinder != null)
             mBleProfileServiceBinder.disconnect();
     }

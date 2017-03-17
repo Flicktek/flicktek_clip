@@ -290,7 +290,7 @@ public class MenuPlaceholder extends Fragment implements View.OnClickListener {
     }
 
     public void close() {
-        FlicktekManager.backMenu(mainActivity);
+        FlicktekManager.getInstance().backMenu(mainActivity);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -323,7 +323,7 @@ public class MenuPlaceholder extends Fragment implements View.OnClickListener {
     private void doGesture() {
         switch (status) {
             case (STATUS_EXIT):
-                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+                exit_pressed = !FlicktekManager.getInstance().mIsDoubleGestureHomeExit;
 
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(

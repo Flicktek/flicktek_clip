@@ -393,8 +393,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_CONNECTING);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
-		FlicktekManager.setMacAddress(device.getAddress());
-		FlicktekManager.onConnecting();
+		FlicktekManager.getInstance().onConnecting(device.getAddress());
 	}
 
 	@Override
@@ -404,7 +403,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_DEVICE_NAME, mDeviceName);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
-		FlicktekManager.onConnected(device.getName(), device.getAddress());
+		FlicktekManager.getInstance().onConnected(device.getName(), device.getAddress());
 		mBleManager.setBatteryNotifications(true);
 	}
 
@@ -438,7 +437,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_DISCONNECTED);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
-		FlicktekManager.onDisconnected();
+		FlicktekManager.getInstance().onDisconnected();
 
 		if (stopWhenDisconnected())
 			stopService();
@@ -456,7 +455,7 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 		broadcast.putExtra(EXTRA_DEVICE, mBluetoothDevice);
 		broadcast.putExtra(EXTRA_CONNECTION_STATE, STATE_LINK_LOSS);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
-		FlicktekManager.onLinkloss();
+		FlicktekManager.getInstance().onLinkloss();
 	}
 
 	@Override

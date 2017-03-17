@@ -116,7 +116,7 @@ public class UARTProfile extends BleProfile implements FlicktekCommands.UARTInte
     protected void release() {
         mTXCharacteristic = null;
         mRXCharacteristic = null;
-        FlicktekManager.onRelease();
+        FlicktekManager.getInstance().onRelease();
     }
 
     protected void onDataArrived(byte[] buffer) {

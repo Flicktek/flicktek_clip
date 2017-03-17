@@ -57,7 +57,7 @@ public class CalibrationFragmentScroll extends Fragment implements View.OnClickL
 
     public void close() {
         Log.d(TAG, "close: ");
-        FlicktekManager.backMenu(mainActivity);
+        FlicktekManager.getInstance().backMenu(mainActivity);
     }
 
     @Subscribe

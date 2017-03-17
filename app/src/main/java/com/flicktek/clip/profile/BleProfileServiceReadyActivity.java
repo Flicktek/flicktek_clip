@@ -56,8 +56,6 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.UUID;
 
 import no.nordicsemi.android.log.ILogSession;
@@ -525,7 +523,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	public void onDeviceConnected(final BluetoothDevice device) {
 		Log.v(TAG, "onDeviceConnected " + mDeviceName);
 		//mDeviceNameView.setText(mDeviceName);
-		FlicktekManager.onConnected(device.getName(), device.getAddress());
+		FlicktekManager.getInstance().onConnected(device.getName(), device.getAddress());
 		if (mConnectButton != null)
 			mConnectButton.setText(R.string.action_disconnect);
 	}
@@ -533,14 +531,14 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	@Override
 	public void onDeviceDisconnecting(final BluetoothDevice device) {
 		Log.v(TAG, "onDeviceDisconnecting " + mDeviceName);
-		FlicktekManager.onConnecting();
+		FlicktekManager.getInstance().onConnecting(device.getAddress());
 		// empty default implementation
 	}
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
 		Log.v(TAG, "onDeviceDisconnected " + getDefaultDeviceName());
-		FlicktekManager.onDisconnected();
+		FlicktekManager.getInstance().onDisconnected();
 
 		if (mConnectButton != null)
 			mConnectButton.setText(R.string.action_connect);
@@ -565,7 +563,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 
 	@Override
 	public void onLinklossOccur(final BluetoothDevice device) {
-		FlicktekManager.onLinkloss();
+		FlicktekManager.getInstance().onLinkloss();
 		//if (mBatteryLevelView != null)
 		//    mBatteryLevelView.setText(R.string.not_available);
 	}

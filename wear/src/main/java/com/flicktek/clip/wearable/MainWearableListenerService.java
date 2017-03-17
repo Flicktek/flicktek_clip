@@ -96,7 +96,7 @@ public class MainWearableListenerService extends com.google.android.gms.wearable
             }
 
             String id = dataMap.getString(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID);
-            Iterator<NotificationModel> iterator = FlicktekManager.mNotifications.iterator();
+            Iterator<NotificationModel> iterator = FlicktekManager.getInstance().mNotifications.iterator();
             while (iterator.hasNext()) {
                 NotificationModel notification = iterator.next();
                 Log.d(TAG, "+ Deleted " + id + "Run inside handleNotificationUpdate: "

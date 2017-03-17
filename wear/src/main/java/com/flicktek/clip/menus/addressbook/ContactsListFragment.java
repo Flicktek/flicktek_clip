@@ -974,7 +974,7 @@ public class ContactsListFragment extends ListFragment implements
             mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
                     Constants.FLICKTEK_CLIP.PHONE_CALL_NUMBER, number);
 
-            //FlicktekManager.backMenu(mainActivity);
+            //FlicktekManager.getInstance().backMenu(mainActivity);
         }
     }
 
@@ -1028,7 +1028,7 @@ public class ContactsListFragment extends ListFragment implements
                 break;
 
             case (FlicktekManager.GESTURE_HOME):
-                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+                exit_pressed = !FlicktekManager.getInstance().mIsDoubleGestureHomeExit;
 
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(
@@ -1040,7 +1040,7 @@ public class ContactsListFragment extends ListFragment implements
                                 }
                             });
                 } else {
-                    FlicktekManager.backMenu(mainActivity);
+                    FlicktekManager.getInstance().backMenu(mainActivity);
                 }
                 exit_pressed = true;
                 return;

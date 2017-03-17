@@ -293,12 +293,6 @@ public class BleManager implements BleProfileApi {
      */
     public void close() {
         try {
-            removeBond(mBluetoothDevice);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
             mContext.unregisterReceiver(mBluetoothStateBroadcastReceiver);
             mContext.unregisterReceiver(mBondingBroadcastReceiver);
         } catch (Exception e) {
@@ -582,7 +576,7 @@ public class BleManager implements BleProfileApi {
                 mCallbacks.onDeviceConnected(gatt.getDevice());
 
                 try {
-                    createBond(gatt.getDevice());
+                    //createBond(gatt.getDevice());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

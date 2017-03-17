@@ -21,6 +21,15 @@ import java.util.List;
 public class FlicktekManager {
     private static final String TAG = "FlickTek";
 
+    // Singleton
+    private static FlicktekManager mInstance = null;
+
+    public static FlicktekManager getInstance() {
+        if (mInstance == null)
+            mInstance = new FlicktekManager();
+        return mInstance;
+    }
+
     public final static int DEBUG_DISABLED = 0;
     public final static int DEBUG_ENABLED = 1;
     public final static int DEBUG_CRAZY = 10;
@@ -52,27 +61,27 @@ public class FlicktekManager {
 
     //-------------- DEVICE STATE ---------------------
     // First handshake between devices happened
-    private static boolean mIsHandshakeOk = false;
-    private static boolean mIsCalibrated = false;
-    private static boolean mIsCalibrating = false;
-    private static int mReconnectAttempts = 0;
-    private static int mLastPing = 0;
-    private static int mBatteryLevel = 0;
+    private boolean mIsHandshakeOk = false;
+    private boolean mIsCalibrated = false;
+    private boolean mIsCalibrating = false;
+    private int mReconnectAttempts = 0;
+    private int mLastPing = 0;
+    private int mBatteryLevel = 0;
 
     //-------------- CONNECTION -----------------------
 
-    private static boolean mIsConnected = false;
-    private static int mStatus = STATUS_NONE;
+    private boolean mIsConnected = false;
+    private int mStatus = STATUS_NONE;
 
     // Configures if the menu will go back if you click home
     // Or requires a double input to exit
-    public static boolean mIsDoubleGestureHomeExit = false;
+    public boolean mIsDoubleGestureHomeExit = false;
 
-    public static boolean isConnected() {
+    public boolean isConnected() {
         return mIsConnected;
     }
 
-    public static void onRelease() {
+    public void onRelease() {
         Log.v(TAG, "*********** onRelease ***********" + mMacAddress);
         mIsHandshakeOk = false;
         mFirmwareVersion = "";
@@ -85,17 +94,18 @@ public class FlicktekManager {
         mIsCalibrated = false;
     }
 
-    public static void onConnecting() {
+    public void onConnecting(String macAddress) {
         mStatus = STATUS_CONNECTING;
         mIsConnected = false;
-        EventBus.getDefault().post(new ConnectingEvent());
+        setMacAddress(macAddress);
+        EventBus.getDefault().post(new ConnectingEvent(macAddress));
     }
 
-    public static void setName(String name) {
+    public void setName(String name) {
         mDeviceName = name;
     }
 
-    public static void onConnected(String name, String macAddress) {
+    public void onConnected(String name, String macAddress) {
         mStatus = STATUS_CONNECTED;
         setFirmwareRevision("");
         setFirmwareVersion("");
@@ -108,45 +118,45 @@ public class FlicktekManager {
         EventBus.getDefault().post(new ConnectedEvent(name, macAddress));
     }
 
-    public static void onDisconnected() {
-        FlicktekManager.setHandshakeOk(false);
+    public void onDisconnected() {
+        FlicktekManager.getInstance().setHandshakeOk(false);
         mStatus = STATUS_DISCONNECTED;
         mIsConnected = false;
         mReconnectAttempts++;
         EventBus.getDefault().post(new DisconnectedEvent());
     }
 
-    public static void onLinkloss() {
+    public void onLinkloss() {
         EventBus.getDefault().post(new LinkLossEvent());
         onDisconnected();
     }
 
-    public static void onDeviceReady() {
+    public void onDeviceReady() {
         mStatus = STATUS_READY;
         mIsConnected = true;
     }
 
-    public static void onDisconnecting() {
+    public void onDisconnecting() {
         mStatus = STATUS_DISCONNECTING;
         mIsConnected = false;
         EventBus.getDefault().post(new DisconnectingEvent());
     }
 
-    public static void sendDeviceMessage(byte[] buf) {
+    public void sendDeviceMessage(byte[] buf) {
 
     }
 
-    public static boolean isCalibrating() {
+    public boolean isCalibrating() {
         return mIsCalibrating;
     }
 
-    public static void setCalibrationMode(boolean calibration) {
+    public void setCalibrationMode(boolean calibration) {
         mIsCalibrating = calibration;
     }
 
     //------------- GESTURES -------------------------
 
-    public static String getGestureString(int gesture) {
+    public String getGestureString(int gesture) {
         switch (gesture) {
             case GESTURE_ENTER:
                 return "ENTER";
@@ -162,13 +172,17 @@ public class FlicktekManager {
         return "NONE";
     }
 
+    public void addNotification(NotificationModel model) {
+        mNotifications.add(model);
+    }
+
     public interface BackMenu {
         void backFragment();
     }
 
     //------------- SMARTWATCH -------------------------
 
-    public static void backMenu(BackMenu mainActivity) {
+    public void backMenu(BackMenu mainActivity) {
         if (mainActivity == null) {
             return;
         }
@@ -177,73 +191,73 @@ public class FlicktekManager {
 
     //------------- Getters and setters -------------------------
 
-    public static void setBatteryLevel(int value) {
+    public void setBatteryLevel(int value) {
         mBatteryLevel = value;
     }
 
-    public static int getBatteryLevel() {
+    public int getBatteryLevel() {
         return mBatteryLevel;
     }
 
-    public static String getFirmwareVersion() {
+    public String getFirmwareVersion() {
         return mFirmwareVersion;
     }
 
-    public static void setFirmwareVersion(String mFirmwareVersion) {
-        FlicktekManager.mFirmwareVersion = mFirmwareVersion;
+    public void setFirmwareVersion(String firmwareVersion) {
+        this.mFirmwareVersion = firmwareVersion;
     }
 
-    public static String getFirmwareRevision() {
+    public String getFirmwareRevision() {
         return mFirmwareRevision;
     }
 
-    public static void setFirmwareRevision(String mFirmwareRevision) {
-        FlicktekManager.mFirmwareRevision = mFirmwareRevision;
+    public void setFirmwareRevision(String mFirmwareRevision) {
+        this.mFirmwareRevision = mFirmwareRevision;
     }
 
-    public static boolean isHandshakeOk() {
+    public boolean isHandshakeOk() {
         return mIsHandshakeOk;
     }
 
-    public static void setHandshakeOk(boolean mIsHandshakeOk) {
-        FlicktekManager.mIsHandshakeOk = mIsHandshakeOk;
+    public void setHandshakeOk(boolean isHandshakeOk) {
+        this.mIsHandshakeOk = isHandshakeOk;
     }
 
-    public static boolean isCalibrated() {
+    public boolean isCalibrated() {
         return mIsCalibrated;
     }
 
-    public static void setCalibration(boolean mIsCalibrated) {
-        FlicktekManager.mIsCalibrated = mIsCalibrated;
+    public void setCalibration(boolean isCalibrated) {
+        mIsCalibrated = isCalibrated;
     }
 
-    public static int getLastPing() {
+    public int getLastPing() {
         return mLastPing;
     }
 
-    public static void setLastPing(int mLastPing) {
-        FlicktekManager.mLastPing = mLastPing;
+    public void setLastPing(int lastPing) {
+        mLastPing = lastPing;
     }
 
-    public static void setMacAddress(String mac_address) {
+    public void setMacAddress(String mac_address) {
         mMacAddress = mac_address;
     }
 
-    public static String getMacAddress() {
+    public String getMacAddress() {
         return mMacAddress;
     }
 
     //------------- Notification system -------------------------
 
-    public static List<NotificationModel> mNotifications = new LinkedList<NotificationModel>();
+    public List<NotificationModel> mNotifications = new LinkedList<NotificationModel>();
 
-    public static List<NotificationModel> getNotifications() {
+    public List<NotificationModel> getNotifications() {
         Log.d(TAG, "getNotifications: ");
         return mNotifications;
     }
 
     @Nullable
-    public static NotificationModel getNotificationModelByKey(String id) {
+    public NotificationModel getNotificationModelByKey(String id) {
         Iterator<NotificationModel> iterator = mNotifications.iterator();
         while (iterator.hasNext()) {
             NotificationModel notification = iterator.next();

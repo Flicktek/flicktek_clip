@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.flicktek.clip.ConnectionEvents.ConnectedEvent;
 import com.flicktek.clip.ConnectionEvents.ConnectingEvent;
 import com.flicktek.clip.ConnectionEvents.DisconnectedEvent;
-import com.flicktek.clip.R;
 import com.google.android.gms.analytics.HitBuilders;
 
 import org.greenrobot.eventbus.EventBus;
@@ -172,7 +171,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         menuAdapter.notifyDataSetChanged();
         lvMenu.smoothScrollToPosition(menuIndex);
 
-        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, FlicktekManager.getBatteryLevel());
+        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, FlicktekManager.getInstance().getBatteryLevel());
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

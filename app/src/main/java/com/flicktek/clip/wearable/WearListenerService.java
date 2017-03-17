@@ -204,7 +204,7 @@ public class WearListenerService extends WearableListenerService {
                     } else {
                         // We propagate the gesture through the event system
                         FlicktekCommands.getInstance().onGestureChanged(value);
-                        Log.v(TAG, "Gesture: " + FlicktekManager.getGestureString(value) +
+                        Log.v(TAG, "Gesture: " + FlicktekManager.getInstance().getGestureString(value) +
                                 " Application is active " + value);
                     }
                 }

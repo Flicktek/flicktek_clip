@@ -63,7 +63,7 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
 
         if (model == null) {
             String notification_key = getArguments().getString(ARG_MODEL_ID);
-            model = FlicktekManager.getNotificationModelByKey(notification_key);
+            model = FlicktekManager.getInstance().getNotificationModelByKey(notification_key);
         }
     }
 
@@ -188,7 +188,7 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
     }
 
     public void close() {
-        FlicktekManager.backMenu(mainActivity);
+        FlicktekManager.getInstance().backMenu(mainActivity);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -222,7 +222,7 @@ public class NotificationFragment extends Fragment implements View.OnClickListen
     private void doGesture() {
         switch (status) {
             case (STATUS_EXIT):
-                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+                exit_pressed = !FlicktekManager.getInstance().mIsDoubleGestureHomeExit;
 
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(

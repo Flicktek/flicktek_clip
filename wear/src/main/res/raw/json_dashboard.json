@@ -62,6 +62,12 @@
       "json": "PlaceHolder"
     },
     {
+      "text": "Info",
+      "drawable": "ic_info_black_48dp",
+      "target": "menu_list",
+      "json": "json_version_device"
+    },
+    {
       "text": "Disconnect",
       "drawable": "ic_close_black_48dp",
       "target": "close"

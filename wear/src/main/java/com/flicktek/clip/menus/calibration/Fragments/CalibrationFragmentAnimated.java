@@ -83,7 +83,7 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
 
         }
 
-        FlicktekManager.setCalibrationMode(true);
+        FlicktekManager.getInstance().setCalibrationMode(true);
 
         animation_success = R.anim.calibration_enter;
         animation_error = R.anim.calibration_error;
@@ -365,7 +365,7 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
 
     public void close() {
         Log.d(TAG, "close: ");
-        FlicktekManager.setCalibrationMode(false);
+        FlicktekManager.getInstance().setCalibrationMode(false);
         FlicktekCommands.getInstance().stopCalibration();
 
         int pop_flag;
@@ -376,7 +376,7 @@ public class CalibrationFragmentAnimated extends Fragment implements View.OnClic
         }
 
         mainActivity.getFragmentManager().popBackStack("CalibrationFragment", pop_flag);
-        FlicktekManager.backMenu(mainActivity);
+        FlicktekManager.getInstance().backMenu(mainActivity);
     }
 
     @Override

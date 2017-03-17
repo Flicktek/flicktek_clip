@@ -363,7 +363,7 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
         if (media_HOME !=null)
             media_HOME.performAction();
 
-        FlicktekManager.backMenu(mainActivity);
+        FlicktekManager.getInstance().backMenu(mainActivity);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -396,7 +396,7 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     private void doGesture() {
         switch (status) {
             case (STATUS_EXIT):
-                exit_pressed = !FlicktekManager.mIsDoubleGestureHomeExit;
+                exit_pressed = !FlicktekManager.getInstance().mIsDoubleGestureHomeExit;
 
                 if (!exit_pressed) {
                     mainActivity.runOnUiThread(

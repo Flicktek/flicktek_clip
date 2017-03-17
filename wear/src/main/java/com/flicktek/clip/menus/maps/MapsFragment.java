@@ -96,7 +96,7 @@ public class MapsFragment extends MapFragment implements OnMapReadyCallback,
 
     public void close() {
         Log.d(TAG, "close: ");
-        FlicktekManager.backMenu(mainActivity);
+        FlicktekManager.getInstance().backMenu(mainActivity);
     }
 
     @Subscribe

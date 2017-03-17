@@ -154,7 +154,7 @@ public class ScannerActivity extends Activity {
 
         Log.v(TAG, "onResume");
 
-        if (FlicktekManager.isConnected()) {
+        if (FlicktekManager.getInstance().isConnected()) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.putExtra(BleProfileService.EXTRA_DEVICE_ADDRESS, "Relaunch");
 
