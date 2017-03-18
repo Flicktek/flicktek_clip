@@ -32,6 +32,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
@@ -126,10 +127,10 @@ public class ScannerActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         Log.v(TAG, "onRequestPermissionsResult " + requestCode);
+
         switch (requestCode) {
             case PERMISSION_REQUEST_LOCATION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mDeviceAdapter.startLeScan();
                 } else {
                     Toast.makeText(ScannerActivity.this, "Location permission required for bluetooth to work", Toast.LENGTH_LONG).show();
                     finish();
@@ -145,7 +146,31 @@ public class ScannerActivity extends Activity {
                 break;
         }
 
+        if (checkPermissions())
+            mDeviceAdapter.startLeScan();
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public boolean checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_LOCATION);
+                return false;
+            }
+
+            if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_READ_CONTACTS);
+                return false;
+            }
+
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -174,23 +199,8 @@ public class ScannerActivity extends Activity {
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_LOCATION);
-                return;
-            }
-
-            if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_READ_CONTACTS);
-                return;
-            }
-
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
-                return;
-            }
-        }
-        mDeviceAdapter.startLeScan();
+        if (checkPermissions())
+            mDeviceAdapter.startLeScan();
     }
 
     @Override
