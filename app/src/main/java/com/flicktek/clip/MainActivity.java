@@ -224,6 +224,8 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         }
 
         initializeBatteryDisplay();
+
+        FlicktekSettings.getInstance().setPreferencesActivity(this);
     }
 
     public void onConfigurationChanged(Configuration newConfig) {

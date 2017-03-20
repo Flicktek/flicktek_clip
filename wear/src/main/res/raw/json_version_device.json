@@ -25,6 +25,26 @@
       "text": "Firmware Revision",
       "drawable": "ic_adjust_black_48dp",
       "data": "firmware_revision"
+    },
+    {
+      "text": "Watch Base OS",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "version_base_os"
+    },
+    {
+      "text": "Watch Codename",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "version_codename"
+    },
+    {
+      "text": "Watch Product",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "version_product"
+    },
+    {
+      "text": "Application state",
+      "drawable": "ic_adjust_black_48dp",
+      "data": "version_debugging"
     }
   ]
 }
