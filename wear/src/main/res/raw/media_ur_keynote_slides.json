@@ -1,14 +1,14 @@
 {
   "title": "Keynote Slides",
   "background": "bkg_google_slides",
-  "media_actions": [
+  "gesture_actions": [
     {
       "text": "Previous",
       "package": "android",
       "drawable": "ic_media_previous",
       "onGesture": "up",
       "target": "phone",
-      "intent" : "ur://intent/remote:Unified.GooglePresentation/action:previous/destination:SERGIO-HOME"
+      "intent" : "ur://intent/remote:Unified.Keynote/action:previous"
     },
     {
       "text": "Next",
@@ -16,7 +16,7 @@
       "drawable": "ic_media_next",
       "onGesture": "down",
       "target": "phone",
-      "intent" : "ur://intent/remote:Unified.GooglePresentation/action:next/destination:SERGIO-HOME"
+      "intent" : "ur://intent/remote:Unified.Keynote/action:next"
     },
     {
       "text": "Start show",
@@ -24,7 +24,7 @@
       "drawable": "ic_media_play",
       "onGesture": "enter",
       "target": "phone",
-      "intent" : "ur://intent/remote:Unified.GooglePresentation/action:start_show/destination:SERGIO-HOME"
+      "intent" : "ur://intent/remote:Unified.Keynote/action:start_show"
     },
     {
       "text": "End show",
@@ -32,7 +32,7 @@
       "drawable": "ic_media_pause",
       "onGesture": "home",
       "target": "phone",
-      "intent" : "ur://intent/remote:Unified.GooglePresentation/action:show_end/destination:SERGIO-HOME"
+      "intent" : "ur://intent/remote:Unified.Keynote/action:show_end"
     }
   ]
 }

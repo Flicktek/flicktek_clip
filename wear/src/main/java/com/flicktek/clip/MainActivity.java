@@ -46,6 +46,7 @@ import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
@@ -100,6 +101,13 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     private PendingIntent mAmbientStatePendingIntent;
 
     private BleProfileService.LocalBinder mBleProfileServiceBinder;
+    private String menuName;
+
+    private TextView tv_current_menu;
+
+    private TextView tv_battery;
+    private ImageView iv_battery;
+    private LinearLayout ll_battery;
 
     private void setActivityFlags() {
         final Window windows = getWindow();
@@ -281,6 +289,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
             public void onLayoutInflated(WatchViewStub stub) {
                 boolean displayDashboard = true;
                 try {
+                    // --- Battery layouts and display ---
+
                     Bundle extras = getIntent().getExtras();
                     if (extras != null) {
                         String notification_key = extras.getString(Constants.FLICKTEK_CLIP.NOTIFICATION_KEY_ID);
@@ -309,11 +319,24 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 stub.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                     @Override
                     public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                        // Hack to fix the size of the fragment in the moto360
                         int chinHeight = insets.getSystemWindowInsetBottom();
-                        // chinHeight = 30;
+                        try {
+                            LinearLayout ll = (LinearLayout) findViewById(R.id.bottom_inset);
+                            if (ll != null) {
+                                ViewGroup.LayoutParams params = ll.getLayoutParams();
+                                params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                params.height = chinHeight;
+                                ll.setLayoutParams(params);
+                            }
+                        } catch (Exception e) {
+
+                        }
                         return insets;
                     }
                 });
+
+                initializeBatteryDisplay();
             }
         });
 
@@ -687,8 +710,10 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     static int old_battery = 0;
     static LinearLayout old_battery_layout = null;
 
-    public void updateBattery(LinearLayout battery_layout, TextView battery_text,
-                              ImageView battery_image, int battery_level) {
+    public void updateBattery(int battery_level) {
+        LinearLayout battery_layout = ll_battery;
+        TextView battery_text = tv_battery;
+        ImageView battery_image = iv_battery;
 
         if (battery_text == null || battery_layout == null || battery_image == null) {
             Log.v(TAG, "Battery UI interface is not defined");
@@ -784,5 +809,30 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         }
         // decode the stream into a bitmap
         return BitmapFactory.decodeStream(assetInputStream);
+    }
+
+    public void initializeBatteryDisplay() {
+        // --- Battery layouts and display ---
+        ll_battery = (LinearLayout) findViewById(R.id.ll_battery);
+        tv_battery = (TextView) findViewById(R.id.tv_battery_level);
+        iv_battery = (ImageView) findViewById(R.id.iv_battery);
+
+        ll_battery.setVisibility(View.INVISIBLE);
+        // --- Battery layouts and display ---
+
+        tv_current_menu = (TextView) findViewById(R.id.tv_current_menu);
+
+        if (tv_current_menu != null && menuName != null) {
+            tv_current_menu = (TextView) findViewById(R.id.tv_current_menu);
+            tv_current_menu.setText(menuName);
+        } else {
+            tv_current_menu.setVisibility(View.GONE);
+        }
+
+        updateBattery(FlicktekManager.getInstance().getBatteryLevel());
+    }
+
+    public void setMenuName(String menuName) {
+        this.menuName = menuName;
     }
 }

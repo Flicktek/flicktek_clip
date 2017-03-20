@@ -6,7 +6,7 @@
       "text": "Previous",
       "package": "android",
       "drawable": "ic_media_previous",
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:previous/destination:SERGIO-HOME",
+      "action": "ur://intent/remote:Unified.SlideShow/action:previous",
       "onGesture": "up",
       "target": "phone"
     },
@@ -14,7 +14,7 @@
       "text": "Next",
       "package": "android",
       "drawable": "ic_media_next",
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:next/destination:SERGIO-HOME",
+      "action": "ur://intent/remote:Unified.SlideShow/action:next",
       "onGesture": "down",
       "target": "phone"
     },
@@ -22,7 +22,7 @@
       "text": "Start show",
       "package": "android",
       "drawable": "ic_media_play",
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:start_show/destination:SERGIO-HOME",
+      "action": "ur://intent/remote:Unified.SlideShow/action:start_show",
       "onGesture": "enter",
       "target": "phone"
     },
@@ -30,8 +30,7 @@
       "text": "End show",
       "package": "android",
       "drawable": "ic_media_pause",
-
-      "action": "ur://intent/remote:Unified.GooglePresentation/action:show_end/destination:SERGIO-HOME",
+      "action": "ur://intent/remote:Unified.SlideShow/action:show_end",
       "onGesture": "home",
       "target": "phone"
     }

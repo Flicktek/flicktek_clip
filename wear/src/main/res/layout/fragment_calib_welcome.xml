@@ -20,39 +20,33 @@
             android:src="@drawable/welcome2"/>
     </LinearLayout>
 
-    <android.support.wearable.view.BoxInsetLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
         >
 
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        app:layout_box="bottom">
+        <Button
+            android:id="@+id/b_close"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/ic_arrow_back_black_48dp"
+            android:backgroundTint="@color/white"/>
 
-            <Button
-                android:id="@+id/b_close"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/ic_arrow_back_black_48dp"
-                android:backgroundTint="@color/white"/>
+        <Button
+            android:id="@+id/b_start"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="1dp"
+            android:background="@drawable/ic_play_arrow_black_48dp"
+            android:backgroundTint="@color/white"
+            android:elevation="0dp"/>
+    </RelativeLayout>
 
-            <Button
-                android:id="@+id/b_start"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="1dp"
-                android:background="@drawable/ic_play_arrow_black_48dp"
-                android:backgroundTint="@color/white"
-                android:elevation="0dp"/>
-        </RelativeLayout>
-    </android.support.wearable.view.BoxInsetLayout>
 
 </RelativeLayout>

@@ -99,12 +99,6 @@ public class ContactsListFragment extends ListFragment implements
 
     private int menuIndex;
 
-    private TextView tv_current_menu;
-
-    private TextView tv_battery;
-    private ImageView iv_battery;
-    private LinearLayout ll_battery;
-
     // Defines a tag for identifying log entries
     private static final String TAG = "ContactsListFragment";
 
@@ -225,14 +219,6 @@ public class ContactsListFragment extends ListFragment implements
         } else {
             rootView = inflater.inflate(R.layout.contact_list_fragment_rect, container, false);
         }
-
-        // --- Battery layouts and display ---
-        ll_battery = (LinearLayout) rootView.findViewById(R.id.ll_battery);
-        tv_battery = (TextView) rootView.findViewById(R.id.tv_battery_level);
-        iv_battery = (ImageView) rootView.findViewById(R.id.iv_battery);
-
-        ll_battery.setVisibility(View.INVISIBLE);
-        // --- Battery layouts and display ---
 
         return rootView;
     }
@@ -935,7 +921,7 @@ public class ContactsListFragment extends ListFragment implements
         mAdapter.notifyDataSetChanged();
         lvMenu.smoothScrollToPosition(menuIndex);
 
-        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, 0);
+        mainActivity.updateBattery(0);
     }
 
     public View getViewByPosition(int pos, ListView listView) {
@@ -994,11 +980,6 @@ public class ContactsListFragment extends ListFragment implements
     public void onDestroyView() {
         EventBus.getDefault().unregister(this);
         super.onDestroyView();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onBatteryLevel(FlicktekCommands.onBatteryEvent batteryEvent) {
-        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, batteryEvent.value);
     }
 
     int min_value = 0;

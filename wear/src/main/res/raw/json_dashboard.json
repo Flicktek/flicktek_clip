@@ -56,6 +56,12 @@
       "class": "AppsSystem"
     },
     {
+      "text": "Notifications",
+      "drawable": "ic_notifications_other_black_48dp",
+      "target": "fragment_class",
+      "class": "menus.notification.NotificationsFragment"
+    },
+    {
       "text": "Others",
       "drawable": "ic_devices_other_black_48dp",
       "target": "fragment_class",

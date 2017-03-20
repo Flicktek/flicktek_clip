@@ -1,4 +1,4 @@
-package com.flicktek.clip.menus;
+package com.flicktek.clip.menus.notification;
 
 import android.app.Fragment;
 import android.content.SharedPreferences;
@@ -17,6 +17,8 @@ import com.flicktek.clip.FlicktekManager;
 import com.flicktek.clip.FlicktekSettings;
 import com.flicktek.clip.MainActivity;
 import com.flicktek.clip.R;
+import com.flicktek.clip.menus.AppModel;
+import com.flicktek.clip.menus.MenuAdapter;
 import com.flicktek.clip.wearable.common.Constants;
 
 import org.greenrobot.eventbus.EventBus;
@@ -28,7 +30,7 @@ import java.util.ArrayList;
 /**
  * Generic menu fragment inheritable
  */
-public class MenuFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class NotificationsFragment extends Fragment implements AdapterView.OnItemClickListener {
     private static final String ARG_JSON_NAME = "jsonName";
     private static final String ARG_MENU_NAME = "menuName";
 
@@ -40,26 +42,11 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
     private int menuIndex;
     private AppModel menuSelectedModel;
 
-    private String jsonName = null;
-    private String menuName = null;
-
-    // Default bundle constructor as google best practices
-
-    public static MenuFragment newInstance(String menuName, String jsonName) {
-        MenuFragment myFragment = new MenuFragment();
-
-        Bundle args = new Bundle();
-        args.putString(ARG_JSON_NAME, jsonName);
-        args.putString(ARG_MENU_NAME, menuName);
-        myFragment.setArguments(args);
-        return myFragment;
-    }
+    private String menuName = "Notifications";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        jsonName = getArguments().getString(ARG_JSON_NAME);
-        menuName = getArguments().getString(ARG_MENU_NAME);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,6 +61,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         }
 
         mainActivity.setMenuName(menuName);
+
         lvMenu = (ListView) rootView.findViewById(R.id.lv_dashboard_menu);
 
         initList();
@@ -81,6 +69,8 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         if (FlicktekSettings.getInstance().isDemo())
             mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
                     Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, "menus.AnimatedGestures");
+
+        mainActivity.initializeBatteryDisplay();
         return rootView;
     }
 
@@ -98,14 +88,6 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             menuAdapter = new MenuAdapter(mainActivity, R.layout.item_menu_round, list);
         } else {
             menuAdapter = new MenuAdapter(mainActivity, R.layout.item_menu_rect, list);
-        }
-
-        try {
-            menuAdapter.populateFromJson(jsonName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            mainActivity.showToastMessage(e.toString());
-            return;
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());

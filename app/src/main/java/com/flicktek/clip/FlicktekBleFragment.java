@@ -30,7 +30,6 @@ import com.flicktek.clip.ConnectionEvents.DisconnectedEvent;
 import com.flicktek.clip.dropbox.UploadData;
 import com.flicktek.clip.util.Helpers;
 import com.flicktek.clip.wearable.WearListenerService;
-import com.flicktek.clip.R;
 import com.google.android.gms.analytics.HitBuilders;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -60,10 +59,6 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     private static final String JSON_CONFIGURATION = "configuration";
 
     private static final boolean REPORT_MESSAGES = false;
-
-    private TextView tv_battery;
-    private ImageView iv_battery;
-    private LinearLayout ll_battery;
 
     private TextView tv_device_status;
     private TextView tv_device_name;
@@ -156,11 +151,6 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.fragment_sensor_testing, container, false);
 
-        // --- Battery layouts and display ---
-        ll_battery = (LinearLayout) rootView.findViewById(R.id.ll_battery);
-        tv_battery = (TextView) rootView.findViewById(R.id.tv_battery_level);
-        iv_battery = (ImageView) rootView.findViewById(R.id.iv_battery);
-
         check_connect = (ImageView) rootView.findViewById(R.id.check_connectivity);
 
         check_button = (ImageView) rootView.findViewById(R.id.check_button);
@@ -175,9 +165,6 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         check_charging = (ImageView) rootView.findViewById(R.id.check_charging);
         check_battery = (ImageView) rootView.findViewById(R.id.check_battery);
 
-        ll_battery.setVisibility(View.INVISIBLE);
-        // --- Battery layouts and display ---
-
         tv_device_status = (TextView) rootView.findViewById(R.id.tv_current_menu);
 
         tv_device_name = (TextView) rootView.findViewById(R.id.tv_device_name);
@@ -190,6 +177,13 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         mStartCapture = (Button) rootView.findViewById(R.id.start_capture);
         mUploadCapture = (Button) rootView.findViewById(R.id.upload_capture);
         mShutdown = (Button) rootView.findViewById(R.id.shutdown);
+
+        // Replace default menu battery items by the ones on our bar
+        LinearLayout ll_battery = (LinearLayout) rootView.findViewById(R.id.ll_battery);
+        TextView tv_battery = (TextView) rootView.findViewById(R.id.tv_battery_level);
+        ImageView iv_battery = (ImageView) rootView.findViewById(R.id.iv_battery);
+
+        mainActivity.setBatteryUI(ll_battery, tv_battery, iv_battery);
 
         if (!mainActivity.mDropboxLinked) {
             mUploadCapture.setVisibility(View.GONE);
@@ -751,9 +745,8 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onBatteryLevel(FlicktekCommands.onBatteryEvent batteryEvent) {
-
         check_battery.setVisibility(View.INVISIBLE);
-        mainActivity.updateBattery(ll_battery, tv_battery, iv_battery, batteryEvent.value);
+        mainActivity.updateBattery(batteryEvent.value);
     }
 
     int min_value = 0;
@@ -778,8 +771,8 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
         tv_device_status.setText("Connected");
 
-        tv_battery.setVisibility(View.VISIBLE);
-        ll_battery.setVisibility(View.VISIBLE);
+        mainActivity.tv_battery.setVisibility(View.VISIBLE);
+        mainActivity.ll_battery.setVisibility(View.VISIBLE);
 
         if (event.name.startsWith("FlickTek")) {
 
@@ -864,8 +857,8 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         }
 
         tv_device_charging.setText("");
-        tv_battery.setVisibility(View.INVISIBLE);
-        ll_battery.setVisibility(View.INVISIBLE);
+        mainActivity.tv_battery.setVisibility(View.INVISIBLE);
+        mainActivity.ll_battery.setVisibility(View.INVISIBLE);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -93,6 +93,11 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     public Tracker mTracker;
     public static boolean mDropboxLinked = false;
 
+    public TextView tv_battery;
+    private ImageView iv_battery;
+    public LinearLayout ll_battery;
+    private TextView tv_current_menu;
+
     private void loadAuth(AndroidAuthSession session) {
         SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
         String key = prefs.getString(ACCESS_KEY_NAME, null);
@@ -159,6 +164,29 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         return null; // not used
     }
 
+    String menuName = null;
+
+    public void initializeBatteryDisplay() {
+        // --- Battery layouts and display ---
+        ll_battery = (LinearLayout) findViewById(R.id.ll_battery);
+        tv_battery = (TextView) findViewById(R.id.tv_battery_level);
+        iv_battery = (ImageView) findViewById(R.id.iv_battery);
+
+        ll_battery.setVisibility(View.INVISIBLE);
+        // --- Battery layouts and display ---
+
+        if (tv_current_menu != null) {
+            if (menuName != null) {
+                tv_current_menu = (TextView) findViewById(R.id.tv_current_menu);
+                tv_current_menu.setText(menuName);
+            } else {
+                tv_current_menu.setVisibility(View.GONE);
+            }
+        }
+
+        updateBattery(FlicktekManager.getInstance().getBatteryLevel());
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,6 +222,8 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        initializeBatteryDisplay();
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
@@ -264,6 +294,7 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 
             public void run() {
                 try {
+                    initializeBatteryDisplay();
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
 
@@ -397,7 +428,26 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
     static int battery_level = 0;
     static LinearLayout old_battery_layout = null;
 
-    public void updateBattery(LinearLayout battery_layout, TextView battery_text, ImageView battery_image, int value) {
+    public void setBatteryUI(LinearLayout battery_layout, TextView battery_text, ImageView battery_image) {
+        if (tv_battery != null && tv_battery != battery_text)
+            tv_battery.setVisibility(View.GONE);
+
+        if (iv_battery != null && iv_battery != battery_image)
+            iv_battery.setVisibility(View.GONE);
+
+        if (ll_battery != null && ll_battery != battery_layout)
+            ll_battery.setVisibility(View.GONE);
+
+        tv_battery = battery_text;
+        iv_battery = battery_image;
+        ll_battery = battery_layout;
+    }
+
+    public void updateBattery(int value) {
+        TextView battery_text = tv_battery;
+        ImageView battery_image = iv_battery;
+        LinearLayout battery_layout = ll_battery;
+
         if (value == 0) {
             battery_layout.setVisibility(View.INVISIBLE);
             battery_image.setVisibility(View.INVISIBLE);
@@ -586,5 +636,20 @@ public class MainActivity extends BleProfileServiceReadyActivity<UARTService.UAR
         // This is temporal, add the byte[] interface
         if (mServiceBinder != null)
             mServiceBinder.send(new String(data));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBatteryLevel(final FlicktekCommands.onBatteryEvent batteryEvent) {
+        runOnUiThread(new Runnable() {
+
+            public void run() {
+                try {
+                    updateBattery(batteryEvent.value);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    finish();
+                }
+            }
+        });
     }
 }

@@ -24,15 +24,16 @@ package com.flicktek.clip;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
@@ -43,12 +44,16 @@ import com.flicktek.clip.ble.BleProfileService;
 import com.flicktek.clip.ble.DevicesAdapter;
 import com.flicktek.clip.wearable.common.Constants;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class ScannerActivity extends Activity {
     private static final String TAG = "ScannerActivity";
 
-    private static final int PERMISSION_REQUEST_LOCATION = 1;
-    private static final int PERMISSION_READ_CONTACTS = 2;
+    final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
     private DevicesAdapter mDeviceAdapter;
     private View mHeader;
@@ -129,47 +134,98 @@ public class ScannerActivity extends Activity {
         Log.v(TAG, "onRequestPermissionsResult " + requestCode);
 
         switch (requestCode) {
-            case PERMISSION_REQUEST_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                } else {
-                    Toast.makeText(ScannerActivity.this, "Location permission required for bluetooth to work", Toast.LENGTH_LONG).show();
-                    finish();
-                }
-                break;
+            case REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS: {
+                Map<String, Integer> perms = new HashMap<String, Integer>();
+                // Initial
+                perms.put(Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.READ_CONTACTS, PackageManager.PERMISSION_GRANTED);
 
-            case PERMISSION_READ_CONTACTS:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Fill with results
+                for (int i = 0; i < permissions.length; i++)
+                    perms.put(permissions[i], grantResults[i]);
+                // Check for ACCESS_FINE_LOCATION
+                if (perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                        perms.get(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+                    // All Permissions Granted
+                    mDeviceAdapter.startLeScan();
                 } else {
-                    Toast.makeText(ScannerActivity.this, "Read contacts are required for the addressbook to work", Toast.LENGTH_LONG).show();
+                    // Permission Denied
+                    Toast.makeText(ScannerActivity.this, "Some Permission is Denied", Toast.LENGTH_SHORT)
+                            .show();
                     finish();
                 }
-                break;
+            }
+            break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-
-        if (checkPermissions())
-            mDeviceAdapter.startLeScan();
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    private boolean addPermission(List<String> permissionsList, String permission) {
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            permissionsList.add(permission);
+            // Check for Rationale Option
+            if (!shouldShowRequestPermissionRationale(permission))
+                return false;
+        }
+        return true;
+    }
+
+    // https://inthecheesefactory.com/blog/things-you-need-to-know-about-android-m-permission-developer-edition/en
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener,
+                                     DialogInterface.OnClickListener cancelListener) {
+        new AlertDialog.Builder(ScannerActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", cancelListener)
+                .create()
+                .show();
+    }
+
     public boolean checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_LOCATION);
-                return false;
-            }
 
-            if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_READ_CONTACTS);
-                return false;
-            }
+            List<String> permissionsNeeded = new ArrayList<String>();
 
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
+            final List<String> permissionsList = new ArrayList<String>();
+            if (!addPermission(permissionsList, Manifest.permission.ACCESS_COARSE_LOCATION))
+                permissionsNeeded.add("GPS");
+            if (!addPermission(permissionsList, Manifest.permission.READ_CONTACTS))
+                permissionsNeeded.add("Read Contacts");
+
+            if (permissionsList.size() > 0) {
+                if (permissionsNeeded.size() > 0) {
+                    // Need Rationale
+                    String message = "You need to grant access to " + permissionsNeeded.get(0);
+                    for (int i = 1; i < permissionsNeeded.size(); i++)
+                        message = message + ", " + permissionsNeeded.get(i);
+
+                    showMessageOKCancel(message,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+                                            REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+                                }
+                            },
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(ScannerActivity.this,
+                                            "Permissions are required to operate properly", Toast.LENGTH_SHORT)
+                                            .show();
+                                    finish();
+                                }
+                            });
+                    return false;
+                }
+                requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+                        REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
                 return false;
             }
         }
-
         return true;
     }
 
