@@ -1,13 +1,13 @@
 {
-  "title": "Google Slides",
-  "background": "bkg_google_slides",
+  "title": "Media",
+  "background": "bkg_music",
   "media_actions": [
     {
       "text": "Previous",
       "package": "android",
       "drawable": "ic_media_previous",
       "intent": "unified",
-      "uri": "ur://intent/remote:Unified.SlideShow/action:previous",
+      "uri": "ur://intent/remote:Unified.Media/action:volume_down",
       "onGesture": "up",
       "target": "phone"
     },
@@ -16,7 +16,7 @@
       "package": "android",
       "drawable": "ic_media_next",
       "intent": "unified",
-      "uri": "ur://intent/remote:Unified.SlideShow/action:next",
+      "uri": "ur://intent/remote:Unified.Media/action:volume_up",
       "onGesture": "down",
       "target": "phone"
     },
@@ -25,7 +25,7 @@
       "package": "android",
       "drawable": "ic_media_play",
       "intent": "unified",
-      "uri": "ur://intent/remote:Unified.GoogleSlides/action:start_show",
+      "uri": "ur://intent/remote:Unified.Media/action:play_pause",
       "onGesture": "enter",
       "target": "phone"
     },
@@ -34,7 +34,7 @@
       "package": "android",
       "drawable": "ic_media_pause",
       "intent": "unified",
-      "uri": "ur://intent/remote:Unified.SlideShow/action:show_end",
+      "uri": "ur://intent/remote:Unified.Media/action:stop",
       "onGesture": "home",
       "target": "phone"
     }

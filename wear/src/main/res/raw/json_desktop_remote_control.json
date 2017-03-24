@@ -2,6 +2,12 @@
   "back_button": true,
   "menu_items": [
     {
+      "text": "Media control",
+      "drawable": "ic_slideshow_black_48dp",
+      "target": "media_controller",
+      "configuration": "media_ur_media"
+    },
+    {
       "text": "Keynote",
       "drawable": "ic_slideshow_black_48dp",
       "target": "media_controller",
@@ -14,10 +20,10 @@
       "configuration": "media_ur_google_slides"
     },
     {
-      "text": "PowerPoint",
+      "text": "Slides",
       "drawable": "ic_slideshow_black_48dp",
       "target": "media_controller",
-      "configuration": "media_ur_google_slides"
+      "configuration": "media_ur_general_slides"
     }
   ]
 }
