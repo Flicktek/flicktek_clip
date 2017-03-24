@@ -31,10 +31,16 @@
       "configuration": "media_music"
     },
     {
-      "text": "Remote Control",
+      "text": "Phone Control",
       "drawable": "ic_cast_black_48dp",
       "target": "menu_list",
       "json": "json_remote_control"
+    },
+    {
+      "text": "Remote Control",
+      "drawable": "ic_cast_black_48dp",
+      "target": "menu_list",
+      "json": "json_desktop_remote_control"
     },
     {
       "text": "Stop Watch",

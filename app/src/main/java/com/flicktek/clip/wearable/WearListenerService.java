@@ -54,6 +54,10 @@ import java.util.Map;
 public class WearListenerService extends WearableListenerService {
     private static final String TAG = "WEARABLE_SERVICE";
 
+    public static final String UR_ACTION_URI_SEND = "com.unifiedremote.ACTION_URI_SEND";
+    public static final String UR_ACTION_URI_CONFIGURE = "com.unifiedremote.ACTION_URI_CONFIGURE";
+    public static final String UR_EXTRA_URI = "com.unifiedremote.EXTRA_URI";
+
     public static boolean mApplicationActive = false;
 
     public static String mMacDeviceConnected = "MAC_ADDRESS";
@@ -251,6 +255,13 @@ public class WearListenerService extends WearableListenerService {
                 res.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 res.setComponent(new ComponentName(mPackage, mPackage + mClass));
                 startActivity(res);
+                return;
+            }
+
+            if (path.equals(Constants.FLICKTEK_CLIP.UNIFIED_INTENT)) {
+                Log.v(TAG, "Launch Unified remote intent! " + text);
+                getApplicationContext().sendBroadcast(new Intent(UR_ACTION_URI_SEND).
+                        putExtra(UR_EXTRA_URI, text));
                 return;
             }
 

@@ -30,12 +30,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.flicktek.clip.R;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import com.flicktek.clip.FlicktekManager;
-import com.flicktek.clip.R;
 
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
@@ -63,7 +62,7 @@ public class DeviceListAdapter extends BaseAdapter {
     public void addBondedDevices(final Set<BluetoothDevice> devices) {
         final List<ExtendedBluetoothDevice> bondedDevices = mListBondedValues;
         for (BluetoothDevice device : devices) {
-            if (device.getName()!= null && device.getName().startsWith("FlickTek"))
+            if (device.getName()!= null && (device.getName().startsWith("Flick") || device.getName().startsWith("Dfu")))
                 bondedDevices.add(new ExtendedBluetoothDevice(device));
         }
         notifyDataSetChanged();
@@ -79,7 +78,7 @@ public class DeviceListAdapter extends BaseAdapter {
             BluetoothDevice btdev = result.getDevice();
             if (btdev != null) {
                 String name = btdev.getName();
-                if (name != null && (name.startsWith("FlickTek") || name.startsWith("Aria"))) {
+                if (name != null && (name.startsWith("Flick") || name.startsWith("Aria") || name.startsWith("Dfu"))) {
                     final ExtendedBluetoothDevice device = findDevice(result);
                     if (device == null) {
                         mListValues.add(new ExtendedBluetoothDevice(result));

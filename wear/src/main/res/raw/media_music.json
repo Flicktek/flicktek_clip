@@ -9,7 +9,8 @@
       "drawable": "ic_media_previous",
       "onGesture": "up",
       "target": "phone",
-      "intent" : "com.android.music.musicservicecommand?command=next"
+      "intent" : "intent",
+      "uri" : "com.android.music.musicservicecommand?command=next"
     },
     {
       "text": "Next",
@@ -17,7 +18,8 @@
       "drawable": "ic_media_next",
       "onGesture": "down",
       "target": "phone",
-      "intent" : "com.android.music.musicservicecommand?command=previous"
+      "intent" : "intent",
+      "uri" : "com.android.music.musicservicecommand?command=previous"
     },
     {
       "text": "Start show",
@@ -25,7 +27,8 @@
       "drawable": "ic_media_play",
       "onGesture": "enter",
       "target": "phone",
-      "intent" : "com.android.music.musicservicecommand?command=togglepause"
+      "intent" : "intent",
+      "uri" : "com.android.music.musicservicecommand?command=togglepause"
     },
     {
       "text": "End show",
@@ -33,7 +36,8 @@
       "drawable": "ic_media_pause",
       "onGesture": "home",
       "target": "phone",
-      "intent" : "com.android.music.musicservicecommand?command=stop"
+      "intent" : "intent",
+      "uri" : "com.android.music.musicservicecommand?command=stop"
     }
   ]
 }

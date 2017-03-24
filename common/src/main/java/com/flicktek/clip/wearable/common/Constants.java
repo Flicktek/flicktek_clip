@@ -56,6 +56,7 @@ public final class Constants {
         public static final String LAUNCH_ACTIVITY = "/activity";
         public static final String LAUNCH_FRAGMENT = "/fragment";
         public static final String LAUNCH_INTENT = "/intent";
+        public static final String UNIFIED_INTENT = "/unified";
 
         // Reports for analytics and general usage
         public static final String BATTERY = "/battery";

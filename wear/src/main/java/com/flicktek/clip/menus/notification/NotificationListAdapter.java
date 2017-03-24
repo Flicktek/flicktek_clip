@@ -1,90 +1,116 @@
 package com.flicktek.clip.menus.notification;
 
-import android.app.Activity;
 import android.content.Context;
-import android.support.wearable.view.WearableListView;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.flicktek.clip.MainActivity;
 import com.flicktek.clip.R;
 import com.flicktek.clip.wearable.common.NotificationModel;
 
 import java.util.List;
 
-public class NotificationListAdapter extends WearableListView.Adapter {
+/**
+ * Adapter for the menu.
+ * <p>
+ * You can manually add items using the ArrayAdapter<NotificationModel> or load JSON files from the resources
+ */
+public class NotificationListAdapter extends ArrayAdapter<NotificationModel> {
+	private static final String TAG = "NotificationListAdapter";
+	public boolean hasHeader = false;
+	public boolean disableHeader = false;
 
-	private final Activity activity;
-	private final List<NotificationModel> items;
-
-	public NotificationListAdapter(Activity activity, List<NotificationModel> items) {
-		this.activity = activity;
-		this.items = items;
+	public NotificationListAdapter(Context _context, int _resourceId, List<NotificationModel> _objects) {
+		super(_context, _resourceId, _objects);
 	}
 
-	@Override
-	public WearableListView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-		return new WearableListView.ViewHolder(new MyItemView(activity));
+	public NotificationModel getNotificationModel(int position) {
+		return getItem(position);
 	}
+	
+	public View getView(int _position, View _view, ViewGroup _parent) {
+		NotificationModel item = getItem(_position);
 
-	@Override
-	public void onBindViewHolder(WearableListView.ViewHolder viewHolder, int position) {
-		MyItemView itemView = (MyItemView) viewHolder.itemView;
-		final NotificationModel item = items.get(position);
+		ViewHolder holder;
+		ViewHeader header;
 
-		TextView txtView = (TextView) itemView.findViewById(R.id.iv_notification_item_label);
-		txtView.setText(item.getTitle());
-
-		ImageView imgView = (ImageView) itemView.findViewById(R.id.iv_notification_item_icon);
-		imgView.setImageBitmap(item.getIcon());
-
-		if(item.isSelected()){
-			itemView.setBackgroundResource(R.color.bg2);
-		}else{
-			itemView.setBackgroundResource(R.color.dark_grey);
+		if (_view != null) {
+			if (!_view.getClass().isInstance(ViewHolder.class))
+				_view = null;
 		}
-	}
 
-	@Override
-	public int getItemCount() {
-		return items.size();
-	}
+		if (_view == null) {
+			LayoutInflater inflater = LayoutInflater.from(getContext());
+			MainActivity main = (MainActivity) getContext();
+			holder = new ViewHolder();
 
-	public void refresh() {
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				notifyDataSetChanged();
+			if (main.isRound) {
+				_view = inflater.inflate(R.layout.item_menu_round, _parent, false);
+			} else {
+				_view = inflater.inflate(R.layout.item_menu_rect, _parent, false);
 			}
-		});
+
+			Typeface mainFont = Typeface.createFromAsset(getContext().getAssets(), getContext().getString(R.string.main_font));
+			holder.textView = (TextView) _view.findViewById(R.id.tv_item_label);
+			holder.textView.setTypeface(mainFont);
+			holder.textView.setTextColor(Color.WHITE);
+
+			holder.textViewSmall = (TextView) _view.findViewById(R.id.tv_item_label_small);
+			holder.textViewSmall.setTypeface(mainFont);
+			holder.textViewSmall.setTextColor(Color.WHITE);
+
+			holder.imageView = (ImageView) _view.findViewById(R.id.iv_item_icon);
+
+			_view.setTag(holder);
+		} else {
+			holder = (ViewHolder) _view.getTag();
+		}
+
+		holder.textView.setText(item.getTitle());
+		if (item.getIcon() != null) {
+			//holder.imageView.setImageDrawable(item.getIcon());
+		} else {
+			holder.imageView.setImageResource(android.R.color.transparent);
+		}
+
+		ImageView imageIcon = (ImageView) _view.findViewById(R.id.iv_item_icon);
+		if (item.isSelected()) {
+			_view.setBackgroundResource(R.drawable.bg_light);
+			holder.textView.setTextColor(Color.BLACK);
+			holder.textViewSmall.setTextColor(Color.BLACK);
+
+			int color = Color.parseColor("#000000");
+			imageIcon.setColorFilter(color);
+		} else {
+			_view.setBackgroundResource(R.drawable.bg_dark);
+			holder.textView.setTextColor(Color.WHITE);
+			holder.textViewSmall.setTextColor(Color.WHITE);
+
+			int color = Color.parseColor("#AE6118");
+			imageIcon.setColorFilter(color);
+		}
+
+		return _view;
 	}
 
-	private final class MyItemView extends FrameLayout implements WearableListView.OnCenterProximityListener {
-
-		final ImageView imgView;
-		final TextView txtView;
-
-		public MyItemView(Context context) {
-			super(context);
-			View.inflate(context, R.layout.notification_item, this);
-			imgView = (ImageView) findViewById(R.id.iv_notification_item_icon);
-			txtView = (TextView) findViewById(R.id.iv_notification_item_label);
-		}
-
-		@Override
-		public void onCenterPosition(boolean b) {
-			//Animation example to be ran when the view becomes the centered one
-			imgView.animate().scaleX(1f).scaleY(1f).alpha(1);
-			txtView.animate().scaleX(1f).scaleY(1f).alpha(1);
-		}
-
-		@Override
-		public void onNonCenterPosition(boolean b) {
-			//Animation example to be ran when the view is not the centered one anymore
-			imgView.animate().scaleX(0.7f).scaleY(0.7f).alpha(0.5f);
-			txtView.animate().scaleX(0.7f).scaleY(0.7f).alpha(0.5f);
-		}
+	public void disable_header() {
+		disableHeader = true;
 	}
+
+	private static class ViewHolder {
+		TextView textView;
+		TextView textViewSmall;
+		ImageView imageView;
+	}
+
+	private static class ViewHeader {
+		ImageView imageView;
+	}
+
 }

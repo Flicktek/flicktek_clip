@@ -1,8 +1,5 @@
 {
   "title": "",
   "background": "bkg_iot_demo",
-  "activity": "com.flicktek.aria_homedemo",
-  "gesture_actions": [
-
-  ]
+  "activity": "com.flicktek.aria_homedemo"
 }

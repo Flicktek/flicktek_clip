@@ -60,12 +60,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-
-import no.nordicsemi.android.dfu.DfuProgressListener;
-import no.nordicsemi.android.dfu.DfuProgressListenerAdapter;
-import no.nordicsemi.android.dfu.DfuServiceInitiator;
-import no.nordicsemi.android.dfu.DfuServiceListenerHelper;
 import com.flicktek.clip.AppHelpFragment;
 import com.flicktek.clip.PermissionRationaleFragment;
 import com.flicktek.clip.R;
@@ -76,6 +70,13 @@ import com.flicktek.clip.dfu.settings.SettingsActivity;
 import com.flicktek.clip.dfu.settings.SettingsFragment;
 import com.flicktek.clip.scanner.ScannerFragment;
 import com.flicktek.clip.utility.FileHelper;
+
+import java.io.File;
+
+import no.nordicsemi.android.dfu.DfuProgressListener;
+import no.nordicsemi.android.dfu.DfuProgressListenerAdapter;
+import no.nordicsemi.android.dfu.DfuServiceInitiator;
+import no.nordicsemi.android.dfu.DfuServiceListenerHelper;
 
 /**
  * DfuActivity is the main DFU activity It implements DFUManagerCallbacks to receive callbacks from DFUManager class It implements
@@ -674,8 +675,8 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 		showProgressBar();
 
 		final boolean keepBond = preferences.getBoolean(SettingsFragment.SETTINGS_KEEP_BOND, false);
-		final boolean forceDfu = preferences.getBoolean(SettingsFragment.SETTINGS_ASSUME_DFU_NODE, false);
-		final boolean enablePRNs = preferences.getBoolean(SettingsFragment.SETTINGS_PACKET_RECEIPT_NOTIFICATION_ENABLED, Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
+		final boolean forceDfu = preferences.getBoolean(SettingsFragment.SETTINGS_ASSUME_DFU_NODE, true);
+		boolean enablePRNs = preferences.getBoolean(SettingsFragment.SETTINGS_PACKET_RECEIPT_NOTIFICATION_ENABLED, Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 		String value = preferences.getString(SettingsFragment.SETTINGS_NUMBER_OF_PACKETS, String.valueOf(DfuServiceInitiator.DEFAULT_PRN_VALUE));
 		int numberOfPackets;
 		try {
@@ -764,6 +765,8 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 	private void showErrorMessage(final String message) {
 		clearUI(false);
 		showToast("Upload failed: " + message);
+		mUploadButton.setEnabled(true);
+		mStatusOk = true;
 	}
 
 	private void clearUI(final boolean clearDevice) {
@@ -777,16 +780,17 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 		if (clearDevice) {
 			mSelectedDevice = null;
 			mDeviceNameView.setText(R.string.dfu_default_name);
+			mFileNameView.setText(null);
+			mFileTypeView.setText(null);
+			mFileSizeView.setText(null);
+			mFilePath = null;
+			mFileStreamUri = null;
+			mInitFilePath = null;
+			mInitFileStreamUri = null;
 		}
 		// Application may have lost the right to these files if Activity was closed during upload (grant uri permission). Clear file related values.
-		mFileNameView.setText(null);
-		mFileTypeView.setText(null);
-		mFileSizeView.setText(null);
+
 		mFileStatusView.setText(R.string.dfu_file_status_no_file);
-		mFilePath = null;
-		mFileStreamUri = null;
-		mInitFilePath = null;
-		mInitFileStreamUri = null;
 		mStatusOk = false;
 	}
 

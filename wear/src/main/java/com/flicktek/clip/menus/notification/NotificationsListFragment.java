@@ -14,33 +14,27 @@ import android.widget.Toast;
 
 import com.flicktek.clip.FlicktekCommands;
 import com.flicktek.clip.FlicktekManager;
-import com.flicktek.clip.FlicktekSettings;
 import com.flicktek.clip.MainActivity;
 import com.flicktek.clip.R;
-import com.flicktek.clip.menus.AppModel;
-import com.flicktek.clip.menus.MenuAdapter;
-import com.flicktek.clip.wearable.common.Constants;
+import com.flicktek.clip.wearable.common.NotificationModel;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Generic menu fragment inheritable
  */
-public class NotificationsFragment extends Fragment implements AdapterView.OnItemClickListener {
-    private static final String ARG_JSON_NAME = "jsonName";
-    private static final String ARG_MENU_NAME = "menuName";
-
+public class NotificationsListFragment extends Fragment implements AdapterView.OnItemClickListener {
     private String TAG = "MenuFragment";
     private MainActivity mainActivity;
 
     private ListView lvMenu;
-    private MenuAdapter menuAdapter;
+    private NotificationListAdapter menuAdapter;
     private int menuIndex;
-    private AppModel menuSelectedModel;
+    private NotificationModel menuSelectedModel;
 
     private String menuName = "Notifications";
 
@@ -63,12 +57,7 @@ public class NotificationsFragment extends Fragment implements AdapterView.OnIte
         mainActivity.setMenuName(menuName);
 
         lvMenu = (ListView) rootView.findViewById(R.id.lv_dashboard_menu);
-
         initList();
-
-        if (FlicktekSettings.getInstance().isDemo())
-            mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
-                    Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, "menus.AnimatedGestures");
 
         mainActivity.initializeBatteryDisplay();
         return rootView;
@@ -82,24 +71,28 @@ public class NotificationsFragment extends Fragment implements AdapterView.OnIte
     private void initList() {
         Log.d(TAG, "initList: ");
 
-        ArrayList<AppModel> list = new ArrayList<AppModel>();
+        List<NotificationModel> list = FlicktekManager.getInstance().getNotifications();
 
-        if (mainActivity.isRound) {
-            menuAdapter = new MenuAdapter(mainActivity, R.layout.item_menu_round, list);
-        } else {
-            menuAdapter = new MenuAdapter(mainActivity, R.layout.item_menu_rect, list);
-        }
+        menuAdapter = new NotificationListAdapter(mainActivity, R.layout.item_notification_rect, list);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         menuIndex = prefs.getInt(menuName, 0);
 
-        if (menuAdapter.hasHeader && menuIndex == 0)
-            menuIndex = 1;
-
         lvMenu.setAdapter(menuAdapter);
         lvMenu.setOnItemClickListener(this);
 
-        changeCurrentMenuIndex(menuIndex);
+        if (menuIndex < list.size())
+            changeCurrentMenuIndex(menuIndex);
+        else
+            menuIndex = 0;
+
+        if (list.size() == 0) {
+
+        }
+
+        menuAdapter.add(new NotificationModel("Back", "", "application_back",
+                getResources().getDrawable(R.drawable.ic_arrow_back_black_48dp, mainActivity.getTheme()),
+                null));
     }
 
     public void onStart() {
@@ -132,7 +125,7 @@ public class NotificationsFragment extends Fragment implements AdapterView.OnIte
             prefs.edit().putInt(menuName, menuIndex).apply();
 
         if (menuIndex >= 0) {
-            menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);
+            menuSelectedModel = (NotificationModel) lvMenu.getItemAtPosition(menuIndex);
             menuSelectedModel.setSelected(true);
         }
 
@@ -155,9 +148,9 @@ public class NotificationsFragment extends Fragment implements AdapterView.OnIte
 
     private void openCurrentItem() {
         Log.d(TAG, "openCurrentItem: Games");
-        AppModel appModel = menuAdapter.getAppModel(menuIndex);
-        if (appModel != null)
-            appModel.performAction(mainActivity);
+        NotificationModel notificationModel = menuAdapter.getNotificationModel(menuIndex);
+        if (notificationModel != null)
+            notificationModel.performAction(mainActivity);
         else
             Log.e(TAG, "openCurrentItem: Missing model!");
     }

@@ -3,11 +3,13 @@ package com.flicktek.clip.menus;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -81,6 +83,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         if (FlicktekSettings.getInstance().isDemo())
             mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
                     Constants.FLICKTEK_CLIP.LAUNCH_FRAGMENT, "menus.AnimatedGestures");
+
         return rootView;
     }
 
@@ -137,17 +140,57 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         EventBus.getDefault().unregister(this);
     }
 
+    public static View getChildAtPosition(final AdapterView view, final int position) {
+        final int index = position - view.getFirstVisiblePosition();
+        if ((index >= 0) && (index < view.getChildCount())) {
+            return view.getChildAt(index);
+        } else {
+            return null;
+        }
+    }
+
+    public static void smoothScrollToPositionFromTop(final AbsListView view, final int position) {
+        View child = getChildAtPosition(view, position);
+        // There's no need to scroll if child is already at top or view is already scrolled to its end
+        if ((child != null) && ((child.getTop() == 0) || ((child.getTop() > 0) && !view.canScrollVertically(1)))) {
+            return;
+        }
+
+        view.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(final AbsListView view, final int scrollState) {
+                if (scrollState == SCROLL_STATE_IDLE) {
+                    view.setOnScrollListener(null);
+
+                    // Fix for scrolling bug
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            view.setSelection(position);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount,
+                                 final int totalItemCount) { }
+        });
+
+        // Perform scrolling to position
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                view.smoothScrollToPositionFromTop(position, 0);
+            }
+        });
+    }
+
     private void updateUi() {
         Log.d(TAG, "updateUi - index " + Integer.toString(menuIndex));
         if (menuSelectedModel != null) {
             menuSelectedModel.setSelected(false);
         }
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        if (menuIndex == menuAdapter.getCount() - 1)
-            prefs.edit().putInt(menuName, min_value).apply();
-        else
-            prefs.edit().putInt(menuName, menuIndex).apply();
 
         if (menuIndex >= 0) {
             menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);
@@ -156,8 +199,6 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
         menuAdapter.notifyDataSetChanged();
         lvMenu.smoothScrollToPosition(menuIndex);
-
-        mainActivity.updateBattery(0);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -178,11 +219,21 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
             appModel.performAction(mainActivity);
         else
             Log.e(TAG, "openCurrentItem: Missing model!");
+
+        save_preferences();
     }
 
     boolean exit_pressed = false;
 
     int min_value = 0;
+
+    void save_preferences() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if (menuIndex == menuAdapter.getCount() - 1)
+            prefs.edit().putInt(menuName, min_value).apply();
+        else
+            prefs.edit().putInt(menuName, menuIndex).apply();
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onGesturePerformed(FlicktekCommands.onGestureEvent gestureEvent) {
@@ -227,6 +278,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
                                 }
                             });
                 } else {
+                    save_preferences();
                     FlicktekManager.getInstance().backMenu(mainActivity);
                 }
                 exit_pressed = true;

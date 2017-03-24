@@ -47,6 +47,11 @@ public class DfuService extends DfuBaseService {
 	}
 
 	@Override
+	public void onCreate() {
+		super.onCreate();
+	}
+
+	@Override
 	protected boolean isDebug() {
 		// return BuildConfig.DEBUG;
 		return true;

@@ -75,12 +75,21 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
         }
 
         public void performAction() {
+            String target = "phone";
             try {
-                String intent = config.getString("intent");
-                mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
-                        Constants.FLICKTEK_CLIP.LAUNCH_INTENT, intent);
+                target = config.getString("target");
             } catch (Exception e) {
-                Log.v(TAG, "No activity to be launched");
+            }
+
+            if (target.equals("phone")) {
+                try {
+                    String intent = config.getString("intent");
+                    String uri = config.getString("uri");
+                    mainActivity.sendMessageToHandheld(mainActivity.getApplicationContext(),
+                            "/" + intent, uri);
+                } catch (Exception e) {
+                    Log.v(TAG, "No activity to be launched");
+                }
             }
         }
     }
@@ -360,7 +369,7 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
     }
 
     public void close() {
-        if (media_HOME !=null)
+        if (media_HOME != null)
             media_HOME.performAction();
 
         FlicktekManager.getInstance().backMenu(mainActivity);
@@ -413,15 +422,15 @@ public class MediaFragment extends Fragment implements View.OnClickListener {
                 exit_pressed = true;
                 return;
             case (STATUS_PLAY):
-                if (media_ENTER!=null)
+                if (media_ENTER != null)
                     media_ENTER.performAction();
                 break;
             case (STATUS_NEXT):
-                if (media_DOWN!=null)
+                if (media_DOWN != null)
                     media_DOWN.performAction();
                 break;
             case (STATUS_PREV):
-                if (media_UP!=null)
+                if (media_UP != null)
                     media_UP.performAction();
                 break;
         }

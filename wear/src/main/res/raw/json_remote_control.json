@@ -2,7 +2,7 @@
   "back_button": true,
   "menu_items": [
     {
-      "text": "Slides",
+      "text": "Pictures",
       "drawable": "ic_slideshow_black_48dp",
       "target": "media_controller",
       "configuration": "media_custom_slides"
@@ -18,12 +18,6 @@
       "drawable": "ic_music_note_black_48dp",
       "target": "media_controller",
       "configuration": "media_music"
-    },
-    {
-      "text": "PowerPoint",
-      "drawable": "ic_slideshow_black_48dp",
-      "target": "media_controller",
-      "configuration": "media_ur_google_slides"
     }
   ]
 }

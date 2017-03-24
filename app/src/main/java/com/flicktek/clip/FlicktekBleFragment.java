@@ -78,7 +78,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
     private Button mShutdown;
     private TextView mCaptureText;
 
-    private int TIME_WINDOW_SIZE = 100;
+    private int TIME_WINDOW_SIZE = 200;
     private int MIN_Y_MANUAL = 4000;
     private int MAX_Y_MANUAL = 10000;
 
@@ -376,7 +376,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
 
         if (mTriggerMode && !mTriggerCapturing) {
             for (int t = 0; t < 4; t++) {
-                if (sampleData[t] > 1 && (sampleData[t] > 5600 || sampleData[t] < 5400)) {
+                if (sampleData[t] > 1000 && (sampleData[t] > 5800 || sampleData[t] < 5200)) {
                     Log.v(TAG, "+++++++++++ Trigger capturing ++++++++++");
                     mTriggerCapturing = true;
                 }
@@ -774,7 +774,7 @@ public class FlicktekBleFragment extends Fragment implements View.OnClickListene
         mainActivity.tv_battery.setVisibility(View.VISIBLE);
         mainActivity.ll_battery.setVisibility(View.VISIBLE);
 
-        if (event.name.startsWith("FlickTek")) {
+        if (event.name.startsWith("Flick")) {
 
         }
     }

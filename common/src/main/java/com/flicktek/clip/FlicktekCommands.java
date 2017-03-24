@@ -351,10 +351,6 @@ public class FlicktekCommands {
     }
 
     public void onGestureChanged(int value) {
-        Log.d(TAG, "onGestureChanged: " + value +
-                " Paused " + mIsApplicationPaused +
-                " Visible " + mIsApplicationVisible);
-
         if (!mIsApplicationVisible &&
                 (value == GESTURE_ENTER || value == GESTURE_PHYSICAL_BUTTON)) {
             Log.v(TAG, "########## RELAUNCH ##########");
@@ -375,9 +371,13 @@ public class FlicktekCommands {
         if (value == FlicktekManager.GESTURE_NONE) {
             EventBus.getDefault().post(new onGestureNotClassified());
         } else {
-            vibration_patterns(value);
             EventBus.getDefault().post(new onGestureEvent(value));
+            vibration_patterns(value);
         }
+
+        Log.d(TAG, "onGestureChanged: " + value +
+                " Paused " + mIsApplicationPaused +
+                " Visible " + mIsApplicationVisible);
     }
 
     //---------- Write commands -----------------------------------------------------

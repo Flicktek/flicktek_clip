@@ -238,6 +238,17 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name="com.flicktek.clip.dfu.DfuService"
+            android:exported="true"
+            android:label="@string/dfu_service_title" >
+            <intent-filter>
+                <action android:name="no.nordicsemi.android.action.DFU_UPLOAD" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <provider
             android:name="com.flicktek.clip.uart.UARTLocalLogContentProvider"
             android:authorities="com.flicktek.clip.uart.log"

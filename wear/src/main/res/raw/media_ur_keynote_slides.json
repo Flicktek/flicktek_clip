@@ -1,38 +1,42 @@
 {
-  "title": "Keynote Slides",
+  "title": "Keynote",
   "background": "bkg_google_slides",
-  "gesture_actions": [
+  "media_actions": [
     {
       "text": "Previous",
       "package": "android",
       "drawable": "ic_media_previous",
+      "intent": "unified",
+      "uri": "ur://intent/remote:Unified.Keynote/action:previous",
       "onGesture": "up",
-      "target": "phone",
-      "intent" : "ur://intent/remote:Unified.Keynote/action:previous"
+      "target": "phone"
     },
     {
       "text": "Next",
       "package": "android",
       "drawable": "ic_media_next",
+      "intent": "unified",
+      "uri": "ur://intent/remote:Unified.Keynote/action:next",
       "onGesture": "down",
-      "target": "phone",
-      "intent" : "ur://intent/remote:Unified.Keynote/action:next"
+      "target": "phone"
     },
     {
       "text": "Start show",
       "package": "android",
       "drawable": "ic_media_play",
+      "intent": "unified",
+      "uri": "ur://intent/remote:Unified.Keynote/action:start_show",
       "onGesture": "enter",
-      "target": "phone",
-      "intent" : "ur://intent/remote:Unified.Keynote/action:start_show"
+      "target": "phone"
     },
     {
       "text": "End show",
       "package": "android",
       "drawable": "ic_media_pause",
+      "intent": "unified",
+      "uri": "ur://intent/remote:Unified.Keynote/action:show_end",
       "onGesture": "home",
-      "target": "phone",
-      "intent" : "ur://intent/remote:Unified.Keynote/action:show_end"
+      "target": "phone"
     }
   ]
 }

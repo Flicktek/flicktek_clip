@@ -302,7 +302,7 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 }
 
                 if (displayDashboard) {
-                    Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard");
+                    Fragment fragment = MenuFragment.newInstance("Dashboard", "json_dashboard_header");
                     showFragment(fragment, "Dashboard", true);
                 }
 

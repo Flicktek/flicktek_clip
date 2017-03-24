@@ -129,6 +129,7 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         menuIndex = prefs.getInt(menuName, 0);
 
+        lvMenu.setScrollingCacheEnabled(true);
         changeCurrentMenuIndex(menuIndex);
     }
 
@@ -151,32 +152,65 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
         EventBus.getDefault().unregister(this);
     }
 
+    /*
+    public void smoothScrollToPosition(final AbsListView view, final int position) {
+        View child = lvMenu.getChildAtPosition(view, position);
+        // There's no need to scroll if child is already at top or view is already scrolled to its end
+        if ((child != null) && ((child.getTop() == 0) || ((child.getTop() > 0) && !view.canScrollVertically(1)))) {
+            return;
+        }
+
+        view.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(final AbsListView view, final int scrollState) {
+                if (scrollState == SCROLL_STATE_IDLE) {
+                    view.setOnScrollListener(null);
+
+                    // Fix for scrolling bug
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            view.setSelection(position);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount,
+                                 final int totalItemCount) { }
+        });
+
+        // Perform scrolling to position
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                view.smoothScrollToPositionFromTop(position, 0);
+            }
+        });
+    }
+    */
+
     private void updateUi() {
         Log.d(TAG, "updateUi - index " + Integer.toString(menuIndex));
         if (menuSelectedModel != null) {
             menuSelectedModel.setSelected(false);
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        if (menuIndex == menuAdapter.getCount() - 1)
-            prefs.edit().putInt(menuName, 0).apply();
-        else
-            prefs.edit().putInt(menuName, menuIndex).apply();
-
         if (menuIndex >= 0) {
             menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);
             menuSelectedModel.setSelected(true);
         }
 
+        //lvMenu.setFastScrollEnabled(true);
+        //lvMenu.smoothScrollToPosition(menuIndex);
         menuAdapter.notifyDataSetChanged();
-        lvMenu.smoothScrollToPosition(menuIndex);
-
-        mainActivity.updateBattery(FlicktekManager.getInstance().getBatteryLevel());
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         changeCurrentMenuIndex(position);
         openCurrentItem();
+        mainActivity.updateBattery(FlicktekManager.getInstance().getBatteryLevel());
     }
 
     //actions
@@ -199,6 +233,11 @@ public class MenuFragment extends Fragment implements AdapterView.OnItemClickLis
 
     public void back() {
         mainActivity.onBackPressed();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if (menuIndex == menuAdapter.getCount() - 1)
+            prefs.edit().putInt(menuName, 0).apply();
+        else
+            prefs.edit().putInt(menuName, menuIndex).apply();
     }
 
     private int oldViewState = 0;

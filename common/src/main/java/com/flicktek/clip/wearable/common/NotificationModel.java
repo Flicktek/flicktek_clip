@@ -1,18 +1,19 @@
 package com.flicktek.clip.wearable.common;
 
-import android.graphics.Bitmap;
+import android.app.Activity;
+import android.graphics.drawable.Drawable;
 
 public class NotificationModel {
     private String title;
     private String text;
     private String key;
-    private Bitmap icon;
+    private Drawable icon;
 
     // In case we don't have the icon, this a google wearable asset so we can query for it.
     private Object asset;
     private boolean selected;
 
-    public NotificationModel(String title, String text, String key, Bitmap icon, Object asset) {
+    public NotificationModel(String title, String text, String key, Drawable icon, Object asset) {
         this.title = title;
         this.text = text;
         this.key = key;
@@ -44,11 +45,11 @@ public class NotificationModel {
         this.key = id;
     }
 
-    public Bitmap getIcon() {
+    public Drawable getIcon() {
         return icon;
     }
 
-    public void setIcon(Bitmap icon) {
+    public void setIcon(Drawable icon) {
         this.icon = icon;
     }
 
@@ -62,5 +63,10 @@ public class NotificationModel {
 
     public Object getAsset() {
         return asset;
+    }
+
+    // Call the method on the smartphone to perform the action
+    public void performAction(Activity mainActivity) {
+
     }
 }
