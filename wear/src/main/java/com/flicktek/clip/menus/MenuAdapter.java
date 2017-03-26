@@ -266,7 +266,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
             }
 
             int color = Color.parseColor("#000000");
-            holder.mImageViewSelected.setColorFilter(0);
+            holder.mImageViewSelected.setColorFilter(color);
 
         } else {
             holder.mRelativeLayout.setVisibility(View.VISIBLE);
