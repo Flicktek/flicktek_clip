@@ -3,13 +3,15 @@ package com.flicktek.clip.menus;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.flicktek.clip.FlicktekCommands;
@@ -28,17 +30,15 @@ import java.util.ArrayList;
 /**
  * Generic menu fragment inheritable
  */
-public class MenuFragment extends Fragment {
+public class MenuListFragment extends Fragment implements AdapterView.OnItemClickListener {
     private static final String ARG_JSON_NAME = "jsonName";
     private static final String ARG_MENU_NAME = "menuName";
 
     private String TAG = "MenuFragment";
     private MainActivity mainActivity;
 
-    private RecyclerView mRecyclerView;
-    private MenuAdapter menuAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
+    private ListView lvMenu;
+    private MenuListAdapter menuAdapter;
     private int menuIndex;
     private AppModel menuSelectedModel;
 
@@ -47,8 +47,8 @@ public class MenuFragment extends Fragment {
 
     // Default bundle constructor as google best practices
 
-    public static MenuFragment newInstance(String menuName, String jsonName) {
-        MenuFragment myFragment = new MenuFragment();
+    public static MenuListFragment newInstance(String menuName, String jsonName) {
+        MenuListFragment myFragment = new MenuListFragment();
 
         Bundle args = new Bundle();
         args.putString(ARG_JSON_NAME, jsonName);
@@ -69,10 +69,14 @@ public class MenuFragment extends Fragment {
         init();
 
         View rootView;
-        rootView = inflater.inflate(R.layout.fragment_dashboard_recycler, container, false);
+        if (mainActivity.isRound) {
+            rootView = inflater.inflate(R.layout.fragment_dashboard_round, container, false);
+        } else {
+            rootView = inflater.inflate(R.layout.fragment_dashboard_rect, container, false);
+        }
 
         mainActivity.setMenuName(menuName);
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.lv_dashboard_menu);
+        lvMenu = (ListView) rootView.findViewById(R.id.lv_dashboard_menu);
 
         initList();
 
@@ -93,9 +97,14 @@ public class MenuFragment extends Fragment {
 
         ArrayList<AppModel> list = new ArrayList<AppModel>();
 
-        menuAdapter = new MenuAdapter(list);
+        if (mainActivity.isRound) {
+            menuAdapter = new MenuListAdapter(mainActivity, R.layout.item_menu_round, list);
+        } else {
+            menuAdapter = new MenuListAdapter(mainActivity, R.layout.item_menu_rect, list);
+        }
+
         try {
-            menuAdapter.populateFromJson(mainActivity, jsonName);
+            menuAdapter.populateFromJson(jsonName);
         } catch (Exception e) {
             e.printStackTrace();
             mainActivity.showToastMessage(e.toString());
@@ -108,26 +117,8 @@ public class MenuFragment extends Fragment {
         if (menuAdapter.hasHeader && menuIndex == 0)
             menuIndex = 1;
 
-        //mRecyclerView.setHasFixedSize(true);
-
-        mRecyclerView.setAdapter(menuAdapter);
-        mLayoutManager = new LinearLayoutManager(mainActivity.getApplicationContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(mainActivity.getApplicationContext(),
-                        new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        try {
-                            changeCurrentMenuIndex(position);
-                            openCurrentItem();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                })
-        );
+        lvMenu.setAdapter(menuAdapter);
+        lvMenu.setOnItemClickListener(this);
 
         changeCurrentMenuIndex(menuIndex);
     }
@@ -149,9 +140,72 @@ public class MenuFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
+    public static View getChildAtPosition(final AdapterView view, final int position) {
+        final int index = position - view.getFirstVisiblePosition();
+        if ((index >= 0) && (index < view.getChildCount())) {
+            return view.getChildAt(index);
+        } else {
+            return null;
+        }
+    }
+
+    public static void smoothScrollToPositionFromTop(final AbsListView view, final int position) {
+        View child = getChildAtPosition(view, position);
+        // There's no need to scroll if child is already at top or view is already scrolled to its end
+        if ((child != null) && ((child.getTop() == 0) || ((child.getTop() > 0) && !view.canScrollVertically(1)))) {
+            return;
+        }
+
+        view.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(final AbsListView view, final int scrollState) {
+                if (scrollState == SCROLL_STATE_IDLE) {
+                    view.setOnScrollListener(null);
+
+                    // Fix for scrolling bug
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            view.setSelection(position);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount,
+                                 final int totalItemCount) { }
+        });
+
+        // Perform scrolling to position
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                view.smoothScrollToPositionFromTop(position, 0);
+            }
+        });
+    }
+
     private void updateUi() {
-        menuAdapter.setSelected(menuIndex);
-        mRecyclerView.smoothScrollToPosition(menuIndex);
+        Log.d(TAG, "updateUi - index " + Integer.toString(menuIndex));
+        if (menuSelectedModel != null) {
+            menuSelectedModel.setSelected(false);
+        }
+
+        if (menuIndex >= 0) {
+            menuSelectedModel = (AppModel) lvMenu.getItemAtPosition(menuIndex);
+            menuSelectedModel.setSelected(true);
+        }
+
+        menuAdapter.notifyDataSetChanged();
+
+        smoothScrollToPositionFromTop(lvMenu, menuIndex);
+        //lvMenu.smoothScrollToPosition(menuIndex);
+    }
+
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        changeCurrentMenuIndex(position);
+        openCurrentItem();
     }
 
     //actions
@@ -177,7 +231,7 @@ public class MenuFragment extends Fragment {
 
     void save_preferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        if (menuIndex == menuAdapter.getItemCount() - 1)
+        if (menuIndex == menuAdapter.getCount() - 1)
             prefs.edit().putInt(menuName, min_value).apply();
         else
             prefs.edit().putInt(menuName, menuIndex).apply();
@@ -198,11 +252,11 @@ public class MenuFragment extends Fragment {
                     changeCurrentMenuIndex(menuIndex - 1);
                 } else {
                     menuAdapter.disable_header();
-                    changeCurrentMenuIndex(menuAdapter.getItemCount() - 1);
+                    changeCurrentMenuIndex(menuAdapter.getCount() - 1);
                 }
                 break;
             case (FlicktekManager.GESTURE_DOWN):
-                if (menuIndex < menuAdapter.getItemCount() - 1) {
+                if (menuIndex < menuAdapter.getCount() - 1) {
                     changeCurrentMenuIndex(menuIndex + 1);
                 } else {
                     menuAdapter.disable_header();
