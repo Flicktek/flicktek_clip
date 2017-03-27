@@ -33,11 +33,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.IBinder;
@@ -56,6 +54,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.clip.ConnectionEvents.ConnectedEvent;
+import com.flicktek.clip.ConnectionEvents.ConnectingEvent;
+import com.flicktek.clip.ConnectionEvents.DisconnectedEvent;
 import com.flicktek.clip.ble.BleProfileService;
 import com.flicktek.clip.menus.AppModel;
 import com.flicktek.clip.menus.MediaFragment;
@@ -462,6 +463,39 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
 
         sendMessageToHandheld(getApplicationContext(), Constants.FLICKTEK_CLIP.DEVICE_STATE,
                 "DeviceReady");
+    }
+
+    private int visibility_view = View.INVISIBLE;
+    private int text_color = 0;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLinkLost(DisconnectedEvent event) {
+        if (tv_current_menu != null) {
+            visibility_view = tv_current_menu.getVisibility();
+            tv_current_menu.setText("DISCONNECTED");
+            tv_current_menu.setTextColor(Color.rgb(200,0,0));
+            tv_current_menu.setVisibility(View.VISIBLE);
+        }
+
+        if (ll_battery != null)
+            ll_battery.setVisibility(View.GONE);
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onConnecting(ConnectingEvent event) {
+        if (tv_current_menu != null)
+            tv_current_menu.setText("CONNECTING");
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLinkRestablished(ConnectedEvent connectedEvent) {
+        if (tv_current_menu != null) {
+            tv_current_menu.setText(menuName);
+            tv_current_menu.setVisibility(visibility_view);
+            tv_current_menu.setTextColor(Color.rgb(255,255,255));
+        }
+        if (ll_battery != null)
+            ll_battery.setVisibility(View.VISIBLE);
     }
 
     @Override

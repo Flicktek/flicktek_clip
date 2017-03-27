@@ -6,6 +6,7 @@
               android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/top_application_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_grey"
@@ -16,6 +17,7 @@
             android:layout_height="20dp"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="5dp"
+            
             android:orientation="horizontal">
 
 
