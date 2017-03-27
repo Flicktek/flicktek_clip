@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +31,12 @@ import java.util.List;
  * <p>
  * You can manually add items using the ArrayAdapter<AppModel> or load JSON files from the resources
  */
-public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
+public class MenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "MenuAdapter";
+
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
+
     private List<AppModel> mDataset;
     MainActivity main;
     private SharedPreferences mPref;
@@ -43,59 +48,68 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
     public static Typeface mainFont;
 
+    public class ViewOptimized  {
+        public RelativeLayout mRelativeLayout;
+        public TextView mTextView;
+        public TextView mTextViewSmall;
+        public ImageView mImageView;
+    }
+
+    public class ViewHeader extends RecyclerView.ViewHolder {
+        public ImageView mImageViewHeader;
+        public ViewHeader(View view) {
+            super(view);
+            mImageViewHeader = (ImageView) view.findViewById(R.id.iv_header);
+        }
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        RelativeLayout mRelativeLayout;
-        TextView mTextView;
-        TextView mTextViewSmall;
-        ImageView mImageView;
 
-        RelativeLayout mRelativeLayoutSelected;
-        TextView mTextViewSelected;
-        TextView mTextViewSmallSelected;
-        ImageView mImageViewSelected;
+        ViewOptimized mSelected;
+        ViewOptimized mNotSelected;
 
         public ViewHolder(View view) {
             super(view);
-            mRelativeLayout = (RelativeLayout) view.findViewById(R.id.rl_item_menu);
+            int color;
 
-            mTextView = (TextView) view.findViewById(R.id.tv_item_label);
-            mTextView.setTypeface(mainFont);
-            mTextView.setTextColor(Color.WHITE);
+            ViewOptimized n_sel = new ViewOptimized();
+            n_sel.mRelativeLayout = (RelativeLayout) view.findViewById(R.id.rl_item_menu);
+            n_sel.mRelativeLayout.setBackgroundResource(R.drawable.bg_dark);
 
-            mTextViewSmall = (TextView) view.findViewById(R.id.tv_item_label_small);
-            mTextViewSmall.setTypeface(mainFont);
-            mTextViewSmall.setTextColor(Color.WHITE);
+            n_sel.mTextView = (TextView) view.findViewById(R.id.tv_item_label);
+            n_sel.mTextView.setTypeface(mainFont);
+            n_sel.mTextView.setTextColor(Color.WHITE);
 
-            mImageView = (ImageView) view.findViewById(R.id.iv_item_icon);
+            n_sel.mTextViewSmall = (TextView) view.findViewById(R.id.tv_item_label_small);
+            n_sel.mTextViewSmall.setTypeface(mainFont);
+            n_sel.mTextViewSmall.setTextColor(Color.WHITE);
 
-            mRelativeLayout.setBackgroundResource(R.drawable.bg_dark);
-            mTextView.setTextColor(Color.WHITE);
-            mTextViewSmall.setTextColor(Color.WHITE);
+            color = Color.parseColor("#AE6118");
+            n_sel.mImageView = (ImageView) view.findViewById(R.id.iv_item_icon);
+            n_sel.mImageView.setColorFilter(color);
 
-            int color = Color.parseColor("#AE6118");
-            mImageView.setColorFilter(color);
-
+            mNotSelected = n_sel;
+            
             //---- SELECTED ----
+            ViewOptimized sel = new ViewOptimized();
 
-            mRelativeLayoutSelected = (RelativeLayout) view.findViewById(R.id.rl_item_menu_selected);
+            sel.mRelativeLayout = (RelativeLayout) view.findViewById(R.id.rl_item_menu_selected);
+            sel.mRelativeLayout.setBackgroundResource(R.drawable.bg_light);
 
-            mTextViewSelected = (TextView) view.findViewById(R.id.tv_item_label_selected);
-            mTextViewSelected.setTypeface(mainFont);
-            mTextViewSelected.setTextColor(Color.WHITE);
+            sel.mTextView = (TextView) view.findViewById(R.id.tv_item_label_selected);
+            sel.mTextView.setTypeface(mainFont);
+            sel.mTextView.setTextColor(Color.BLACK);
 
-            mTextViewSmallSelected = (TextView) view.findViewById(R.id.tv_item_label_small_selected);
-            mTextViewSmallSelected.setTypeface(mainFont);
-            mTextViewSmallSelected.setTextColor(Color.WHITE);
-
-            mImageViewSelected = (ImageView) view.findViewById(R.id.iv_item_icon_selected);
-
-            mRelativeLayoutSelected.setBackgroundResource(R.drawable.bg_light);
-            mTextViewSelected.setTextColor(Color.BLACK);
-            mTextViewSmallSelected.setTextColor(Color.BLACK);
+            sel.mTextViewSmall = (TextView) view.findViewById(R.id.tv_item_label_small_selected);
+            sel.mTextViewSmall.setTypeface(mainFont);
+            sel.mTextViewSmall.setTextColor(Color.BLACK);
 
             color = Color.parseColor("#000000");
-            mImageViewSelected.setColorFilter(color);
+            sel.mImageView = (ImageView) view.findViewById(R.id.iv_item_icon_selected);
+            sel.mImageView.setColorFilter(color);
+
+            mSelected = sel;
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -146,10 +160,6 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
                 return false;
             }
         });
-    }
-
-    private static class ViewHeader {
-        ImageView imageView;
     }
 
     public MenuAdapter(List<AppModel> _objects) {
@@ -229,9 +239,23 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
     // Create new views (invoked by the layout manager)
     @Override
-    public MenuAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                      int viewType) {
         View view;
+        if (viewType == TYPE_HEADER) {
+            //inflate your layout and pass it to view holder
+            int res_header = R.layout.item_menu_header_rect;
+            if (MainActivity.isRound)
+                res_header = R.layout.item_menu_header_round;
+
+            view = LayoutInflater.from(parent.getContext()).inflate(res_header, parent, false);
+            ViewHeader vh = new ViewHeader(view);
+            return vh;
+        }
+
+        if (viewType != TYPE_ITEM)
+            Log.e(TAG, "Not the right type");
+
         int resource = R.layout.item_menu_rect;
         if (MainActivity.isRound)
             resource = R.layout.item_menu_round;
@@ -242,45 +266,74 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
         return vh;
     }
 
+    private boolean isPositionHeader(int position) {
+        // Header only on 0 at the moment. We can check on the object if it is a header
+        if (hasHeader && position == 0)
+            return true;
+
+        return false;
+    }
+
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public int getItemViewType(int position) {
+        if (isPositionHeader(position))
+            return TYPE_HEADER;
+
+        return TYPE_ITEM;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder_item, int position) {
         AppModel item = mDataset.get(position);
+        if (holder_item instanceof ViewHeader) {
+            ViewHeader header = (ViewHeader) holder_item;
+            header.mImageViewHeader.setImageDrawable(item.getIcon());
+            return;
+        }
+
+        ViewHolder holder = (ViewHolder) holder_item;
+
+        ViewOptimized selected = holder.mSelected;
+        ViewOptimized n_active = holder.mNotSelected;
+
         holder.itemView.setSelected(selectedItem == position);
 
         String data = item.getDataKey();
         if (data != null) {
             String info = FlicktekSettings.getInstance().getString(data, "Not Available");
-            holder.mTextViewSmall.setVisibility(View.VISIBLE);
-            holder.mTextViewSmall.setText(info);
+            n_active.mTextViewSmall.setVisibility(View.VISIBLE);
+            n_active.mTextViewSmall.setText(info);
         }
 
         if (item.isSelected()) {
-            holder.mRelativeLayout.setVisibility(View.GONE);
-            holder.mRelativeLayoutSelected.setVisibility(View.VISIBLE);
-            holder.mTextViewSelected.setText(item.getName());
+            n_active.mRelativeLayout.setVisibility(View.GONE);
+
+            selected.mRelativeLayout.setVisibility(View.VISIBLE);
+            selected.mTextView.setText(item.getName());
 
             if (item.getIcon() != null) {
-                holder.mImageViewSelected.setImageDrawable(item.getIcon());
+                selected.mImageView.setImageDrawable(item.getIcon());
             } else {
-                holder.mImageViewSelected.setImageResource(android.R.color.transparent);
+                selected.mImageView.setImageResource(android.R.color.transparent);
             }
 
             int color = Color.parseColor("#000000");
-            holder.mImageViewSelected.setColorFilter(color);
+            selected.mImageView.setColorFilter(color);
 
         } else {
-            holder.mRelativeLayout.setVisibility(View.VISIBLE);
-            holder.mRelativeLayoutSelected.setVisibility(View.GONE);
-            holder.mTextView.setText(item.getName());
+            selected.mRelativeLayout.setVisibility(View.GONE);
+
+            n_active.mRelativeLayout.setVisibility(View.VISIBLE);
+            n_active.mTextView.setText(item.getName());
 
             if (item.getIcon() != null) {
-                holder.mImageView.setImageDrawable(item.getIcon());
+                n_active.mImageView.setImageDrawable(item.getIcon());
             } else {
-                holder.mImageView.setImageResource(android.R.color.transparent);
+                n_active.mImageView.setImageResource(android.R.color.transparent);
             }
 
             int color = Color.parseColor("#AE6118");
-            holder.mImageView.setColorFilter(color);
+            n_active.mImageView.setColorFilter(color);
         }
     }
 
