@@ -85,4 +85,5 @@
     <string name="alphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="service_name">NotificationService</string>
     <string name="exit_text">Close map</string>
+    <string name="long_press_intro">Long press to exit</string>
 </resources>

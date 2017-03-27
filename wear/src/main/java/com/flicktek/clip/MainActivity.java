@@ -41,9 +41,13 @@ import android.os.Debug;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.wearable.activity.WearableActivity;
+import android.support.wearable.view.DismissOverlayView;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -110,6 +114,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     private TextView tv_battery;
     private ImageView iv_battery;
     private LinearLayout ll_battery;
+
+    public GestureDetector mDetector;
 
     private void setActivityFlags() {
         final Window windows = getWindow();
@@ -252,6 +258,74 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            boolean result = false;
+            try {
+                float diffY = e2.getY() - e1.getY();
+                float diffX = e2.getX() - e1.getX();
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            onSwipeRight();
+                        } else {
+                            onSwipeLeft();
+                        }
+                        result = true;
+                    }
+                }
+                else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffY > 0) {
+                        onSwipeBottom();
+                    } else {
+                        onSwipeTop();
+                    }
+                    result = true;
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            return result;
+        }
+
+
+        public void onSwipeRight() {
+            Log.v(TAG, "onSwipeRight ");
+            backFragment();
+        }
+
+        public void onSwipeLeft() {
+            Log.v(TAG, "onSwipeLeft ");
+        }
+
+        public void onSwipeTop() {
+            Log.v(TAG, "onSwipeTop ");
+        }
+
+        public void onSwipeBottom() {
+            Log.v(TAG, "onSwipeBottom ");
+            // Display time!
+        }
+    }
+
+    DismissOverlayView mDismissOverlay;
+
+    @Override
     protected void onCreate(final Bundle savedInstanceState) {
         // Singleton initialize
         FlicktekCommands.getInstance().init(getApplicationContext());
@@ -261,6 +335,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
         setContentView(R.layout.activity_main_stub);
         FlicktekCommands.getInstance().vibration_long();
         FlicktekSettings.getInstance().setPreferencesActivity(this);
+
+        mDetector = new GestureDetector(this, new GestureListener());
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub_main);
         stub.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
@@ -283,6 +359,9 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 boolean displayDashboard = true;
                 try {
                     // --- Battery layouts and display ---
+                    mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
+                    mDismissOverlay.setIntroText(R.string.long_press_intro);
+                    mDismissOverlay.showIntroIfNecessary();
 
                     Bundle extras = getIntent().getExtras();
                     if (extras != null) {

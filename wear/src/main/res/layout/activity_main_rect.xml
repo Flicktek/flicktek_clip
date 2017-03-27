@@ -17,7 +17,7 @@
             android:layout_height="20dp"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="5dp"
-            
+
             android:orientation="horizontal">
 
 

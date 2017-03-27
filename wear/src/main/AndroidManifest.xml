@@ -23,7 +23,7 @@
         android:label="@string/app_name"
         android:launchMode="singleInstance"
         android:roundIcon="@mipmap/ic_launcher"
-        android:theme="@android:style/Theme.DeviceDefault.Light">
+        android:theme="@style/AppTheme">
 
         <!-- API key for the Android Maps API v2. The value is defined as a string resource. -->
         <meta-data android:name="com.google.android.geo.API_KEY"

@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -88,6 +89,22 @@ public class MenuFragment extends Fragment {
         mainActivity = ((MainActivity) getActivity());
     }
 
+    private final RecyclerView.OnItemTouchListener mTouchListener = new RecyclerView.OnItemTouchListener() {
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            mainActivity.mDetector.onTouchEvent(e);
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        }
+    };
+
     private void initList() {
         Log.d(TAG, "initList: ");
 
@@ -114,6 +131,8 @@ public class MenuFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(mainActivity.getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+        mRecyclerView.addOnItemTouchListener(mTouchListener);
+
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(mainActivity.getApplicationContext(),
                         new RecyclerItemClickListener.OnItemClickListener() {
@@ -128,6 +147,7 @@ public class MenuFragment extends Fragment {
                     }
                 })
         );
+
 
         changeCurrentMenuIndex(menuIndex);
     }
@@ -170,6 +190,7 @@ public class MenuFragment extends Fragment {
 
         save_preferences();
     }
+
 
     boolean exit_pressed = false;
 
