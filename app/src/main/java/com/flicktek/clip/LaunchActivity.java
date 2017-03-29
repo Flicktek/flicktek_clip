@@ -48,6 +48,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.clip.dfu.DfuCheckActivity;
 import com.flicktek.clip.dropbox.Dropbox;
 import com.flicktek.clip.notifications.NotificationMonitor;
 import com.flicktek.clip.wearable.WearListenerService;
@@ -695,7 +696,9 @@ public class LaunchActivity extends Activity implements
 
     public void onStartDfuActivityClick(View view) {
         Log.v(TAG, "Launch dfu");
-        Intent startIntent = new Intent(this, FeaturesActivity.class);
+        //Intent startIntent = new Intent(this, FeaturesActivity.class);
+        Intent startIntent = new Intent(this, DfuCheckActivity.class);
+
         Bundle bundle = new Bundle();
         bundle.putString("json", "menu_connectivity");
         startIntent.putExtras(bundle);

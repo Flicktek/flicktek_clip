@@ -360,8 +360,8 @@ public class MainActivity extends WearableActivity implements UARTCommandsAdapte
                 try {
                     // --- Battery layouts and display ---
                     mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
-                    mDismissOverlay.setIntroText(R.string.long_press_intro);
-                    mDismissOverlay.showIntroIfNecessary();
+                    //mDismissOverlay.setIntroText(R.string.long_press_intro);
+                    //mDismissOverlay.showIntroIfNecessary();
 
                     Bundle extras = getIntent().getExtras();
                     if (extras != null) {

@@ -29,6 +29,7 @@
 	<style name="HeaderShadow">
 		<item name="android:foreground">@drawable/action_bar_shadow</item>
 		<item name="foreground">@drawable/action_bar_shadow</item>
+		<item name="android:background">@color/backgroundColor</item>
 	</style>
 
 	<!-- Style used by the Toolbar -->
@@ -124,8 +125,11 @@
 	</style>
 
 	<style name="AppTheme" parent="@style/AppThemeBase">
-		<item name="android:selectableItemBackground">@drawable/abc_item_background_holo_light
-		</item>
+		<item name="android:selectableItemBackground">@drawable/abc_item_background_holo_light</item>
+	</style>
+
+	<style name="AppThemeSettings" parent="@style/AppThemeBase">
+		<item name="android:background">@color/lightGray</item>
 	</style>
 
 	<style name="AppTheme.TranslucentStatusBar">

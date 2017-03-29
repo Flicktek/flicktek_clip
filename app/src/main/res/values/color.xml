@@ -34,6 +34,7 @@
     <color name="actionBarMenuTextColor">#FFFFFF</color>
     
     <color name="darkGray">#AAABAF</color>
+    <color name="lightGray">#F6F6F6</color>
 
     <color name="bg1">#F6F6F6</color>
     <color name="bg2">#3f69b2</color>

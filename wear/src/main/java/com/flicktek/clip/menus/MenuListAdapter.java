@@ -167,7 +167,8 @@ public class MenuListAdapter extends ArrayAdapter<AppModel> {
             holder.textView.setTextColor(Color.WHITE);
             holder.textViewSmall.setTextColor(Color.WHITE);
 
-            int color = Color.parseColor("#AE6118");
+            //int color = Color.parseColor("#AE6118");
+            int color = Color.parseColor("#FFFFFF");
             imageIcon.setColorFilter(color);
         }
 

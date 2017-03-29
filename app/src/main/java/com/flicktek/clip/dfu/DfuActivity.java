@@ -677,7 +677,7 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 		final boolean keepBond = preferences.getBoolean(SettingsFragment.SETTINGS_KEEP_BOND, false);
 		final boolean forceDfu = preferences.getBoolean(SettingsFragment.SETTINGS_ASSUME_DFU_NODE, true);
 		boolean enablePRNs = preferences.getBoolean(SettingsFragment.SETTINGS_PACKET_RECEIPT_NOTIFICATION_ENABLED, Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
-		String value = preferences.getString(SettingsFragment.SETTINGS_NUMBER_OF_PACKETS, String.valueOf(DfuServiceInitiator.DEFAULT_PRN_VALUE));
+		String value = preferences.getString(SettingsFragment.SETTINGS_NUMBER_OF_PACKETS, String.valueOf(4));
 		int numberOfPackets;
 		try {
 			numberOfPackets = Integer.parseInt(value);
@@ -685,13 +685,17 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 			numberOfPackets = DfuServiceInitiator.DEFAULT_PRN_VALUE;
 		}
 
+		// This doesn't work on the version of the firmware we have v132
+		//numberOfPackets = 4;
+		//enablePRNs = true;
+
 		final DfuServiceInitiator starter = new DfuServiceInitiator(mSelectedDevice.getAddress())
 				.setDeviceName(mSelectedDevice.getName())
 				.setKeepBond(keepBond)
 				.setForceDfu(forceDfu)
 				.setPacketsReceiptNotificationsEnabled(enablePRNs)
 				.setPacketsReceiptNotificationsValue(numberOfPackets)
-				.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true);
+				.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(false);
 		if (mFileType == DfuService.TYPE_AUTO)
 			starter.setZip(mFileStreamUri, mFilePath);
 		else {
@@ -726,6 +730,7 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 		mSelectedDevice = device;
 		mUploadButton.setEnabled(mStatusOk);
 		mDeviceNameView.setText(name != null ? name : getString(R.string.not_available));
+		mDeviceNameView.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -746,8 +751,9 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 	}
 
 	private void onTransferCompleted() {
-		clearUI(true);
+		clearUI(false);
 		showToast(R.string.dfu_success);
+		mStatusOk = true;
 	}
 
 	public void onUploadCanceled() {

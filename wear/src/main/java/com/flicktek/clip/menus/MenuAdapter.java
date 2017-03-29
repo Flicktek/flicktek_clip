@@ -85,7 +85,8 @@ public class MenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             n_sel.mTextViewSmall.setTypeface(mainFont);
             n_sel.mTextViewSmall.setTextColor(Color.WHITE);
 
-            color = Color.parseColor("#AE6118");
+            //color = Color.parseColor("#AE6118");
+            color = Color.parseColor("#FFFFFF");
             n_sel.mImageView = (ImageView) view.findViewById(R.id.iv_item_icon);
             n_sel.mImageView.setColorFilter(color);
 
@@ -299,11 +300,10 @@ public class MenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.itemView.setSelected(selectedItem == position);
 
         String data = item.getDataKey();
-        if (data != null) {
-            String info = FlicktekSettings.getInstance().getString(data, "Not Available");
-            n_active.mTextViewSmall.setVisibility(View.VISIBLE);
-            n_active.mTextViewSmall.setText(info);
-        }
+        String info = null;
+
+        if (data != null)
+            info = FlicktekSettings.getInstance().getString(data, "");
 
         if (item.isSelected()) {
             n_active.mRelativeLayout.setVisibility(View.GONE);
@@ -320,6 +320,11 @@ public class MenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             int color = Color.parseColor("#000000");
             selected.mImageView.setColorFilter(color);
 
+            if (info != null) {
+                selected.mTextViewSmall.setVisibility(View.VISIBLE);
+                selected.mTextViewSmall.setText(info);
+            }
+
         } else {
             selected.mRelativeLayout.setVisibility(View.GONE);
 
@@ -332,7 +337,13 @@ public class MenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 n_active.mImageView.setImageResource(android.R.color.transparent);
             }
 
-            int color = Color.parseColor("#AE6118");
+            if (info != null) {
+                n_active.mTextViewSmall.setVisibility(View.VISIBLE);
+                n_active.mTextViewSmall.setText(info);
+            }
+
+            //int color = Color.parseColor("#AE6118");
+            int color = Color.parseColor("#FFFFFF");
             n_active.mImageView.setColorFilter(color);
         }
     }

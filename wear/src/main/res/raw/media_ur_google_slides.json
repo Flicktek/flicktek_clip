@@ -25,7 +25,7 @@
       "package": "android",
       "drawable": "ic_media_play",
       "intent": "unified",
-      "uri": "ur://intent/remote:Unified.GoogleSlides/action:start_show",
+      "uri": "ur://intent/remote:Unified.GoogleSlides/action:show_start",
       "onGesture": "enter",
       "target": "phone"
     },

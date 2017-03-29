@@ -26,9 +26,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
-
-import com.flicktek.clip.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -106,6 +103,7 @@ public class FileHelper {
 		*/
 
 		// Scripts
+		/*
 		newCopied = false;
 		f = new File(root, "dfu_3_1.bat");
 		if (!f.exists()) {
@@ -126,6 +124,7 @@ public class FileHelper {
 			Toast.makeText(context, R.string.dfu_scripts_created, Toast.LENGTH_SHORT).show();
 
 		// Save the current version
+		*/
 		preferences.edit().putInt(PREFS_SAMPLES_VERSION, CURRENT_SAMPLES_VERSION).apply();
 	}
 

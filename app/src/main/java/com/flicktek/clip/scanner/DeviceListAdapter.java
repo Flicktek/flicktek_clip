@@ -62,7 +62,7 @@ public class DeviceListAdapter extends BaseAdapter {
     public void addBondedDevices(final Set<BluetoothDevice> devices) {
         final List<ExtendedBluetoothDevice> bondedDevices = mListBondedValues;
         for (BluetoothDevice device : devices) {
-            if (device.getName()!= null && (device.getName().startsWith("Flick") || device.getName().startsWith("Dfu")))
+            if (device.getName() != null && (device.getName().startsWith("Flick") || device.getName().startsWith("Dfu")))
                 bondedDevices.add(new ExtendedBluetoothDevice(device));
         }
         notifyDataSetChanged();
@@ -81,7 +81,8 @@ public class DeviceListAdapter extends BaseAdapter {
                 if (name != null && (name.startsWith("Flick") || name.startsWith("Aria") || name.startsWith("Dfu"))) {
                     final ExtendedBluetoothDevice device = findDevice(result);
                     if (device == null) {
-                        mListValues.add(new ExtendedBluetoothDevice(result));
+                        ExtendedBluetoothDevice extended = new ExtendedBluetoothDevice(result);
+                        mListValues.add(extended);
                     } else {
                         device.name = result.getScanRecord() != null ? result.getScanRecord().getDeviceName() : null;
                         device.rssi = result.getRssi();
@@ -194,6 +195,8 @@ public class DeviceListAdapter extends BaseAdapter {
                     final ViewHolder holder = new ViewHolder();
                     holder.name = (TextView) view.findViewById(R.id.name);
                     holder.address = (TextView) view.findViewById(R.id.address);
+                    holder.version = (TextView) view.findViewById(R.id.version);
+
                     holder.rssi = (ImageView) view.findViewById(R.id.rssi);
                     view.setTag(holder);
                 }
@@ -203,6 +206,13 @@ public class DeviceListAdapter extends BaseAdapter {
                 final String name = device.name;
                 holder.name.setText(name != null ? name : mContext.getString(R.string.not_available));
                 holder.address.setText(device.device.getAddress());
+
+                final String version = device.firmware_version;
+                if (version != null && !version.isEmpty()) {
+                    holder.version.setVisibility(View.VISIBLE);
+                    holder.version.setText(version);
+                }
+
                 if (!device.isBonded || device.rssi != ExtendedBluetoothDevice.NO_RSSI) {
                     final int rssiPercent = (int) (100.0f * (127.0f + device.rssi) / (127.0f + 20.0f));
                     holder.rssi.setImageLevel(rssiPercent);
@@ -219,6 +229,7 @@ public class DeviceListAdapter extends BaseAdapter {
     private class ViewHolder {
         private TextView name;
         private TextView address;
+        private TextView version;
         private ImageView rssi;
     }
 }

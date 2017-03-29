@@ -2,12 +2,12 @@
   "back_button": true,
   "menu_items": [
     {
-      "text": "Application Revision",
+      "text": "App Version",
       "drawable": "ic_adjust_black_48dp",
       "data": "application_version"
     },
     {
-      "text": "Application Revision",
+      "text": "App Revision",
       "drawable": "ic_adjust_black_48dp",
       "data": "application_revision"
     },

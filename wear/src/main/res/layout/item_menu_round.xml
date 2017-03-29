@@ -37,7 +37,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
 
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="17dp"
             android:layout_toEndOf="@id/iv_item_icon"
             android:orientation="vertical">
 
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:text="text text 2"
                 android:textColor="#ffffff"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 android:visibility="gone">
             </TextView>
 
@@ -89,11 +89,11 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentLeft="true"
             android:layout_gravity="center_vertical"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="0dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
 
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="17dp"
             android:layout_toEndOf="@id/iv_item_icon_selected"
             android:orientation="vertical">
 
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:text="text text 2"
                 android:textColor="#ffffff"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 android:visibility="gone">
             </TextView>
 

@@ -45,7 +45,7 @@
 			android:layout_marginLeft="@dimen/dfu_feature_title_long_margin"
 			android:rotation="270"
 			android:text="@string/dfu_feature_title_long"
-			android:textColor="@color/darkGray"
+			android:textColor="@color/white"
 			android:textSize="32dp"
 			android:textStyle="bold"/>
 
@@ -60,13 +60,15 @@
 			android:maxLines="1"
 			android:text="@string/dfu_default_name"
 			android:textAllCaps="true"
+			android:textColor="@color/white"
 			android:textAppearance="?android:attr/textAppearanceLarge"/>
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:gravity="center_horizontal"
-			android:orientation="vertical">
+			android:orientation="vertical"
+			android:weightSum="1">
 
 			<!-- Application section -->
 
@@ -199,7 +201,8 @@
 				android:layout_marginLeft="@dimen/feature_horizontal_margin"
 				android:layout_marginRight="@dimen/feature_horizontal_margin"
 				android:layout_marginTop="15dp"
-				android:orientation="vertical">
+				android:orientation="vertical"
+				android:layout_weight="0.05">
 
 				<com.flicktek.clip.widget.TrebuchetBoldTextView
 					style="@style/Widget.ListTitle"

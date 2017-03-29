@@ -43,14 +43,13 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AlphabetIndexer;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.QuickContactBadge;
 import android.widget.SectionIndexer;
@@ -231,6 +230,13 @@ public class ContactsListFragment extends ListFragment implements
         // created in onCreate().
         setListAdapter(mAdapter);
         lvMenu = getListView();
+
+        lvMenu.setOnTouchListener(new View.OnTouchListener(){
+            public boolean onTouch(View v, MotionEvent event){
+                mainActivity.mDetector.onTouchEvent(event);
+                return false;
+            }
+        });
 
         lvMenu.setOnItemClickListener(this);
         lvMenu.setOnScrollListener(new AbsListView.OnScrollListener() {
