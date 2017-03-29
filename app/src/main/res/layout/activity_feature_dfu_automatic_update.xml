@@ -36,7 +36,7 @@
     <!-- The size of text below must be fixed, therefore dp are used instead of sp -->
 
     <LinearLayout
-        android:layout_width="600dp"
+        android:layout_width="480dp"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"

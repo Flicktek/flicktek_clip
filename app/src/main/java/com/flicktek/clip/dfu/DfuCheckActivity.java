@@ -394,11 +394,13 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 	private void onTransferCompleted() {
 		clearUI(false);
 		showToast(R.string.dfu_success);
+		mTextUploading.setText("Transfer completed!");
 	}
 
 	public void onUploadCanceled() {
 		clearUI(false);
 		showToast(R.string.dfu_aborted);
+		mTextUploading.setText("Cancelled!");
 	}
 
 	@Override
@@ -412,19 +414,19 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 		clearUI(false);
 		showToast("Upload failed: " + message);
 		mUploadButton.setEnabled(true);
-		mDeviceNameView.setText("Failed");
+		mDeviceNameView.setText(message);
 	}
 
 	private void clearUI(final boolean clearDevice) {
 		mProgressBar.setVisibility(View.INVISIBLE);
 		mTextPercentage.setVisibility(View.INVISIBLE);
-		mTextUploading.setVisibility(View.INVISIBLE);
+		//mTextUploading.setVisibility(View.INVISIBLE);
 		mUploadButton.setEnabled(true);
 		mUploadButton.setText(R.string.dfu_action_upload);
 		if (clearDevice) {
 			mSelectedDevice = null;
-			mDeviceNameView.setText(R.string.dfu_default_name);
 		}
+		mDeviceNameView.setText(R.string.dfu_default_name);
 	}
 
 	private void showToast(final int messageResId) {
