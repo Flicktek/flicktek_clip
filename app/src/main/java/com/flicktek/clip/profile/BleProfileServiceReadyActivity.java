@@ -479,7 +479,7 @@ public abstract class BleProfileServiceReadyActivity<E extends BleProfileService
 	}
 
 	@Override
-	public void onDeviceSelected(final BluetoothDevice device, final String name) {
+	public void onDeviceSelected(final BluetoothDevice device, final String name, final String version) {
 		final int titleId = getLoggerProfileTitle();
 		if (titleId > 0) {
 			mLogSession = Logger.newSession(getApplicationContext(), getString(titleId), device.getAddress(), name);

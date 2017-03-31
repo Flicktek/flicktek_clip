@@ -52,7 +52,7 @@ public class DfuInitiatorActivity extends AppCompatActivity implements ScannerFr
 	}
 
 	@Override
-	public void onDeviceSelected(final BluetoothDevice device, final String name) {
+	public void onDeviceSelected(final BluetoothDevice device, final String name, final String version) {
 		final Intent intent = getIntent();
 		final String overwrittenName = intent.getStringExtra(DfuService.EXTRA_DEVICE_NAME);
 		final String path = intent.getStringExtra(DfuService.EXTRA_FILE_PATH);

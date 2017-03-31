@@ -1,5 +1,8 @@
 <resources>
     <!-- Base application theme. -->
+    <style name="ScannerAppTheme" parent="@android:style/Theme.DeviceDefault.Light">
+    </style>
+
     <style name="AppTheme" parent="@android:style/Theme.DeviceDefault.Light">
         <item name="android:windowSwipeToDismiss">false</item>
     </style>

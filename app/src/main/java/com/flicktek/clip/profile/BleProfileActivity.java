@@ -39,15 +39,16 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flicktek.clip.AppHelpFragment;
+import com.flicktek.clip.R;
+import com.flicktek.clip.scanner.ScannerFragment;
+import com.flicktek.clip.utility.DebugLogger;
+
 import java.util.UUID;
 
 import no.nordicsemi.android.log.ILogSession;
 import no.nordicsemi.android.log.LocalLogSession;
 import no.nordicsemi.android.log.Logger;
-import com.flicktek.clip.AppHelpFragment;
-import com.flicktek.clip.R;
-import com.flicktek.clip.scanner.ScannerFragment;
-import com.flicktek.clip.utility.DebugLogger;
 
 public abstract class BleProfileActivity extends AppCompatActivity implements BleManagerCallbacks, ScannerFragment.OnDeviceSelectedListener {
 	private static final String TAG = "BaseProfileActivity";
@@ -227,7 +228,7 @@ public abstract class BleProfileActivity extends AppCompatActivity implements Bl
 	}
 
 	@Override
-	public void onDeviceSelected(final BluetoothDevice device, final String name) {
+	public void onDeviceSelected(final BluetoothDevice device, final String name, final String version) {
 		final int titleId = getLoggerProfileTitle();
 		if (titleId > 0) {
 			mLogSession = Logger.newSession(getApplicationContext(), getString(titleId), device.getAddress(), name);

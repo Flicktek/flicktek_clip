@@ -43,6 +43,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.flicktek.clip.AppHelpFragment;
+import com.flicktek.clip.R;
+import com.flicktek.clip.profile.BleManagerCallbacks;
+import com.flicktek.clip.scanner.ScannerFragment;
+import com.flicktek.clip.utility.DebugLogger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,11 +58,6 @@ import no.nordicsemi.android.log.ILogSession;
 import no.nordicsemi.android.log.LocalLogSession;
 import no.nordicsemi.android.log.LogContract;
 import no.nordicsemi.android.log.Logger;
-import com.flicktek.clip.AppHelpFragment;
-import com.flicktek.clip.R;
-import com.flicktek.clip.profile.BleManagerCallbacks;
-import com.flicktek.clip.scanner.ScannerFragment;
-import com.flicktek.clip.utility.DebugLogger;
 
 /**
  * <p>
@@ -383,7 +384,7 @@ public abstract class BleMulticonnectProfileServiceReadyActivity<E extends BleMu
 	}
 
 	@Override
-	public void onDeviceSelected(final BluetoothDevice device, final String name) {
+	public void onDeviceSelected(final BluetoothDevice device, final String name, final String Version) {
 		final int titleId = getLoggerProfileTitle();
 		ILogSession logSession = null;
 		if (titleId > 0) {

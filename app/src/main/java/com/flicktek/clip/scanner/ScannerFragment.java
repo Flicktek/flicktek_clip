@@ -104,7 +104,7 @@ public class ScannerFragment extends DialogFragment {
          * @param name   the device name. Unfortunately on some devices {@link BluetoothDevice#getName()} always returns <code>null</code>, f.e. Sony Xperia Z1 (C6903) with Android 4.3. The name has to
          *               be parsed manually form the Advertisement packet.
          */
-        void onDeviceSelected(final BluetoothDevice device, final String name);
+        void onDeviceSelected(final BluetoothDevice device, final String name, final String version);
 
         /**
          * Fired when scanner dialog has been cancelled without selecting a device.
@@ -162,7 +162,7 @@ public class ScannerFragment extends DialogFragment {
                 stopScan();
                 dialog.dismiss();
                 final ExtendedBluetoothDevice d = (ExtendedBluetoothDevice) mAdapter.getItem(position);
-                mListener.onDeviceSelected(d.device, d.name);
+                mListener.onDeviceSelected(d.device, d.name, d.firmware_version);
             }
         });
 

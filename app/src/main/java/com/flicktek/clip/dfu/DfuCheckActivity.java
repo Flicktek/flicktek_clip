@@ -84,6 +84,9 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 	private static final int ENABLE_BT_REQ = 0;
 
 	private TextView mDeviceNameView;
+	private TextView mDeviceFirmwareView;
+	private TextView mInstallVersionView;
+
 	private TextView mTextPercentage;
 	private TextView mTextUploading;
 	private ProgressBar mProgressBar;
@@ -222,6 +225,11 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 		toolbar.setVisibility(View.GONE);
 
 		mDeviceNameView = (TextView) findViewById(R.id.device_name);
+		mInstallVersionView = (TextView) findViewById(R.id.install_firmware_version);
+		mInstallVersionView.setText(FIRMWARE_VERSION);
+
+		mDeviceFirmwareView = (TextView) findViewById(R.id.device_firmware_version);
+
 
 		mUploadButton = (Button) findViewById(R.id.action_upload);
 		mUploadButton.setEnabled(true);
@@ -234,6 +242,7 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 		if (isDfuServiceRunning()) {
 			// Restore image file information
 			mDeviceNameView.setText(preferences.getString(PREFS_DEVICE_NAME, ""));
+			mDeviceFirmwareView.setText("Version N/A");
 			showProgressBar();
 		}
 	}
@@ -369,10 +378,12 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 	}
 
 	@Override
-	public void onDeviceSelected(final BluetoothDevice device, final String name) {
+	public void onDeviceSelected(final BluetoothDevice device, final String name, final String version) {
 		mSelectedDevice = device;
 		mDeviceNameView.setText(name != null ? name : getString(R.string.not_available));
 		mDeviceNameView.setVisibility(View.VISIBLE);
+
+		mDeviceFirmwareView.setText(version);
 		onUpload();
 	}
 
@@ -393,13 +404,13 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 
 	private void onTransferCompleted() {
 		clearUI(false);
-		showToast(R.string.dfu_success);
+		//showToast(R.string.dfu_success);
 		mTextUploading.setText("Transfer completed!");
 	}
 
 	public void onUploadCanceled() {
 		clearUI(false);
-		showToast(R.string.dfu_aborted);
+		//showToast(R.string.dfu_aborted);
 		mTextUploading.setText("Cancelled!");
 	}
 
@@ -412,21 +423,20 @@ public class DfuCheckActivity extends AppCompatActivity implements ScannerFragme
 
 	private void showErrorMessage(final String message) {
 		clearUI(false);
-		showToast("Upload failed: " + message);
+		//showToast("Upload failed: " + message);
 		mUploadButton.setEnabled(true);
-		mDeviceNameView.setText(message);
+		mTextUploading.setText("Failed " + message);
 	}
 
 	private void clearUI(final boolean clearDevice) {
 		mProgressBar.setVisibility(View.INVISIBLE);
 		mTextPercentage.setVisibility(View.INVISIBLE);
-		//mTextUploading.setVisibility(View.INVISIBLE);
 		mUploadButton.setEnabled(true);
 		mUploadButton.setText(R.string.dfu_action_upload);
 		if (clearDevice) {
 			mSelectedDevice = null;
 		}
-		mDeviceNameView.setText(R.string.dfu_default_name);
+		//mDeviceNameView.setText(R.string.dfu_default_name);
 	}
 
 	private void showToast(final int messageResId) {

@@ -8,8 +8,8 @@ android {
         applicationId "com.flicktek.clip"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 160
-        versionName "1.6.0 Demo"
+        versionCode 165
+        versionName "1.6.5 Demo"
     }
     buildTypes {
         release {

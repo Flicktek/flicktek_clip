@@ -726,7 +726,7 @@ public class DfuActivity extends AppCompatActivity implements LoaderCallbacks<Cu
 	}
 
 	@Override
-	public void onDeviceSelected(final BluetoothDevice device, final String name) {
+	public void onDeviceSelected(final BluetoothDevice device, final String name, final String version) {
 		mSelectedDevice = device;
 		mUploadButton.setEnabled(mStatusOk);
 		mDeviceNameView.setText(name != null ? name : getString(R.string.not_available));

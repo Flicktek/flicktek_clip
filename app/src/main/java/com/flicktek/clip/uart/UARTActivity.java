@@ -275,9 +275,9 @@ public class UARTActivity extends BleProfileServiceReadyActivity<UARTService.UAR
 	}
 
 	@Override
-	public void onDeviceSelected(final BluetoothDevice device, final String name) {
+	public void onDeviceSelected(final BluetoothDevice device, final String name, final String version) {
 		// The super method starts the service
-		super.onDeviceSelected(device, name);
+		super.onDeviceSelected(device, name, version);
 
 		// Notify the log fragment about it
 		final UARTLogFragment logFragment = (UARTLogFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_log);
