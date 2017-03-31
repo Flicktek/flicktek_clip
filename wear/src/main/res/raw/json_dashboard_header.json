@@ -61,10 +61,10 @@
       "class": "menus.maps.MapsFragment"
     },
     {
-      "text": "Apps",
-      "drawable": "ic_apps_black_48dp",
+      "text": "Test",
+      "drawable": "ic_gesture_black_48dp",
       "target": "fragment_class",
-      "class": "AppsSystem"
+      "class": "menus.demos.AnimatedGestures"
     },
     {
       "text": "Notifications",
@@ -77,6 +77,12 @@
       "drawable": "ic_devices_other_black_48dp",
       "target": "fragment_class",
       "json": "PlaceHolder"
+    },
+    {
+      "text": "Apps",
+      "drawable": "ic_apps_black_48dp",
+      "target": "fragment_class",
+      "class": "AppsSystem"
     },
     {
       "text": "About",

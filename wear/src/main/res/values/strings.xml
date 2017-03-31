@@ -86,4 +86,12 @@
     <string name="service_name">NotificationService</string>
     <string name="exit_text">Close map</string>
     <string name="long_press_intro">Long press to exit</string>
+
+    <string name="enter">ENTER</string>
+    <string name="home">HOME</string>
+    <string name="up">UP</string>
+    <string name="down">DOWN</string>
+    <string name="empty"/>
+    <string name="perform_gesture">Perform a gesture</string>
+
 </resources>
